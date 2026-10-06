@@ -38,7 +38,7 @@ Questo questionario serve a condurre una sessione strutturata di elicitazione de
 
 ## 3\. Preparazione dell'Intervento / Kit Lavoro (Core Use Case)
 
-* **D3.1:** Come si intende comporre la lista del materiale necessario per un determinato lavoro?  
+* **D3.1:** Come si intende redigere la lista del materiale necessario per un determinato lavoro?  
     
   - [ ] Selezionando prodotti da un catalogo esistente  
   - [ ] Inserendo codice rapido e quantità  
