@@ -6,6 +6,8 @@ Corso di Ingegneria del Software, A.A. 2026/27
 | Versione | Data | Modifiche |
 |---|---|---|
 | 0.1.0 | 11/10/2026 | Versione iniziale |
+| 0.1.1 | 12/10/2026 | Miglioramento della formattazione |
+
 
 > **Stato:** da validare con il cliente e con il team. I requisiti contrassegnati con † o ‡ (vedi 1.6) derivano da informazioni parziali o non confermate dal cliente e potrebbero cambiare.
 
@@ -37,11 +39,11 @@ Corso di Ingegneria del Software, A.A. 2026/27
 
 ### 1.1 Scopo del documento
 
-Questo documento specifica i requisiti del software **MPlan**, in forma ispirata allo standard IEEE 830 (distinzione tra requisiti funzionali, di interfaccia, non funzionali e vincoli di progetto) e con il formato dei requisiti del documento di riferimento fornito dal docente (*Mechanical Lung Ventilator – Software Requirements Specification*). Si rivolge al team di sviluppo, al docente e al cliente.
+Questo documento specifica i requisiti del software **MPlan**, in forma ispirata allo standard IEEE 830 (distinzione tra requisiti funzionali, di interfaccia, non funzionali e vincoli di progetto) e con il formato dei requisiti del documento di riferimento fornito dal docente (*[Mechanical Lung Ventilator – Software Requirements Specification](https://github.com/foselab/abz2024_casestudy_MLV/blob/main/Mechanical_Lung_Ventilator%201_5.pdf)*). Si rivolge al team di sviluppo, al docente e al cliente.
 
 ### 1.2 Ambito del prodotto
 
-MPlan è un'applicazione per tenere traccia dei **clienti e dei cantieri** di un professionista che esegue interventi presso terzi, e di tutte le **attività** svolte per ciascuno di essi. Permette di registrare cosa è stato fatto, cosa resta da fare e quali materiali servono per le visite successive, di consultare lo storico per contatto e di visualizzare un calendario generale delle attività.
+MPlan è un'applicazione per tenere traccia dei **clienti e dei cantieri** di MP Elettric S.a.s., società che svolge interventi elettrici presso terzi, e di tutte le **attività** svolte per ciascuno di essi. Permette di registrare cosa è stato fatto, cosa resta da fare e quali materiali servono per le visite successive, di consultare lo storico per contatto e di visualizzare un calendario generale delle attività.
 
 **Rientra nella prima versione (v1):**
 - anagrafica di clienti e cantieri;
@@ -51,6 +53,13 @@ MPlan è un'applicazione per tenere traccia dei **clienti e dei cantieri** di un
 - funzionamento su PC (Windows), mono-utente e senza accesso.
 
 **Non rientra nella v1** (vedi sezione 7): gestione di magazzino, giacenze, soglie minime e costi dei materiali; utenti multipli, ruoli e utente master; versione mobile; accesso da più dispositivi; autenticazione.
+
+| ID | Obiettivo | Fonte | Requisiti |
+|---|---|---|---|
+| OB.1 | Sapere per ogni cliente cosa è stato fatto e cosa resta | D1.2 | FUN.4, FUN.5.1, FUN.6, FUN.8, FUN.9, FUN.10 |
+| OB.2 | Riassumere il lavoro della giornata | D1.2 | FUN.11, FUN.11.1, GUI.7 |
+| OB.3 | Preparare i materiali per il giorno dopo | D1.2, D4.2† | FUN.8, FUN.8.1, FUN.8.2 |
+| OB.4 | Ritrovare a fine mese gli interventi per la fatturazione | D1.2, D5.2 | FUN.1.1, FUN.9, FUN.9.1, FUN.10.1, GUI.4 |
 
 ### 1.3 Definizioni e abbreviazioni
 
@@ -78,10 +87,10 @@ MPlan è un'applicazione per tenere traccia dei **clienti e dei cantieri** di un
 
 ### 1.4 Riferimenti
 
-- *Requisiti per il progetto di ingegneria del software, A.A. 2026/27*, v1.0.0 (A. Gargantini, S. Bonfanti).
-- S. Bonfanti, A. Gargantini, *Mechanical Lung Ventilator – Software Requirements Specification for ABZ 2024 case study*, v1.5, dicembre 2023 (documento di riferimento per lo schema).
+- [*Requisiti per il progetto di ingegneria del software, A.A. 2026/27*, v1.0.0 (A. Gargantini, S. Bonfanti)](../reference/requisiti_progetto.pdf).
+- [S. Bonfanti, A. Gargantini, *Mechanical Lung Ventilator – Software Requirements Specification, v1.5, dicembre 2023](https://github.com/foselab/abz2024_casestudy_MLV/blob/main/Mechanical_Lung_Ventilator%201_5.pdf)* (documento di riferimento per lo schema).
 - IEEE Std 830-1998, *Recommended Practice for Software Requirements Specifications*.
-- Intervista di elicitazione del 08/10/2026: `intervista-01-domande.md`, `intervista-02-domande-risposte.md`, `intervista-03-riassunto-esigenze-cliente.md`.
+- Intervista di elicitazione del 08/10/2026: [intervista-01-domande-risposte.md](../client/intervista-01-domande-risposte.md), [intervista-01-riassunto-esigenze-cliente.md](../client/intervista-01-riassunto-esigenze-cliente.md) e [BozzaInterfacciaCliente](../client/BozzaInterfacciaCliente.jpeg).
 
 ### 1.5 Struttura del documento
 
@@ -135,7 +144,7 @@ I codici sono una convenzione di questo progetto. Alcuni derivano da quelli del 
 
 | Fonte | Significato |
 |---|---|
-| `Dx.y` | Domanda dell'intervista (`intervista-02-domande-risposte.md`) |
+| `Dx.y` | Domanda dell'intervista ([intervista-01-domande-risposte.md](../client/intervista-01-domande-risposte.md)) |
 | `Reg.` | Regolamento del progetto del docente |
 | `Team` | Decisione del team di sviluppo |
 | `Impl.` | Requisito implicito, necessario per rendere coerenti quelli emersi |
@@ -155,15 +164,14 @@ I requisiti sono stati raccolti con un'**intervista strutturata** al cliente, co
 
 | File | Contenuto |
 |---|---|
-| `intervista-01-domande.md` | Elenco delle domande, per tema |
-| `intervista-02-domande-risposte.md` | Domande e risposte, con stato di ogni risposta |
-| `intervista-03-riassunto-esigenze-cliente.md` | Riassunto di ciò che vuole il cliente, decisioni del team e punti aperti |
+| [intervista-01-domande-risposte.md](../client/intervista-01-domande-risposte.md) | Domande e risposte, con stato di ogni risposta |
+| [intervista-01-riassunto-esigenze-cliente.md](../client/intervista-01-riassunto-esigenze-cliente.md) | Riassunto di ciò che vuole il cliente, decisioni del team e punti aperti |
 
 ### 2.3 Limiti e come sono stati gestiti
 
 - Per alcune parti dell'intervista le informazioni disponibili sono incomplete; sono state integrate con gli appunti del team.
 - Ogni risposta ha uno stato: **EMERSO**, **PARZIALE**, **PROPOSTA** o **NON EMERSO**. Nei requisiti i simboli † e ‡ ne segnalano le conseguenze (vedi 1.6).
-- Durante l'intervista alcune richieste sono **cambiate**: il calendario è stato chiesto, poi giudicato non indispensabile, poi di nuovo richiesto nella versione finale. Nella specifica vale l'ultima versione.
+- Durante l'intervista alcune richieste sono **cambiate**: il calendario è stato chiesto, poi giudicato non indispensabile, poi di nuovo richiesto nella versione finale. Nella specifica vale l'ultima versione adottata provvisoriamente, da validare con prototipo.
 - Alcuni temi **non sono emersi** (costi, magazzino, giacenze, soglie): non diventano requisiti. Sono elencati nella sezione 7.
 
 ### 2.4 Decisioni del team che modificano il perimetro emerso
@@ -209,7 +217,9 @@ flowchart LR
 
 ### 3.3 Utenti
 
-Nella v1 l'applicazione ha un solo tipo di utente, il **professionista** (cliente del progetto), che usa il software da solo su un PC Windows. Il cliente privilegia la semplicità (D9.4†): per questo la semplicità d'uso è un requisito prioritario (NFR.1).
+Nella v1 l'applicazione ha un solo tipo di utente, il professionista di MP elettric s.a.s. (il Committente), che usa il software da solo su un PC Windows 11. L'Utente non ha particolare dimestichezza con la tecnologia: il sistema non deve richiedere conoscenze informatiche e deve ridurre al minimo le informazioni da inserire (D9.4†). Per questo l'usabilità è un requisito prioritario (NFR.1).
+
+Oltre all'Utente sono parti interessate: il Committente (MP elettric s.a.s.), che privilegia la semplicità; il suo team di lavoro, che per ora non usa il sistema ma dovrà accedere ai dati (D8.2†); il docente, che richiede un perimetro adeguato all'impegno del corso. Gli interessi possono divergere: semplicità per il Committente, ampiezza del perimetro per il docente.
 
 ### 3.4 Vincoli generali
 
@@ -309,13 +319,14 @@ Coprono la gestione dei contatti, delle attività, dei materiali, dello storico,
 | FUN.5.1 | Dopo l'intervento l'utente deve poter compilare e aggiornare descrizione e note, anche più volte. | M | D3.3, D3.4 |
 | **FUN.6** | Ogni attività deve avere uno stato tra: *da fare*, *parziale*, *completata*, *annullata*.<br>*Rationale:* il cliente ha citato *completata*, *parziale* e *annullata*; lo stato iniziale *da fare* è stato aggiunto dal team perché ogni attività nasce prima dell'intervento. | M | D3.5†, Impl. |
 | FUN.6.1 | Alla creazione lo stato deve essere *da fare*. | M | Impl. |
-| FUN.6.2 | L'utente deve poter segnare un'attività come *parziale* o *completata*. | M | D3.5† |
+| FUN.6.2 | L'utente deve poter segnare un'attività come *parziale* o *completata*, *completata* non è revocabile. | M | D3.5† |
 | FUN.6.3 | Lo stato *annullata* deve essere definitivo: un'attività annullata non può essere modificata né tornare ad altri stati.<br>*Rationale:* semplifica lo storico; da confermare. | M | Impl. |
 | FUN.6.4 | Le transizioni di stato di un'attività devono seguire il diagramma di Figura 8.1.<br>*Rationale:* il diagramma stabilisce in modo non ambiguo quali cambi di stato sono ammessi. | M | Impl. |
 | **FUN.7** | Un lavoro che dura più giorni deve essere rappresentato da più attività, una per ogni giorno lavorato, associate allo stesso contatto.<br>*Rationale:* il cliente non ha chiesto una funzione di pianificazione di cantiere. | M | D3.6† |
 | **FUN.8** | Il sistema deve permettere di annotare materiali usati, mancanti o necessari come testo libero nelle note dell'attività. | M | D4.1 |
 | FUN.8.1 | La nota su ciò che serve per la visita successiva deve essere scritta nell'attività del giorno stesso, non in quella del giorno dopo. | M | D4.2†, D1.2 |
-| **FUN.9** | Il sistema deve mostrare lo storico di un contatto: l'elenco di tutte le sue attività, ordinate per data.<br>*Rationale:* a fine mese il cliente elenca gli interventi per la fatturazione. | M | D5.1, D5.2, D1.2 |
+| FUN.8.2 | Le note di un'attività devono essere consultabili aprendo l'attività dalla vista giornaliera dei calendari, per preparare i materiali per la visita successiva. | M | D1.2, D4.2† |
+| **FUN.9** | Il sistema deve mostrare lo storico di un contatto, cioè tutte le sue attività, consultabile in forma di calendario<br>*Rationale:* per la fatturazione servono i dati del contatto (FUN.1.1) e le sue attività del mese. | M | D5.1, D5.2, D1.2 |
 | FUN.9.1 | Il sistema deve permettere di consultare le attività di un contatto per giorno e per mese. | M | D5.2, D6.1† |
 | FUN.9.2 | Il sistema deve permettere di consultare le attività di un contatto relative a una settimana.<br>*Rationale:* il cliente vuole vedere cosa è stato fatto per un cliente nella settimana. | M | D5.2 |
 | **FUN.10** | Nella scheda di un contatto lo storico deve essere mostrato in forma di calendario. | M | D5.1 |
@@ -346,7 +357,7 @@ Definiscono attributi, formati e valori ammessi, come i requisiti *PER* (valori 
 | DAT.1.5 | *Codice fiscale*. | Facoltativo; 16 caratteri alfanumerici (persone fisiche) oppure 11 cifre (aziende ed enti) | M | D2.1 |
 | DAT.1.6 | *Partita IVA*. | Facoltativa; 11 cifre | M | D2.1 |
 | DAT.1.7 | *Tipo*: privato oppure azienda. | Facoltativo; nessun valore predefinito | C | D2.3† |
-| DAT.1.8 | Il sistema dovrebbe controllare il formato di codice fiscale e partita IVA quando sono inseriti. | – | S | Impl. |
+| DAT.1.8 | Il sistema dovrebbe controllare il formato di codice fiscale e partita IVA quando sono inseriti. | – | M | Impl. |
 | **DAT.2** | **Attività.** Il sistema deve poter memorizzare per ogni attività gli attributi seguenti. | – | M | D3.1 |
 | DAT.2.1 | *Titolo*. | Testo breve, obbligatorio, massimo 100 caratteri | M | D3.1, D3.3 |
 | DAT.2.2 | *Data*. | Data di calendario, obbligatoria; predefinita: data corrente | M | D3.1, Impl. |
@@ -374,7 +385,7 @@ Le schermate e le transizioni sono schematizzate nella Figura 8.2 (sezione 8). C
 | **GUI.3** | **Form contatto.** Un modulo deve permettere di inserire o modificare i dati di un contatto. | M | D2.1, D2.2; FUN.1, FUN.2 |
 | GUI.3.1 | I campi facoltativi non devono impedire il salvataggio se vuoti. | M | D2.1; FUN.1.2 |
 | **GUI.4** | **Scheda contatto.** In alto devono comparire il nome e i dati principali del contatto e, subito sotto, lo storico delle attività in forma di calendario. | M | D5.1; FUN.9, FUN.10 |
-| GUI.4.1 | La scheda deve offrire l'opzione di creare una nuova attività con descrizione, note, orario e data. | M | D5.1; FUN.4 |
+| GUI.4.1 | La scheda deve offrire l'opzione di creare una nuova attività con titolo, descrizione, note, orario e data. | M | D5.1; FUN.4 |
 | GUI.4.2 | Dal calendario deve essere possibile aprire un'attività per consultarla o, se non annullata, modificarla. | M | Impl.; FUN.5 |
 | **GUI.5** | **Form attività.** Un modulo deve permettere di inserire o modificare titolo, data, orario/slot, descrizione, note e stato. | M | D3.1, D3.2; FUN.4, FUN.5 |
 | GUI.5.1 | Per salvare una nuova attività deve bastare il titolo (FUN.4.2). | M | D3.3; FUN.4.2 |
@@ -385,6 +396,7 @@ Le schermate e le transizioni sono schematizzate nella Figura 8.2 (sezione 8). C
 | GUI.7.2 | Dal calendario generale deve essere possibile aprire un'attività per consultarla o, se non annullata, modificarla. | M | Impl.; FUN.5 |
 | **GUI.8** | Le attività annullate devono essere distinguibili visivamente dalle altre in tutti i calendari. | M | D7.1†; FUN.12.1 |
 | **GUI.9** | Da ogni schermata diversa dalla Home deve essere possibile tornare alla Home, anche passando per le schermate intermedie di Figura 8.2. | M | Impl. |
+| **GUI.10** | L'interfaccia deve essere in italiano e le date devono essere mostrate nel formato gg/mm/aaaa. | M | Impl.; DAT.2.2 |
 
 ### 5.4 Requisiti sulle interfacce (INT)
 
@@ -402,16 +414,15 @@ Descrivono le informazioni e le operazioni che devono poter passare tra le parti
 
 | ID | Requisito / Rationale | Pri. | Fonte |
 |---|---|---|---|
-| **NFR.1** | **Usabilità.** L'applicazione deve essere semplice da usare, con poche informazioni da compilare. La verifica è una prova d'uso con il cliente (sezione 10).<br>*Rationale:* il cliente chiede poche informazioni da scrivere e nessuna complicazione. | M | D9.4† |
-| NFR.1.1 | Creare un'attività deve richiedere pochi passaggi e il solo titolo obbligatorio. | M | D3.3, D9.4† |
-| NFR.1.2 | Le schermate principali (Home, scheda, calendario) dovrebbero essere comprensibili senza istruzioni. | S | D9.4† |
+| **NFR.1** |**Usabilità.** Un utente che non ha mai usato l'applicazione, dopo una presentazione di al massimo 10 minuti, deve riuscire a usare tutte le funzioni autonomamente. **Verifica:** prova d'uso con il cliente (sezione 10).<br>**Rationale:** il cliente chiede poche informazioni da scrivere e nessuna complicazione (D3.3, D9.4). | M | D9.4† |
+| NFR.1.1 | Creare un'attività deve richiedere al massimo 5 interazioni (click, digitazioni e invii) dalla scheda del cliente, con il solo titolo obbligatorio. | M | D3.3, D9.4† |
+| NFR.1.2 | Senza alcuna presentazione, l'Utente deve riuscire a creare un'attività dalla scheda di un contatto entro 1 minuto. | S | D9.4† |
 | **NFR.2** | **Affidabilità.** Dopo ogni operazione di salvataggio i dati dovrebbero essere scritti in modo persistente, così da non perderli in caso di chiusura inattesa.<br>*Rationale:* il lavoro di una giornata non deve andare perso. | S | Team |
-| **NFR.3** | **Prestazioni.** Le operazioni principali non dovrebbero avere ritardi percepibili anche con uno storico di anni.<br>*Rationale:* il cliente vuole consultare la storia per anni (D9.2). | S | Team |
-| NFR.3.1 | Soglia proposta, da verificare nei test: l'apertura di una scheda contatto dovrebbe richiedere meno di 2 secondi con almeno 5000 attività salvate. | S | Team |
+| **NFR.3** | Soglia proposta, da verificare nei test: l'apertura di una scheda contatto dovrebbe richiedere meno di 2 secondi con almeno 5300 attività salvate. | S | Team |
 | **NFR.4** | **Portabilità.** L'applicazione deve funzionare su Windows. | M | D9.1 |
-| **NFR.5** | **Estendibilità.** L'architettura deve separare GUI, logica e persistenza, in modo da poter aggiungere un client mobile e l'accesso da più dispositivi senza riscrivere la logica. | M | D9.1, Team |
+| **NFR.5** | **Estendibilità.** L'architettura deve separare GUI, logica e persistenza,I package della logica applicativa non devono dipendere dai package della GUI. | M | D9.1, Team |
 | **NFR.6** | **Funzionamento offline.** L'applicazione deve funzionare senza connessione a Internet e senza servizi da installare. | M | Reg., D9.2 |
-| **NFR.7** | **Riservatezza.** L'accesso ai dati deve essere riservato al solo team di lavoro del cliente. Nella v1 i dati restano nel database locale del PC dell'utente (A1); strumenti di protezione dell'accesso sono rimandati (FUT.3).<br>*Rationale:* il cliente ha detto che solo il suo team di lavoro deve accedere, senza specificare come né quando. | M | D8.2† |
+| **NFR.7** | **Riservatezza.** L'accesso ai dati deve essere riservato al solo team di lavoro del cliente. Nella v1 i dati restano nel database locale del PC dell'utente (A1); strumenti di protezione dell'accesso sono rimandati (FUT.3). Non devono essere esposti dati in rete.<br>*Rationale:* il cliente ha detto che solo il suo team di lavoro deve accedere, senza specificare come né quando. | M | D8.2† |
 
 ### 5.6 Vincoli (VIN)
 
@@ -427,8 +438,7 @@ Derivano dal regolamento del corso e dalle decisioni del team.
 | **VIN.6** | Lo sviluppo deve usare GitHub con commit di tutti i membri, branch, issue, pull request e code review; il `.gitignore` deve escludere i file generati ma non il `.project`. | M | Reg. |
 | **VIN.7** | La modellazione deve usare StarUML e il progetto StarUML deve essere caricato nel repository. | M | Reg. |
 | **VIN.8** | Nel repository il codice deve essere separato dai documenti (`code/` e `docs/`). | M | Reg., Team |
-| **VIN.9** | Per le evoluzioni future, i servizi devono essere conformi allo standard REST (Spring Boot); un database su cloud o un servizio di autenticazione si può usare solo con Firebase. | M | Reg. |
-| **VIN.10** | Se una futura versione web fosse realizzata (FUT.1), l'interfaccia deve usare JSP, Vaadin oppure servlet JEE. | M | Reg. |
+
 
 ---
 
@@ -454,13 +464,13 @@ La priorità e l'affidabilità della fonte sono indipendenti. Un requisito Must 
 | Tipo | Must | Should | Could | Won't | Totale |
 |---|---|---|---|---|---|
 | FUN – Funzionali | 34 | 1 | 4 | – | 39 |
-| DAT – Dati | 17 | 2 | 1 | – | 20 |
+| DAT – Dati | 18 | 1 | 1 | – | 20 |
 | GUI – Interfaccia | 19 | 1 | – | – | 20 |
 | INT – Interfacce | 4 | 1 | – | – | 5 |
 | NFR – Non funzionali | 6 | 4 | – | – | 10 |
-| VIN – Vincoli | 10 | – | – | – | 10 |
-| FUT – Futuri | – | – | – | 4 | 4 |
-| **Totale** | **90** | **9** | **5** | **4** | **108** |
+| VIN – Vincoli | 8 | – | – | – | 10 |
+| FUT – Futuri | – | – | – | 6 | 6 |
+| **Totale** | **89** | **8** | **7** | **6** | **108** |
 
 ---
 
@@ -474,8 +484,9 @@ La priorità e l'affidabilità della fonte sono indipendenti. Un requisito Must 
 | FUT.2 | Il sistema potrà essere usato da più dispositivi sugli stessi dati. | W | D9.1 |
 | FUT.3 | L'accesso da più dispositivi potrà essere protetto da una password unica generale, da non condividere con estranei al sistema. | W | D8.3‡ |
 | FUT.4 | Quando ci saranno più utenti, il registro delle modifiche indicherà anche chi ha effettuato ciascuna modifica. | W | D7.2‡ |
+| FUT.5 | Per le evoluzioni future, i servizi devono essere conformi allo standard REST (Spring Boot); un database su cloud o un servizio di autenticazione si può usare solo con Firebase. | W| Reg. |
+| FUT.6 | Se una futura versione web fosse realizzata (FUT.1), l'interfaccia deve usare JSP, Vaadin oppure servlet JEE. | W | Reg. |
 
-Per FUT.1–FUT.3 valgono i vincoli di VIN.9 e, per una versione web, quelli di VIN.10.
 
 ### 7.2 Esclusioni
 
@@ -560,7 +571,7 @@ stateDiagram-v2
 | Domanda | Requisiti |
 |---|---|
 | D1.1 | Sezione 3.1 (contesto attuale) |
-| D1.2 | FUN.8.1, FUN.9 |
+| D1.2 | OB.1–OB.4 |
 | D2.1 | DAT.1, DAT.1.2, DAT.1.3, DAT.1.4, DAT.1.5, DAT.1.6, FUN.1.1, FUN.1.2, GUI.3, GUI.3.1 |
 | D2.2 | FUN.1, GUI.2.1, GUI.3 |
 | D2.3 | DAT.1.7, FUN.1.4 |
@@ -594,7 +605,7 @@ stateDiagram-v2
 
 | Fonte | Requisiti |
 |---|---|
-| Regolamento del progetto (`Reg.`) | VIN.1, VIN.2, VIN.3, VIN.4, VIN.5, VIN.6, VIN.7, VIN.8, VIN.9, VIN.10 |
+| Regolamento del progetto (`Reg.`) | VIN.1, VIN.2, VIN.3, VIN.4, VIN.5, VIN.6, VIN.7, VIN.8|
 | Decisione del team (`Team`) | NFR.2, NFR.3, NFR.3.1 |
 | Requisito implicito (`Impl.`) | DAT.1.1, DAT.1.8, FUN.2, FUN.3.1, FUN.4.4, FUN.6.1, FUN.6.3, FUN.6.4, FUN.12.3, GUI.1.1, GUI.4.2, GUI.7.1, GUI.7.2, GUI.9 |
 | Derivati da altri requisiti | INT.1, INT.2, INT.3, INT.4, INT.5 |
@@ -616,7 +627,7 @@ Le qualità seguenti guidano il progetto. Per ciascuna si indica perché conta i
 | **Affidabilità** | Il lavoro di una giornata non deve andare perso | NFR.2, FUN.15 | Test di salvataggio e riapertura |
 | **Prestazioni** | Lo storico cresce per anni | NFR.3 | Test con molti dati |
 | **Portabilità** | Funzionamento su Windows senza installazioni di servizi esterni | NFR.4, NFR.6, VIN.3 | Prova su un PC pulito |
-| **Estendibilità** | È prevista l'evoluzione a mobile e più dispositivi | NFR.5, VIN.9 | Analisi dei package e delle dipendenze |
+| **Estendibilità** | È prevista l'evoluzione a mobile e più dispositivi | NFR.5| Analisi dei package e delle dipendenze |
 | **Testabilità** | Il regolamento richiede test JUnit e la logica separata dalla GUI aiuta a testarla | VIN.5, NFR.5 | Copertura dei test |
 
 ---
