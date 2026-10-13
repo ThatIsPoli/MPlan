@@ -5,7 +5,7 @@ Corso di Ingegneria del Software, A.A. 2026/27
 
 | Versione | Data | Modifiche |
 |---|---|---|
-| 0.1.0 | 12/10/2026 | Versione iniziale |
+| 0.1.1 | 12/10/2026 | Versione iniziale |
 
 > **Stato:** da validare con il committente e con il team. I requisiti contrassegnati con † o ‡ (vedi 1.6) derivano da informazioni parziali o non confermate dal committente e potrebbero cambiare.
 
@@ -56,7 +56,7 @@ MPlan è un'applicazione per tenere traccia dei **clienti e dei cantieri** di un
 
 | Termine | Definizione |
 |---|---|
-| Committente | L'azienda che ha commissionato il software e che è stata intervistata (MP elettric s.a.s) |
+| Committente | L'azienda che ha commissionato il software e che è stata intervistata (MP elettrica s.a.s.) |
 | Cliente | Persona o azienda per cui il committente svolge interventi |
 | Utente | Persona del team di lavoro del committente che usa l'applicazione |
 | Contatto | Voce della rubrica: un cliente (privato o azienda) oppure un cantiere. Clienti e cantieri sono salvati nella stessa lista |
@@ -259,7 +259,7 @@ Il punto aperto 12 prevede di approfondire queste fasi e di procurarsi un modulo
 
 ### 3.3 Utenti
 
-Gli utenti sono le persone del team di lavoro del committente. Nella v1 usano lo stesso PC a turno, senza account distinti (A1). Il committente privilegia la semplicità (D9.4†): per questo la semplicità d'uso è un requisito prioritario (NFR.1).
+Gli utenti sono le persone del team di lavoro del committente. Nella v1 usano lo stesso PC a turno, senza account distinti (A1). Il committente privilegia la semplicità e il raggiungimento, tramite pochi passaggi, delle varie funzioni dell'applicazione(D9.4†): per questo la semplicità d'uso è un requisito prioritario (NFR.1).
 
 ### 3.4 Vincoli generali
 
