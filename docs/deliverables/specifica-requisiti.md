@@ -5,7 +5,8 @@ Corso di Ingegneria del Software, A.A. 2026/27
 
 | Versione | Data | Modifiche |
 |---|---|---|
-| 0.1.0 | 12/10/2026 | Versione iniziale |
+| 0.1.0 | 10/10/2026 | Versione iniziale |
+| 0.1.1 | 11/10/2026 | Sistemazione di alcuni errori |
 
 > **Stato:** da validare con il committente e con il team. I requisiti contrassegnati con † o ‡ (vedi 1.6) derivano da informazioni parziali o non confermate dal committente e potrebbero cambiare.
 
@@ -56,11 +57,11 @@ MPlan è un'applicazione per tenere traccia dei **clienti e dei cantieri** di un
 
 | Termine | Definizione |
 |---|---|
-| Committente | L'azienda che ha commissionato il software e che è stata intervistata (MP elettric s.a.s) |
+| Committente | L'azienda che ha commissionato il software e che è stata intervistata (MP elettrica s.a.s.) |
 | Cliente | Persona o azienda per cui il committente svolge interventi |
 | Utente | Persona del team di lavoro del committente che usa l'applicazione |
 | Contatto | Voce della rubrica: un cliente (privato o azienda) oppure un cantiere. Clienti e cantieri sono salvati nella stessa lista |
-| Cantiere | Luogo o lavoro, anche prolungato nel tempo, trattato come un contatto |
+| Cantiere | Luogo o lavoro, anche prolungato nel tempo, trattato come un contatto. Comprende i condomini e i lavori generali non riferiti a un singolo cliente. |
 | Rubrica | L'elenco di tutti i contatti, mostrato nella Home |
 | Attività (o intervento) | Lavoro svolto o da svolgere presso un contatto in una data, con titolo, descrizione e note |
 | Titolo | Descrizione breve (poche parole) di cosa c'è da fare |
@@ -259,7 +260,7 @@ Il punto aperto 12 prevede di approfondire queste fasi e di procurarsi un modulo
 
 ### 3.3 Utenti
 
-Gli utenti sono le persone del team di lavoro del committente. Nella v1 usano lo stesso PC a turno, senza account distinti (A1). Il committente privilegia la semplicità (D9.4†): per questo la semplicità d'uso è un requisito prioritario (NFR.1).
+Gli utenti sono le persone del team di lavoro del committente. Nella v1 usano lo stesso PC a turno, senza account distinti (A1). Il committente privilegia la semplicità e il raggiungimento, tramite pochi passaggi, delle varie funzioni dell'applicazione(D9.4†): per questo la semplicità d'uso è un requisito prioritario (NFR.1).
 
 ### 3.4 Vincoli generali
 
@@ -270,7 +271,7 @@ Il progetto deve rispettare il regolamento del corso: Java, progetti Eclipse con
 | ID | Assunzione |
 |---|---|
 | A1 | L'applicazione è installata su un solo PC, che il team di lavoro del committente usa a turno per registrare il proprio lavoro; non ci sono account distinti né accessi contemporanei e i dati stanno solo su quel PC (D8.1, D8.2†; assunzione del team da confermare ‡) |
-| A2 | Il PC ha Windows e una versione di Java compatibile con il software |
+| A2 | Il PC ha Windows 11 e una versione di Java 21 |
 | A3 | Il committente scrive i dati a mano: non esiste un archivio da importare (D2.2) |
 | A4 | Il lavoro su un cantiere lungo si registra con un'attività per ogni giorno lavorato (D3.6†) |
 | A5 | Le note di ciò che serve per la visita successiva si scrivono nell'attività del giorno stesso (D4.2†) |
@@ -355,7 +356,7 @@ Coprono la rubrica, le attività, i materiali, lo storico, l'agenda giornaliera,
 | **FUN.4** | Il sistema deve permettere di creare un'attività associata a un contatto. | M | D3.1, D5.1 |
 | FUN.4.1 | Un'attività deve poter contenere gli attributi definiti in DAT.2. | M | D3.1 |
 | FUN.4.2 | Per creare un'attività deve bastare inserire il titolo: la data ha un valore predefinito (DAT.2.2), l'orario è facoltativo (DAT.2.3), il contatto è quello della scheda aperta, e descrizione e note si compilano dopo.<br>*Rationale:* il titolo dice cosa c'è da fare, il resto si scrive a lavoro svolto. | M | D3.3 |
-| FUN.4.3 | L'orario di un'attività deve essere indicativo: non è richiesta precisione oraria e non è previsto un orario di fine.<br>*Rationale:* il committente non chiede precisione oraria; le attività sono mostrate in ordine di orario d'inizio. | M | D3.2, Team‡ |
+| FUN.4.3 | L'orario di un'attività deve essere indicativo: orario hh:mm facoltativo, usato solo per ordinare a e non è previsto un orario di fine.<br>*Rationale:* il committente non chiede precisione oraria; le attività sono mostrate in ordine di orario d'inizio. | M | D3.2, Team‡ |
 | **FUN.5** | Il sistema deve permettere di modificare i dati di un'attività esistente (vedi FUN.6.2 per le attività annullate). | M | D3.4 |
 | FUN.5.1 | Dopo l'intervento l'utente deve poter compilare e aggiornare descrizione e note, anche più volte. | M | D3.3, D3.4, O1, O2 |
 | **FUN.6** | Ogni attività deve avere uno stato tra: *da fare*, *parziale*, *completata*, *annullata*.<br>*Rationale:* il committente ha citato *completata*, *parziale* e *annullata*; lo stato iniziale *da fare* è stato aggiunto dal team perché ogni attività nasce prima dell'intervento. | M | D3.5†, Impl., O1 |
@@ -366,7 +367,7 @@ Coprono la rubrica, le attività, i materiali, lo storico, l'agenda giornaliera,
 | **FUN.8** | Il sistema deve permettere di annotare materiali usati, mancanti o necessari come testo libero nelle note dell'attività. | M | D4.1, O1, O3 |
 | FUN.8.1 | La nota su ciò che serve per la visita successiva deve essere scritta nell'attività del giorno stesso, non in quella del giorno dopo. | M | D4.2†, O3 |
 | **FUN.9** | Il sistema deve mostrare lo storico di un contatto: l'elenco di tutte le sue attività, a scorrimento verticale, ordinate per data e orario dalla più recente.<br>*Rationale:* il committente vuole vedere cosa è stato fatto per ogni cliente e, a fine mese, ritrovare gli interventi per la fatturazione. Il formato a elenco, al posto di un calendario, è una scelta del team. | M | D5.1, D5.2, O1, O4, Team‡ |
-| FUN.9.1 | Il sistema deve permettere di limitare lo storico di un contatto a un periodo: una settimana o un mese.<br>*Rationale:* il committente vuole vedere cosa è stato fatto in una settimana e, a fine mese, elencare gli interventi. | M | D5.2, O4, Team‡ |
+| FUN.9.1 | Il sistema deve permettere di limitare lo storico di un contatto a una settimana (lunedì-domenica) o a un mese di calendario scelti dall’utente, anche passati; predefiniti: settimana o mese correnti. | M | D5.2, O4, Team‡ |
 | **FUN.10** | Il sistema deve fornire un'agenda giornaliera che mostra le attività di tutti i contatti relative a un singolo giorno.<br>*Rationale:* il committente vuole vedere le attività svolte di tutti i clienti; la scelta di mostrare un giorno alla volta è del team. | M | D6.2, O2, Team‡ |
 | FUN.10.1 | L'utente deve poter passare al giorno precedente o successivo con apposite frecce. | M | D6.1†, Team‡ |
 | FUN.10.2 | Le attività del giorno devono essere mostrate in un elenco a scorrimento verticale, in ordine di orario. | M | D6.1†, Team‡ |
@@ -422,7 +423,7 @@ Le schermate e le transizioni sono illustrate nelle Figure 8.2, 8.3 e 8.4. Come 
 | **GUI.3** | **Form contatto.** Un modulo deve permettere di inserire o modificare i dati di un contatto. | M | D2.1, D2.2; FUN.1, FUN.2 |
 | GUI.3.1 | I campi facoltativi non devono impedire il salvataggio se vuoti. | M | D2.1; FUN.1.2, DAT.1 |
 | **GUI.4** | **Scheda contatto.** In alto devono comparire il nome e i dati principali del contatto e, subito sotto, il suo storico (FUN.9). | M | D5.1, Team‡; FUN.9 |
-| GUI.4.1 | La scheda deve offrire l'opzione di creare una nuova attività con descrizione, note, orario e data. | M | D5.1; FUN.4 |
+| GUI.4.1 | La scheda deve offrire l'opzione di creare una nuova attività con i campi di DAT.2 | M | D5.1; FUN.4 |
 | GUI.4.2 | Dallo storico deve essere possibile aprire un'attività per consultarla o modificarla. | M | Impl.; FUN.5 |
 | **GUI.5** | **Form attività.** Un modulo deve permettere di inserire o modificare titolo, data, orario, descrizione, note e stato. | M | D3.1, D3.2; FUN.4, FUN.5 |
 | GUI.5.1 | Per salvare una nuova attività valgono le regole di FUN.4.2. | M | D3.3; FUN.4.2 |
@@ -438,15 +439,14 @@ Le schermate e le transizioni sono illustrate nelle Figure 8.2, 8.3 e 8.4. Come 
 | ID | Requisito / Rationale | Pri. | Fonte |
 |---|---|---|---|
 | **NFR.1** | **Usabilità.** L'applicazione deve essere semplice da usare, con poche informazioni da compilare. La verifica è una prova d'uso con il committente (sezione 10).<br>*Rationale:* il committente chiede poche informazioni da scrivere e nessuna complicazione. | M | D9.4† |
-| NFR.1.1 | Creare un'attività deve richiedere pochi passaggi. | M | D3.3, D9.4† |
-| NFR.1.2 | Le schermate principali (Home, scheda, agenda) dovrebbero essere comprensibili senza istruzioni. | S | D9.4† |
+| NFR.1.1 | Creare un'attività dalla Home in ≤ 6 click. | M | D3.3, D9.4† |
+| NFR.1.2 | Almeno 80% delle persone del team completa UC5, UC6, UC8 in ≤ 2 min senza aiuto | S | D9.4† |
 | **NFR.2** | **Affidabilità.** Dopo ogni operazione di salvataggio i dati dovrebbero essere scritti in modo persistente, così da non perderli in caso di chiusura inattesa.<br>*Rationale:* il lavoro di una giornata non deve andare perso. | S | Team |
-| **NFR.3** | **Prestazioni.** Le operazioni principali non dovrebbero avere ritardi percepibili anche con uno storico di anni.<br>*Rationale:* il committente vuole consultare la storia per anni (D9.2). | S | Team |
-| NFR.3.1 | Soglia proposta, da verificare nei test: l'apertura di una scheda contatto dovrebbe richiedere meno di 2 secondi con almeno 5000 attività salvate. | S | Team |
-| **NFR.4** | **Portabilità.** L'applicazione deve funzionare su Windows. | M | D9.1 |
+| **NFR.3** | **Prestazioni.** L'apertura di una scheda contatto dovrebbe richiedere meno di 2 secondi con almeno 5000 attività salvate.<br>*Rationale:* il committente vuole consultare la storia per anni (D9.2). | S | Team |
+| **NFR.4** | **Portabilità.** L'applicazione deve funzionare su Windows 11. | M | D9.1 |
 | **NFR.5** | **Estendibilità.** Il sistema deve poter evolvere verso l'uso da cellulare e da più dispositivi senza dover riscrivere le funzioni già realizzate. | M | D9.1, Team |
 | **NFR.6** | **Funzionamento offline.** L'applicazione deve funzionare senza connessione a Internet e senza servizi da installare. | M | Reg., D9.2 |
-| **NFR.7** | **Riservatezza.** L'accesso ai dati deve essere riservato al solo team di lavoro del committente. Nella v1 i dati restano solo sul PC su cui è installata l'applicazione (A1); strumenti di protezione dell'accesso sono rimandati (FUT.3).<br>*Rationale:* il committente ha detto che solo il suo team di lavoro deve accedere, senza specificare come né quando. | M | D8.2† |
+| **NFR.7** | **Riservatezza.** dati salvati solo in locale, nessun invio in rete (A1).<br>*Rationale:* il committente ha detto che solo il suo team di lavoro deve accedere, senza specificare come né quando. | M | D8.2† |
 
 ### 5.5 Vincoli (VIN)
 
@@ -787,9 +787,8 @@ Da chiarire con il committente, con il team o con il docente prima di considerar
 | 8 | Backup ed esportazione dei dati (per la fatturazione): non discussi. | – |
 | 9 | Confermare l'assunzione A1 (un PC usato a turno dalle persone del team): quante persone registrano il proprio lavoro, su quali dispositivi, e come dovrà accedere il team in futuro (password unica, più dispositivi). | A1, NFR.7, FUT.1–FUT.3 |
 | 10 | Il perimetro della v1 è adeguato all'impegno richiesto dal progetto? Il regolamento chiede di implementare quasi tutto il documento, quindi i requisiti Must e Should (87) devono essere realizzabili nel tempo disponibile. Va verificato con il docente tramite issue. Si può valutare di includere la gestione strutturata dei materiali, oggi esclusa. | Sezione 7.2 |
-| 11 | Realizzare in StarUML il diagramma dei casi d'uso e i diagrammi di stato definitivi, più ricchi degli schemi di lavoro della sezione 8. | Sezioni 4 e 8 |
-| 12 | Approfondire il contesto attuale: come il committente gestisce oggi la mattina, l'intervento, la sera e la fine del mese, e con quali strumenti (carta, moduli, calendario). Procurare un modulo cartaceo, anche di esempio, oppure una schermata del programma che usa oggi. Potrebbero emergere nuove tecniche di elicitazione (osservazione, analisi dei documenti). | Sezione 3.1 |
-| 13 | Confermare con il committente il comportamento in caso di dati non validi (non salvare, mostrare un messaggio, conservare gli altri dati). | DAT.5 |
+| 11 | Approfondire il contesto attuale: come il committente gestisce oggi la mattina, l'intervento, la sera e la fine del mese, e con quali strumenti (carta, moduli, calendario). Procurare un modulo cartaceo, anche di esempio, oppure una schermata del programma che usa oggi. Potrebbero emergere nuove tecniche di elicitazione (osservazione, analisi dei documenti). | Sezione 3.1 |
+| 12 | Confermare con il committente il comportamento in caso di dati non validi (non salvare, mostrare un messaggio, conservare gli altri dati). | DAT.5 |
 
 ---
 
