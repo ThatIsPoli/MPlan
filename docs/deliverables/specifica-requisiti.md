@@ -87,7 +87,7 @@ Nel documento "committente" indica sempre l'azienda che commissiona il software,
 - *Requisiti per il progetto di ingegneria del software, A.A. 2026/27*, v1.0.0 (A. Gargantini, S. Bonfanti).
 - S. Bonfanti, A. Gargantini, *Mechanical Lung Ventilator – Software Requirements Specification for ABZ 2024 case study*, v1.5, dicembre 2023 (documento di riferimento per il formato).
 - IEEE Std 830-1998, *Recommended Practice for Software Requirements Specifications*, IEEE, 1998: <https://ieeexplore.ieee.org/document/720574>. Il testo completo è a pagamento; lo standard è stato sostituito da ISO/IEC/IEEE 29148:2011.
-- Intervista di elicitazione del 08/10/2026: `intervista-01-domande.md`, `intervista-02-domande-risposte.md`, `intervista-03-riassunto-esigenze-cliente.md`.
+- Intervista di elicitazione del 08/10/2026: `intervista-01-domande-risposte.md`, `intervista-01-riassunto-esigenze-cliente.md`.
 
 ### 1.5 Struttura del documento
 
@@ -140,7 +140,7 @@ I codici sono una convenzione di questo progetto. FUN e GUI derivano da quelli d
 
 | Fonte | Significato |
 |---|---|
-| `Dx.y` | Domanda dell'intervista (`intervista-02-domande-risposte.md`) |
+| `Dx.y` | Domanda dell'intervista (`intervista-01-domande-risposte.md`) |
 | `Ox` | Obiettivo del committente (sezione 2.5) |
 | `Reg.` | Regolamento del progetto del docente |
 | `Team` | Decisione del team di sviluppo |
@@ -150,7 +150,7 @@ I codici sono una convenzione di questo progetto. FUN e GUI derivano da quelli d
 **Affidabilità della fonte.**
 
 - † = la risposta dell'intervista è segnata *PARZIALE* (da confermare).
-- ‡ = proposta o scelta del team non ancora confermata dal committente: può essere una risposta segnata *PROPOSTA* (`D8.3‡`) oppure una scelta senza domanda d'origine (`Team‡`, `Impl.‡`).
+- ‡ = proposta o scelta del team non ancora confermata dal committente: può essere una risposta segnata *PROPOSTA* (esempio: `D8.3‡`) oppure una scelta senza domanda d'origine (esempio: `Team‡`, `Impl.‡`).
 - Nessun simbolo = risposta chiara del committente, vincolo del regolamento o decisione del team che non richiede conferma.
 
 I simboli indicano anche i requisiti meno stabili, cioè quelli che hanno più probabilità di cambiare.
@@ -199,7 +199,7 @@ Dopo l'intervista il team ha deciso che:
 - il **cellulare** e l'accesso da più dispositivi sono evoluzioni future, con una possibile password unica generale non condivisa con estranei;
 - la **schermata iniziale** è la rubrica dei contatti (D5.3);
 - le **attività annullate** restano visibili e contrassegnate come annullate;
-- al posto di un calendario con viste a mese e a settimana, l'**agenda giornaliera** mostra **un giorno alla volta**, con frecce per cambiare giorno e un elenco a scorrimento verticale ordinato per orario (FUN.10); lo **storico** di un contatto è un elenco ordinato per data (FUN.9). Sono modifiche rispetto a D5.1 e D6.1†;
+- al posto di un calendario con viste a mese e a settimana, l'**agenda giornaliera** mostra **un giorno alla volta**, con frecce per cambiare giorno e un elenco a scorrimento verticale ordinato per orario (FUN.10); lo **storico** di un contatto è un elenco ordinato per data (FUN.9). Sono modifiche rispetto a D5.1 e D6.1;
 - ogni attività ha **un solo orario indicativo**, senza orario di fine; non si usano mezza giornata e giornata intera (DAT.2.3). È una modifica rispetto a D3.2.
 
 Le ultime due scelte non sono ancora state confermate dal committente (punto aperto 6).
@@ -240,7 +240,7 @@ flowchart LR
 
 | Fase | Cosa risulta oggi | Fonte |
 |---|---|---|
-| Prima degli interventi | Il committente usa un calendario in cui segna gli appuntamenti già fissati con i clienti | D1.1† |
+| Prima degli interventi | Il committente usa un calendario in cui segna gli appuntamenti già fissati con i clienti | D1.1 |
 | Durante l'intervento | Non emerso | – |
 | Fine giornata | Non emerso come oggi riassuma il lavoro e prepari i materiali; sono obiettivi (O2, O3) | D1.2 |
 | Fine mese | Non emerso come oggi ricavi l'elenco degli interventi; è un obiettivo (O4) | D1.2 |
@@ -270,11 +270,11 @@ Il progetto deve rispettare il regolamento del corso: Java, progetti Eclipse con
 
 | ID | Assunzione |
 |---|---|
-| A1 | L'applicazione è installata su un solo PC, che il team di lavoro del committente usa a turno per registrare il proprio lavoro; non ci sono account distinti né accessi contemporanei e i dati stanno solo su quel PC (D8.1, D8.2†; assunzione del team da confermare ‡) |
+| A1 | L'applicazione è installata su un solo PC, che il team di lavoro del committente usa a turno per registrare il proprio lavoro; non ci sono account distinti né accessi contemporanei e i dati stanno solo su quel PC (D8.1, D8.2; assunzione del team da confermare ‡) |
 | A2 | Il PC ha Windows 11 e una versione di Java 21 |
 | A3 | Il committente scrive i dati a mano: non esiste un archivio da importare (D2.2) |
-| A4 | Il lavoro su un cantiere lungo si registra con un'attività per ogni giorno lavorato (D3.6†) |
-| A5 | Le note di ciò che serve per la visita successiva si scrivono nell'attività del giorno stesso (D4.2†) |
+| A4 | Il lavoro su un cantiere lungo si registra con un'attività per ogni giorno lavorato (D3.6) |
+| A5 | Le note di ciò che serve per la visita successiva si scrivono nell'attività del giorno stesso (D4.2) |
 
 ### 3.6 Ripartizione per versione
 
@@ -348,8 +348,8 @@ Coprono la rubrica, le attività, i materiali, lo storico, l'agenda giornaliera,
 | **FUN.1** | Il sistema deve permettere di creare un contatto (cliente o cantiere) inserendone i dati a mano.<br>*Rationale:* il committente non ha un archivio da importare. | M | D2.2 |
 | FUN.1.1 | Per ogni contatto il sistema deve poter memorizzare gli attributi definiti in DAT.1. | M | D2.1 |
 | FUN.1.2 | Codice fiscale e partita IVA devono essere facoltativi.<br>*Rationale:* il committente li vuole "se possibile"; servono per la fatturazione. | M | D2.1 |
-| FUN.1.3 | Un cantiere deve essere trattato come un contatto e salvato nella stessa rubrica dei clienti.<br>*Rationale:* i lavori in uno stesso luogo si registrano con il nome del luogo, senza una struttura separata. | M | D2.4†, D2.5‡, D5.3 |
-| FUN.1.4 | Il sistema potrebbe permettere di indicare con un flag se il contatto è un privato o un'azienda.<br>*Rationale:* distinzione utile ma non fondamentale. | C | D2.3† |
+| FUN.1.3 | Un cantiere deve essere trattato come un contatto e salvato nella stessa rubrica dei clienti.<br>*Rationale:* i lavori in uno stesso luogo si registrano con il nome del luogo, senza una struttura separata. | M | D2.4, D2.5‡, D5.3 |
+| FUN.1.4 | Il sistema potrebbe permettere di indicare con un flag se il contatto è un privato o un'azienda.<br>*Rationale:* distinzione utile ma non fondamentale. | C | D2.3 |
 | **FUN.2** | Il sistema deve permettere di modificare i dati di un contatto esistente.<br>*Rationale:* necessario per correggere i dati (UC2, GUI.3); non discusso esplicitamente. | M | Impl. |
 | **FUN.3** | Il sistema deve mostrare la rubrica: l'elenco di tutti i contatti salvati (clienti e cantieri). | M | D5.3 |
 | FUN.3.1 | Il sistema potrebbe permettere di cercare un contatto per nome.<br>*Rationale:* la rubrica cresce negli anni; non discusso. | C | Impl. |
@@ -359,24 +359,24 @@ Coprono la rubrica, le attività, i materiali, lo storico, l'agenda giornaliera,
 | FUN.4.3 | L'orario di un'attività deve essere indicativo: orario hh:mm facoltativo, usato solo per ordinare a e non è previsto un orario di fine.<br>*Rationale:* il committente non chiede precisione oraria; le attività sono mostrate in ordine di orario d'inizio. | M | D3.2, Team‡ |
 | **FUN.5** | Il sistema deve permettere di modificare i dati di un'attività esistente (vedi FUN.6.2 per le attività annullate). | M | D3.4 |
 | FUN.5.1 | Dopo l'intervento l'utente deve poter compilare e aggiornare descrizione e note, anche più volte. | M | D3.3, D3.4, O1, O2 |
-| **FUN.6** | Ogni attività deve avere uno stato tra: *da fare*, *parziale*, *completata*, *annullata*.<br>*Rationale:* il committente ha citato *completata*, *parziale* e *annullata*; lo stato iniziale *da fare* è stato aggiunto dal team perché ogni attività nasce prima dell'intervento. | M | D3.5†, Impl., O1 |
-| FUN.6.1 | L'utente deve poter segnare un'attività come *parziale* o *completata*. | M | D3.5† |
+| **FUN.6** | Ogni attività deve avere uno stato tra: *da fare*, *parziale*, *completata*, *annullata*.<br>*Rationale:* il committente ha citato *completata*, *parziale* e *annullata*; lo stato iniziale *da fare* è stato aggiunto dal team perché ogni attività nasce prima dell'intervento. | M | D3.5, Impl., O1 |
+| FUN.6.1 | L'utente deve poter segnare un'attività come *parziale* o *completata*. | M | D3.5 |
 | FUN.6.2 | Lo stato *annullata* deve essere definitivo: un'attività annullata non può essere modificata né tornare ad altri stati.<br>*Rationale:* semplifica lo storico; da confermare. | M | Impl.‡ |
 | FUN.6.3 | Le sole transizioni di stato ammesse sono: da *da fare* a *parziale*; da *da fare* o *parziale* a *completata*; da *da fare* o *parziale* ad *annullata*. Un'attività *completata* non può essere annullata.<br>*Rationale:* la Figura 8.1 illustra queste transizioni; l'impossibilità di annullare un'attività completata è da confermare (punto aperto 3). | M | Impl.‡ |
-| **FUN.7** | Un lavoro che dura più giorni deve essere rappresentato da più attività, una per ogni giorno lavorato, associate allo stesso contatto.<br>*Rationale:* il committente non ha chiesto una funzione di pianificazione di cantiere. | M | D3.6† |
+| **FUN.7** | Un lavoro che dura più giorni deve essere rappresentato da più attività, una per ogni giorno lavorato, associate allo stesso contatto.<br>*Rationale:* il committente non ha chiesto una funzione di pianificazione di cantiere. | M | D3.6 |
 | **FUN.8** | Il sistema deve permettere di annotare materiali usati, mancanti o necessari come testo libero nelle note dell'attività. | M | D4.1, O1, O3 |
-| FUN.8.1 | La nota su ciò che serve per la visita successiva deve essere scritta nell'attività del giorno stesso, non in quella del giorno dopo. | M | D4.2†, O3 |
+| FUN.8.1 | La nota su ciò che serve per la visita successiva deve essere scritta nell'attività del giorno stesso, non in quella del giorno dopo. | M | D4.2, O3 |
 | **FUN.9** | Il sistema deve mostrare lo storico di un contatto: l'elenco di tutte le sue attività, a scorrimento verticale, ordinate per data e orario dalla più recente.<br>*Rationale:* il committente vuole vedere cosa è stato fatto per ogni cliente e, a fine mese, ritrovare gli interventi per la fatturazione. Il formato a elenco, al posto di un calendario, è una scelta del team. | M | D5.1, D5.2, O1, O4, Team‡ |
 | FUN.9.1 | Il sistema deve permettere di limitare lo storico di un contatto a una settimana (lunedì-domenica) o a un mese di calendario scelti dall’utente, anche passati; predefiniti: settimana o mese correnti. | M | D5.2, O4, Team‡ |
 | **FUN.10** | Il sistema deve fornire un'agenda giornaliera che mostra le attività di tutti i contatti relative a un singolo giorno.<br>*Rationale:* il committente vuole vedere le attività svolte di tutti i clienti; la scelta di mostrare un giorno alla volta è del team. | M | D6.2, O2, Team‡ |
-| FUN.10.1 | L'utente deve poter passare al giorno precedente o successivo con apposite frecce. | M | D6.1†, Team‡ |
-| FUN.10.2 | Le attività del giorno devono essere mostrate in un elenco a scorrimento verticale, in ordine di orario. | M | D6.1†, Team‡ |
+| FUN.10.1 | L'utente deve poter passare al giorno precedente o successivo con apposite frecce. | M | D6.1, Team‡ |
+| FUN.10.2 | Le attività del giorno devono essere mostrate in un elenco a scorrimento verticale, in ordine di orario. | M | D6.1, Team‡ |
 | FUN.10.3 | Le attività senza orario devono essere mostrate all'inizio del giorno, prima di quelle con orario.<br>*Rationale:* l'orario è facoltativo (DAT.2.3), quindi serve una regola per ordinarle. | M | Impl.‡ |
 | FUN.10.4 | All'apertura l'agenda dovrebbe mostrare il giorno corrente. | S | Impl. |
 | **FUN.11** | Il sistema potrebbe permettere di andare direttamente a un giorno scelto nell'agenda.<br>*Rationale:* le sole frecce sarebbero lente per raggiungere giorni lontani. | C | Impl.‡ |
-| **FUN.12** | Il sistema deve permettere di annullare un'attività *da fare* o *parziale* indicando un motivo. | M | D7.1† |
-| FUN.12.1 | Un'attività annullata deve restare nello storico e nell'agenda, contrassegnata come annullata e con il motivo registrato. | M | D7.1† |
-| FUN.12.2 | Il sistema non deve permettere di eliminare definitivamente un'attività.<br>*Rationale:* lo storico deve restare completo per la fatturazione e per la consultazione negli anni. | M | D7.1† |
+| **FUN.12** | Il sistema deve permettere di annullare un'attività *da fare* o *parziale* indicando un motivo. | M | D7.1 |
+| FUN.12.1 | Un'attività annullata deve restare nello storico e nell'agenda, contrassegnata come annullata e con il motivo registrato. | M | D7.1 |
+| FUN.12.2 | Il sistema non deve permettere di eliminare definitivamente un'attività.<br>*Rationale:* lo storico deve restare completo per la fatturazione e per la consultazione negli anni. | M | D7.1 |
 | **FUN.13** | Il sistema dovrebbe registrare le modifiche e gli annullamenti delle attività, con data, tipo di modifica e motivo.<br>*Rationale:* nella v1, senza account distinti, l'autore non si può registrare (vedi FUT.4). | S | D7.2‡ |
 | **FUN.14** | Il sistema potrebbe mostrare una notifica a fine giornata per ricordare di compilare le note.<br>*Rationale:* la reazione del committente non è stata chiara. | C | D9.3‡ |
 | **FUN.15** | Il sistema deve salvare i dati in modo persistente e ritrovarli alla riapertura dell'applicazione. | M | D9.2 |
@@ -395,7 +395,7 @@ Definiscono attributi, formati e valori ammessi, come i requisiti *PER* (valori 
 | DAT.1.4 | *Telefono*: uno o più numeri. | Facoltativo; ogni numero al massimo 20 caratteri | M | D2.1, Impl. |
 | DAT.1.5 | *Codice fiscale*. | Facoltativo; 16 caratteri alfanumerici (persone fisiche) oppure 11 cifre (aziende ed enti) | M | D2.1 |
 | DAT.1.6 | *Partita IVA*. | Facoltativa; 11 cifre | M | D2.1 |
-| DAT.1.7 | *Tipo*: privato oppure azienda. | Facoltativo; nessun valore predefinito | C | D2.3† |
+| DAT.1.7 | *Tipo*: privato oppure azienda. | Facoltativo; nessun valore predefinito | C | D2.3 |
 | **DAT.2** | **Attività.** Il sistema deve poter memorizzare per ogni attività gli attributi seguenti. | – | M | D3.1 |
 | DAT.2.1 | *Titolo*. | Testo breve, obbligatorio, massimo 100 caratteri | M | D3.1, D3.3 |
 | DAT.2.2 | *Data*. | Data di calendario, obbligatoria; predefinita: data corrente | M | D3.1, Impl. |
@@ -403,8 +403,8 @@ Definiscono attributi, formati e valori ammessi, come i requisiti *PER* (valori 
 | DAT.2.4 | *Descrizione*. | Testo libero, facoltativo alla creazione, massimo 5000 caratteri | M | D3.3, Impl. |
 | DAT.2.5 | *Note*: vi si annotano anche i materiali (FUN.8). | Testo libero, facoltativo, massimo 5000 caratteri | M | D3.1, D4.1 |
 | DAT.2.6 | *Contatto* a cui appartiene l'attività. | Riferimento obbligatorio a un contatto esistente | M | D5.1 |
-| **DAT.3** | **Stato.** Lo stato di un'attività deve assumere uno dei valori *da fare*, *parziale*, *completata*, *annullata*. | Predefinito alla creazione: *da fare* | M | D3.5†, Impl. |
-| DAT.3.1 | Il *motivo di annullamento* è obbligatorio quando lo stato è *annullata*, altrimenti vuoto. | Testo, massimo 1000 caratteri | M | D7.1† |
+| **DAT.3** | **Stato.** Lo stato di un'attività deve assumere uno dei valori *da fare*, *parziale*, *completata*, *annullata*. | Predefinito alla creazione: *da fare* | M | D3.5, Impl. |
+| DAT.3.1 | Il *motivo di annullamento* è obbligatorio quando lo stato è *annullata*, altrimenti vuoto. | Testo, massimo 1000 caratteri | M | D7.1 |
 | **DAT.4** | **Registro modifiche.** Ogni voce dovrebbe contenere data e ora, attività interessata, tipo di modifica e motivo (se presente). | Motivo facoltativo | S | D7.2‡ |
 | **DAT.5** | **Dati non validi.** Quando un dato inserito non rispetta i vincoli di questa sezione (campo obbligatorio vuoto, lunghezza oltre il massimo, formato non valido di codice fiscale, partita IVA, data o orario), il sistema non deve salvarlo, deve mostrare un messaggio che indica il campo e il motivo e deve conservare gli altri dati inseriti nel modulo perché possano essere corretti. | – | M | Impl.‡ |
 
@@ -427,26 +427,26 @@ Le schermate e le transizioni sono illustrate nelle Figure 8.2, 8.3 e 8.4. Come 
 | GUI.4.2 | Dallo storico deve essere possibile aprire un'attività per consultarla o modificarla. | M | Impl.; FUN.5 |
 | **GUI.5** | **Form attività.** Un modulo deve permettere di inserire o modificare titolo, data, orario, descrizione, note e stato. | M | D3.1, D3.2; FUN.4, FUN.5 |
 | GUI.5.1 | Per salvare una nuova attività valgono le regole di FUN.4.2. | M | D3.3; FUN.4.2 |
-| GUI.5.2 | Dal form deve essere possibile segnare l'attività come *parziale* o *completata*. | M | D3.5†; FUN.6.1 |
-| **GUI.6** | **Annullamento.** L'opzione di annullamento deve chiedere il motivo (DAT.3.1) e una conferma prima di procedere. | M | D7.1†; FUN.12 |
+| GUI.5.2 | Dal form deve essere possibile segnare l'attività come *parziale* o *completata*. | C | D3.5; FUN.6.1 |
+| **GUI.6** | **Annullamento.** L'opzione di annullamento deve chiedere il motivo (DAT.3.1) e una conferma prima di procedere. | M | D7.1; FUN.12 |
 | **GUI.7** | **Agenda giornaliera.** La schermata deve realizzare l'agenda giornaliera (FUN.10) e mostrare le frecce per cambiare giorno (FUN.10.1). | M | D6.2; FUN.10 |
 | GUI.7.1 | Ogni attività nell'agenda dovrebbe mostrare l'orario, il contatto e il titolo. | S | Impl.; FUN.10 |
 | GUI.7.2 | Dall'agenda deve essere possibile aprire un'attività per consultarla o modificarla. | M | Impl.; FUN.5 |
-| **GUI.8** | Le attività annullate devono essere distinguibili visivamente dalle altre nell'agenda e nello storico. | M | D7.1†; FUN.12.1 |
+| **GUI.8** | Le attività annullate devono essere distinguibili visivamente dalle altre nell'agenda e nello storico. | M | D7.1; FUN.12.1 |
 
 ### 5.4 Requisiti non funzionali (NFR)
 
 | ID | Requisito / Rationale | Pri. | Fonte |
 |---|---|---|---|
-| **NFR.1** | **Usabilità.** L'applicazione deve essere semplice da usare, con poche informazioni da compilare. La verifica è una prova d'uso con il committente (sezione 10).<br>*Rationale:* il committente chiede poche informazioni da scrivere e nessuna complicazione. | M | D9.4† |
-| NFR.1.1 | Creare un'attività dalla Home in ≤ 6 click. | M | D3.3, D9.4† |
-| NFR.1.2 | Almeno 80% delle persone del team completa UC5, UC6, UC8 in ≤ 2 min senza aiuto | S | D9.4† |
+| **NFR.1** | **Usabilità.** L'applicazione deve essere semplice da usare, con poche informazioni da compilare. La verifica è una prova d'uso con il committente (sezione 10).<br>*Rationale:* il committente chiede poche informazioni da scrivere e nessuna complicazione. | M | D9.4 |
+| NFR.1.1 | Creare un'attività dalla Home in ≤ 6 click. | M | D3.3, D9.4 |
+| NFR.1.2 | Almeno 80% delle persone del team completa UC5, UC6, UC8 in ≤ 2 min senza aiuto | S | D9.4 |
 | **NFR.2** | **Affidabilità.** Dopo ogni operazione di salvataggio i dati dovrebbero essere scritti in modo persistente, così da non perderli in caso di chiusura inattesa.<br>*Rationale:* il lavoro di una giornata non deve andare perso. | S | Team |
 | **NFR.3** | **Prestazioni.** L'apertura di una scheda contatto dovrebbe richiedere meno di 2 secondi con almeno 5000 attività salvate.<br>*Rationale:* il committente vuole consultare la storia per anni (D9.2). | S | Team |
 | **NFR.4** | **Portabilità.** L'applicazione deve funzionare su Windows 11. | M | D9.1 |
 | **NFR.5** | **Estendibilità.** Il sistema deve poter evolvere verso l'uso da cellulare e da più dispositivi senza dover riscrivere le funzioni già realizzate. | M | D9.1, Team |
 | **NFR.6** | **Funzionamento offline.** L'applicazione deve funzionare senza connessione a Internet e senza servizi da installare. | M | Reg., D9.2 |
-| **NFR.7** | **Riservatezza.** dati salvati solo in locale, nessun invio in rete (A1).<br>*Rationale:* il committente ha detto che solo il suo team di lavoro deve accedere, senza specificare come né quando. | M | D8.2† |
+| **NFR.7** | **Riservatezza.** dati salvati solo in locale, nessun invio in rete (A1).<br>*Rationale:* il committente ha detto che solo il suo team di lavoro deve accedere tramite pc. | M | D8.2 |
 
 ### 5.5 Vincoli (VIN)
 
@@ -515,9 +515,9 @@ Le evoluzioni saranno specificate in dettaglio quando verranno pianificate.
 |---|---|
 | Utente master, ruoli e permessi | Decisione del team: la v1 è senza account distinti (D8.1) |
 | Gestione del magazzino: giacenze, soglie minime, riordino, costi dei materiali | Non emersa nell'intervista (D4.3) |
-| Lista dei materiali generata automaticamente | Il committente chiede per ora solo una nota (D4.2†) |
-| Gestione dell'accesso del team di lavoro (credenziali, permessi) | Il committente ha detto che solo il suo team di lavoro deve poter accedere, senza specificare come né quando (D8.2†). Non è necessaria in una v1 senza account distinti; vedi NFR.7 e FUT.3 |
-| Calendario con viste a mese e a settimana | Il team ha scelto l'agenda giornaliera (FUN.10); la vista mensile citata dal committente (D6.1†) non è ripresa nella v1 |
+| Lista dei materiali generata automaticamente | Il committente chiede per ora solo una nota (D4.2) |
+| Gestione dell'accesso del team di lavoro (credenziali, permessi) | Il committente ha detto che solo il suo team di lavoro deve poter accedere tramite pc (D8.2). Non è necessaria in una v1 senza account distinti; vedi NFR.7 e FUT.3 |
+| Calendario con viste a mese e a settimana | Il team ha scelto l'agenda giornaliera (FUN.10); la vista mensile citata dal committente (D6.1) non è ripresa nella v1 |
 | Mezza giornata e giornata intera come durata di un'attività | Sostituite da un solo orario indicativo (DAT.2.3); modifica rispetto a D3.2 |
 | Orario di fine delle attività | Non previsto (FUN.4.3) |
 | Eliminazione definitiva delle attività | Si usa l'annullamento (FUN.12.2) |
@@ -760,12 +760,12 @@ Le qualità seguenti guidano il progetto. Per ciascuna si indica perché conta i
 
 | Qualità | Perché conta per MPlan | Requisiti | Criterio di verifica |
 |---|---|---|---|
-| **Usabilità** | Il committente vuole poche informazioni da compilare e nessuna complicazione (D9.4†) | NFR.1, FUN.4.2, GUI.5.1 | Prova d'uso: una persona del team crea un'attività (UC5), la aggiorna (UC6) e consulta l'agenda (UC8) senza assistenza |
+| **Usabilità** | Il committente vuole poche informazioni da compilare e nessuna complicazione (D9.4) | NFR.1, FUN.4.2, GUI.5.1 | Prova d'uso: una persona del team crea un'attività (UC5), la aggiorna (UC6) e consulta l'agenda (UC8) senza assistenza |
 | **Integrità dei dati** | Lo storico serve per la fatturazione e deve restare completo: per questo non si eliminano le attività | FUN.12.2, FUN.15.1, DAT.3.1 | Test: dopo l'annullamento l'attività è ancora nello storico con stato *annullata* e motivo; nessuna funzione dell'applicazione elimina un'attività |
 | **Affidabilità** | Il lavoro di una giornata non deve andare perso | NFR.2, FUN.15 | Test: dopo una chiusura forzata successiva a un salvataggio, tutte le attività salvate sono presenti alla riapertura (0 attività perse) |
 | **Prestazioni** | Lo storico cresce per anni | NFR.3, NFR.3.1 | Test: l'apertura di una scheda contatto richiede meno di 2 secondi con almeno 5000 attività salvate |
 | **Portabilità** | Funzionamento su Windows senza installare servizi esterni | NFR.4, NFR.6, VIN.3 | Prova: su un PC Windows con la sola Java installata l'applicazione si avvia e si eseguono UC1–UC8 senza connessione a Internet |
-| **Riservatezza** | Solo il team di lavoro del committente deve accedere ai dati (D8.2†) | NFR.7 | Ispezione: nella v1 i dati risiedono solo sul PC e l'applicazione non apre connessioni di rete |
+| **Riservatezza** | Solo il team di lavoro del committente deve accedere ai dati (D8.2) | NFR.7 | Ispezione: nella v1 i dati risiedono solo sul PC e l'applicazione non apre connessioni di rete |
 | **Estendibilità** | È prevista l'evoluzione a cellulare e più dispositivi | NFR.5 | Ispezione: le funzioni su contatti, attività e agenda si eseguono da test automatici senza avviare la GUI |
 | **Testabilità** | Il regolamento richiede test JUnit | VIN.5 | Ispezione: per ogni requisito Must funzionale esiste almeno un test JUnit; la copertura è riportata nel Documento 5 |
 
@@ -777,18 +777,8 @@ Da chiarire con il committente, con il team o con il docente prima di considerar
 
 | N. | Punto aperto | Requisiti coinvolti |
 |---|---|---|
-| 1 | Come trattare in modo definitivo i lavori "generali" e i condomini: voce *Generale* o cantiere come contatto? Serve un modo per distinguere un cantiere da un cliente nella rubrica? | FUN.1.3, DAT.1.7 |
-| 2 | Conferma del committente che le attività si annullano con un motivo e non si eliminano. | FUN.12, FUN.12.2 |
-| 3 | Un'attività *completata* può essere annullata? Lo stato *annullata* è davvero definitivo, cioè l'attività non è più modificabile? | FUN.6.2, FUN.6.3 |
-| 4 | È possibile eliminare un contatto che ha già uno storico di attività? In tal caso, cosa succede alle sue attività? Non è stato discusso e nessun requisito lo prevede. | FUN.2, FUN.12.2 |
-| 5 | Confermare in fase di design i campi obbligatori, le lunghezze massime e i valori predefiniti proposti in 5.2, in particolare l'orario facoltativo e la posizione in cima delle attività senza orario. | DAT.1, DAT.2, DAT.3, FUN.10.3 |
-| 6 | Confermare con il committente le scelte del team su calendario e orario: agenda giornaliera al posto di un calendario con viste a mese e a settimana (D6.1†), storico del contatto come elenco (D5.1), un solo orario indicativo al posto di mezza giornata e giornata intera (D3.2), nessun orario di fine. | FUN.4.3, FUN.9, FUN.10, DAT.2.3 |
-| 7 | La notifica a fine giornata serve? | FUN.14 |
-| 8 | Backup ed esportazione dei dati (per la fatturazione): non discussi. | – |
-| 9 | Confermare l'assunzione A1 (un PC usato a turno dalle persone del team): quante persone registrano il proprio lavoro, su quali dispositivi, e come dovrà accedere il team in futuro (password unica, più dispositivi). | A1, NFR.7, FUT.1–FUT.3 |
-| 10 | Il perimetro della v1 è adeguato all'impegno richiesto dal progetto? Il regolamento chiede di implementare quasi tutto il documento, quindi i requisiti Must e Should (87) devono essere realizzabili nel tempo disponibile. Va verificato con il docente tramite issue. Si può valutare di includere la gestione strutturata dei materiali, oggi esclusa. | Sezione 7.2 |
-| 11 | Approfondire il contesto attuale: come il committente gestisce oggi la mattina, l'intervento, la sera e la fine del mese, e con quali strumenti (carta, moduli, calendario). Procurare un modulo cartaceo, anche di esempio, oppure una schermata del programma che usa oggi. Potrebbero emergere nuove tecniche di elicitazione (osservazione, analisi dei documenti). | Sezione 3.1 |
-| 12 | Confermare con il committente il comportamento in caso di dati non validi (non salvare, mostrare un messaggio, conservare gli altri dati). | DAT.5 |
+| 1 | Come gestire la fase di fatturazione? | FUN.9, FUN.9.1, FUN.12.2 |
+
 
 ---
 
