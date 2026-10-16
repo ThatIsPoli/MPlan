@@ -7,6 +7,7 @@ Corso di Ingegneria del Software, A.A. 2026/27
 |---|---|---|
 | 0.1.0 | 10/10/2026 | Versione iniziale |
 | 0.1.1 | 11/10/2026 | Sistemazione di alcuni errori |
+| 0.1.2 | 16/10/2026 | Conferma dei punti da verificare |
 
 > **Stato:** da validare con il committente e con il team. I requisiti contrassegnati con † o ‡ (vedi 1.6) derivano da informazioni parziali o non confermate dal committente e potrebbero cambiare.
 
