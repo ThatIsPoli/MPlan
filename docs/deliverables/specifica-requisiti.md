@@ -240,7 +240,7 @@ flowchart LR
 
 | Fase | Cosa risulta oggi | Fonte |
 |---|---|---|
-| Prima degli interventi | Il committente usa un calendario in cui segna gli appuntamenti già fissati con i clienti | D1.1† |
+| Prima degli interventi | Il committente usa un calendario in cui segna gli appuntamenti già fissati con i clienti | D1.1 |
 | Durante l'intervento | Non emerso | – |
 | Fine giornata | Non emerso come oggi riassuma il lavoro e prepari i materiali; sono obiettivi (O2, O3) | D1.2 |
 | Fine mese | Non emerso come oggi ricavi l'elenco degli interventi; è un obiettivo (O4) | D1.2 |
