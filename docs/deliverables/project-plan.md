@@ -83,15 +83,15 @@ Per la gestione operativa delle attività viene utilizzata una board Kanban su G
 
 Le milestone sono su GitHub con relativa scadenza. Le consegne settimanali sono **issue** assegnate alla milestone, con le etichette `documento`, `codice`, `test` (tipo).
 
-| Milestone | Scadenza | Si considera raggiunta quando |
+| Milestone | Inizio | Scadenza | Si considera raggiunta quando |
 |---|---|---|
-| M0 – – Setup del repository | 08/10/2026 | Creazione e configurazione del repository GitHub. |
-| M1 – Ingegneria dei requisiti | 22/10/2026 | Specifica dei requisiti pubblicato nel repository |
-| M2 – Design | 16/12/2026 | Tutti i diagrammi UML e il Documento di Design sono nel repository e approvati dall'altro membro |
-| M3 – Sviluppo del codice | 09/12/2026 | UC1–UC7 funzionano da GUI; il codice è unito in `main` e compila con Maven |
-| M4 – Sviluppo dei test | 16/12/2026 | Test JUnit superati e Documento di Testing con tracciabilità |
-| M5 – Manutenzione | 23/12/2026 | Modifica applicata, test ancora superati e Documento di Maintenance |
-| M6 – Revisione dei documenti e consegna | 01/01/2027 | Revisione incrociata completata, tracciabilità controllata, consegna effettuata |
+| M0 – – Setup del repository | 01/10/2026 |08/10/2026 | Creazione e configurazione del repository GitHub. |
+| M1 – Ingegneria dei requisiti | 8/10/2026 | 22/10/2026 | Specifica dei requisiti pubblicato nel repository |
+| M2 – Design | | 22/10/2026 |26/11/2026 | Tutti i diagrammi UML e il Documento di Design sono nel repository e approvati dall'altro membro |
+| M3 – Sviluppo del codice | 19/11/2026 | 09/12/2026 | UC2–UC10 funzionano da GUI; il codice è unito in `main` e compila con Maven |
+| M4 – Sviluppo dei test | 19/11/2026 | 16/12/2026 | Test JUnit superati e Documento di Testing con tracciabilità |
+| M5 – Manutenzione | 16/12/2026 | 23/12/2026 | Modifica applicata, test ancora superati e Documento di Maintenance |
+| M6 – Revisione dei documenti e consegna | 23/12/2026 | 01/01/2027 | Revisione incrociata completata, tracciabilità controllata, consegna effettuata |
 
 
 ---
