@@ -1,15 +1,16 @@
-
 # DOCUMENTO 1: PROJECT PLAN
 
-# Progetto MPlan – Verifica e Approntamento Materiali
+# Progetto MPlan
 
 ## Storico delle revisioni
 
-| Versione | Data | Autore | Descrizione delle modifiche |
-| --- | --- | --- | --- |
-| **0.1.0** | 15/10/2026 | Team MPlan | Prima bozza del Project Plan. |
+| Versione | Data |  Descrizione delle modifiche |
+| --- | --- | --- |
+| **0.1.0** | 15/10/2026 | Prima bozza del Project Plan. |
+| **0.1.1** | 17/10/2026 | Correzione di alcune imprecisioni. |
 
 ---
+
 ## Indice
 
 1. Introduction
@@ -85,7 +86,7 @@ Le milestone sono su GitHub con relativa scadenza. Le consegne settimanali sono 
 | Milestone | Scadenza | Si considera raggiunta quando |
 |---|---|---|
 | M0 – – Setup del repository | 08/10/2026 | Creazione e configurazione del repository GitHub. |
-| M1 – Ingegneria dei requisiti | 22/10/2026 | Specifica dei requisiti e Project Plan pubblicati nel repository |
+| M1 – Ingegneria dei requisiti | 22/10/2026 | Specifica dei requisiti pubblicato nel repository |
 | M2 – Design | 16/12/2026 | Tutti i diagrammi UML e il Documento di Design sono nel repository e approvati dall'altro membro |
 | M3 – Sviluppo del codice | 09/12/2026 | UC1–UC7 funzionano da GUI; il codice è unito in `main` e compila con Maven |
 | M4 – Sviluppo dei test | 16/12/2026 | Test JUnit superati e Documento di Testing con tracciabilità |
@@ -152,7 +153,7 @@ Le procedure adottate sono:
 - Aggiornamento della documentazione quando vengono modificate funzionalità, interfacce o architettura.
 - Utilizzo di tag Git per identificare le versioni significative.
 
-Il file `.gitignore` deve escludere i file temporanei e gli artefatti di compilazione, tra cui `target/` e `*.class`. I file di configurazione del progetto necessari alla collaborazione possono essere versionati in modo consapevole.
+Il file `.gitignore` deve escludere i file temporanei e gli artefatti di compilazione, tra cui `target/` e `*.class`. I file di configurazione del progetto necessari alla collaborazione devono essere versionati in modo consapevole.
 
 ### 4.3 Standard della documentazione
 
@@ -250,7 +251,7 @@ I requisiti vengono raccolti mediante un'intervista strutturata al referente del
 
 ### 8.2 Progettazione
 
-La progettazione viene realizzata utilizzando StarUML v5 (class, state, activity, sequence, package, component, communication/timing); architettura a strati con interfacce tra GUI, servizi e repository
+La progettazione viene realizzata utilizzando StarUML v5 (use case, class, state, activity, sequence, package, component, communication/timing); architettura a strati con interfacce tra GUI, servizi e repository
 
 ### 8.3 Implementazione
 
@@ -259,7 +260,7 @@ Il sistema viene implementato in Java, utilizzando Eclipse come ambiente di svil
 Le funzionalità vengono integrate in modo incrementale, verificando la compilazione e il comportamento del sistema a ogni passaggio significativo.
 
 
-### 8.6 Controllo della configurazione
+### 8.4 Controllo della configurazione
 
 Git e GitHub vengono utilizzati per gestire versioni, modifiche e integrazione del codice.
 
@@ -271,27 +272,26 @@ La documentazione tecnica e i diagrammi UML vengono aggiornati quando cambiano r
 
 ### 9.1 Obiettivi di qualità
 
-Il progetto persegue i seguenti obiettivi.
+Gli obiettivi di qualità sono definiti secondo le caratteristiche di qualità del prodotto dello standard ISO/IEC 9126.
 
-**Correttezza funzionale**
+**Funzionalità**
 
-Il sistema deve soddisfare i requisiti specificati e calcolare correttamente le quantità disponibili e mancanti.
+- *Accuratezza*: il sistema deve calcolare correttamente le quantità disponibili e mancanti.
+- *Adeguatezza*: il sistema deve soddisfare i requisiti specificati.
+- *Integrità dei dati*: le operazioni di aggiornamento delle giacenze devono preservare la coerenza dei dati e impedire modifiche incompatibili con le regole di business.
 
-**Manutenibilità e modularità**
+**Affidabilità**
 
-L'architettura deve favorire la separazione delle responsabilità, il basso accoppiamento e la possibilità di sostituire componenti attraverso interfacce dedicate.
+- *Tolleranza ai guasti*: il sistema deve gestire gli input non validi e le condizioni di errore prevedibili senza terminazioni anomale non controllate.
 
-**Robustezza**
+**Manutenibilità**
 
-Il sistema deve gestire gli input non validi e le condizioni di errore prevedibili senza terminazioni anomale non controllate.
+- *Modificabilità*: l'architettura deve favorire la separazione delle responsabilità e il basso accoppiamento.
+- *Testabilità*: le classi di dominio e i servizi devono poter essere verificati indipendentemente dall'interfaccia grafica e, quando possibile, dai dettagli del database.
 
-**Coerenza dei dati**
+**Portabilità**
 
-Le operazioni di aggiornamento delle giacenze devono preservare l'integrità dei dati e impedire modifiche incompatibili con le regole di business.
-
-**Testabilità**
-
-Le classi di dominio e i servizi devono poter essere verificati indipendentemente dall'interfaccia grafica e, quando possibile, dai dettagli del database.
+- *Sostituibilità*: i componenti devono poter essere sostituiti attraverso interfacce dedicate.
 
 ### 9.2 Organizzazione della qualità
 
@@ -388,7 +388,7 @@ La release deve essere preparata almeno cinque giorni prima dell'appello.
 
 Durante l'esame orale verrà effettuata una dimostrazione dal vivo delle funzionalità principali, accompagnata dalla presentazione del progetto e dall'esecuzione della suite di test, nel rispetto del limite di 20 minuti previsto.
 
-### 13.2 Consegna al cliente
+### 13.2 Consegna al committente
 
 La consegna operativa a MP elettrica s.a.s. è prevista come attività distinta dalla consegna accademica e subordinata alla disponibilità di un pacchetto eseguibile verificato.
 
