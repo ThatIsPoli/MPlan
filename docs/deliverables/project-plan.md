@@ -276,9 +276,9 @@ Gli obiettivi di qualità sono definiti secondo le caratteristiche di qualità d
 
 **Funzionalità**
 
-- *Accuratezza*: il sistema deve calcolare correttamente le quantità disponibili e mancanti.
+- *Accuratezza*: il sistema deve memorizzare correttamente gli attività.
 - *Adeguatezza*: il sistema deve soddisfare i requisiti specificati.
-- *Integrità dei dati*: le operazioni di aggiornamento delle giacenze devono preservare la coerenza dei dati e impedire modifiche incompatibili con le regole di business.
+- *Integrità dei dati*: le operazioni di aggiornamento delle attività devono preservare la coerenza dei dati e impedire modifiche incompatibili con le regole di business.
 
 **Affidabilità**
 
