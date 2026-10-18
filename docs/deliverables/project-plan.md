@@ -8,6 +8,7 @@
 | --- | --- | --- |
 | **0.1.0** | 15/10/2026 | Prima bozza del Project Plan. |
 | **0.1.1** | 17/10/2026 | Correzione di alcune imprecisioni. |
+| **0.2.0** | 18/10/2026 | Rivisitazione integrale del documento. |
 
 ---
 
@@ -18,7 +19,7 @@
 3. Organization of the project
 4. Standards, guidelines, procedures
 5. Management activities
-6. Risks
+6. Risks Potential 
 7. Staffing
 8. Methods and techniques
 9. Quality assurance
@@ -44,22 +45,18 @@ MPlan nasce nel corso di Ingegneria del Software (A.A. 2026/27). Il committente,
 I principali risultati attesi sono:
 
 - Codice sorgente Java organizzato in un progetto Maven.
-- Repository GitHub condiviso per la collaborazione e il controllo delle versioni.
-- Documentazione dei requisiti e della progettazione, accompagnata dai diagrammi UML.
 - Database relazionale embedded H2.
-- Suite di test automatizzati basata su JUnit 5 e relativo report di copertura.
 - Interfaccia grafica locale per la dimostrazione delle funzionalità principali.
-- Documentazione tecnica finale articolata nei sei documenti previsti dal progetto.
 - Release finale identificata dal tag Git `v1.0.0`.
-- Presentazione per l'esame orale.
+- Soddisfacimento dei requisiti del progetto imposti dal corso.
 
 ### 1.4 Responsabili del progetto
 
-I responsabili del progetto sono **Matteo Poli** e **Michele Bisignano**, che condividono le attività di sviluppo, verifica e documentazione.
+I responsabili del progetto sono **Matteo Poli** e **Michele Bisignano**.
 
 ### 1.5 Sintesi
 
-Progetto di due persone, da svolgere nel primo semestre, con circa 40 ore a testa pianificate. Processo iterativo a settimane, con 6 milestone su GitHub. Il codice si ferma il 9 dicembre; dicembre e gennaio sono dedicati a documenti finali, manutenzione e revisione.
+Realizzazione di un applicativo al fine di supportare la schedulazione del lavoro della società MP elettrica s.a.s. e di sostenere l'esame di ingegneria del software.
 
 ---
 
@@ -78,7 +75,7 @@ Per la gestione operativa delle attività viene utilizzata una board Kanban su G
 - **Daily Scrum:** allineamento quotidiano di 15 minuti, dalle 10:15 alle 10:30, compatibilmente con gli impegni accademici dei componenti del team.
 - **Gestione del lavoro:** assegnazione delle attività e monitoraggio dell'avanzamento tramite issue e board Kanban.
 - **Revisione:** verifica congiunta degli incrementi realizzati e aggiornamento delle priorità per lo sprint successivo.
-
+ 
 ### 2.3 Milestone di progetto
 
 Le milestone sono su GitHub con relativa scadenza. Le consegne settimanali sono **issue** assegnate alla milestone, con le etichette `documento`, `codice`, `test` (tipo).
@@ -161,12 +158,8 @@ La documentazione viene mantenuta in formato Markdown all'interno del repository
 
 I principali riferimenti sono:
 
-- IEEE 830 come riferimento storico per la struttura della specifica dei requisiti software.
+- IEEE 830 come riferimento per la struttura della specifica dei requisiti software.
 - UML per la modellazione strutturale e comportamentale.
-- Convenzioni Java per il codice sorgente.
-- Convenzioni Maven per la struttura del progetto e la gestione delle dipendenze.
-
-La versione finale dei documenti deve essere consolidata entro cinque giorni dall'appello d'esame.
 
 Ogni documento è sottoposto a revisione incrociata per verificarne correttezza, completezza e coerenza con il sistema implementato.
 
@@ -182,10 +175,8 @@ Le priorità vengono stabilite considerando:
 
 - Rispetto della scadenza dell'esame.
 - Completamento dei requisiti funzionali essenziali.
-- Correttezza della logica di business.
 - Qualità della progettazione e della documentazione.
 - Affidabilità della persistenza e dei test.
-- Disponibilità di tempo per la convalida finale.
 
 In caso di ritardi, le funzionalità non essenziali possono essere ridimensionate o rinviate, senza compromettere i requisiti fondamentali.
 
@@ -209,7 +200,7 @@ Le Pull Request vengono sottoposte a revisione da parte dell'altro componente de
 
 **Impatto:** ritardi, aumento della complessità e riduzione del tempo disponibile per test e documentazione.
 
-**Mitigazione:** Formalizzazione delle nuove richieste tramite issue e assegnazione delle priorità in funzione del tempo residuo.
+**Mitigazione:** Assegnazione delle priorità con medoto MOSCOW in funzione del tempo residuo.
 
 ### 6.2 Disallineamento tra modelli UML e codice
 
@@ -223,7 +214,7 @@ Le Pull Request vengono sottoposte a revisione da parte dell'altro componente de
 
 **Descrizione:** presenza di dubbi e punti aperti sui requisiti (in particolare quelli indicati nella sezione 11 del Documento 3) non ancora formalmente chiariti e approvati dal committente.
 
-**Impatto:** progettazione e sviluppo basati su assunzioni errate, con conseguente necessità di rework pesante del codice e del design di dettaglio.
+**Impatto:** progettazione e sviluppo basati su assunzioni errate, con conseguente necessità di modifiche pesanti del codice e del design.
 
 **Mitigazione:** risoluzione e chiarimento dei punti aperti entro l'apertura della milestone M3 – Sviluppo del codice.
 
@@ -233,7 +224,7 @@ Le Pull Request vengono sottoposte a revisione da parte dell'altro componente de
 
 **Impatto:** rallentamento dello sviluppo, codice disordinato o poco manutenibile e potenziale mancato rispetto delle stime di tempo per l'interfaccia.
 
-**Mitigazione:** mantenimento codice essenziale.
+**Mitigazione:** mantenimento codice essenziale e studio individuale per colmare eventuali lacune.
 
 ---
 
@@ -251,14 +242,13 @@ I requisiti vengono raccolti mediante un'intervista strutturata al referente del
 
 ### 8.2 Progettazione
 
-La progettazione viene realizzata utilizzando StarUML v5 (use case, class, state, activity, sequence, package, component, communication/timing); architettura a strati con interfacce tra GUI, servizi e repository
+La progettazione viene realizzata utilizzando StarUML v5 (use case, class, state, activity, sequence, package, component, communication/timing); architettura con interfacce per facilitare la manutenzione.
 
 ### 8.3 Implementazione
 
 Il sistema viene implementato in Java, utilizzando Eclipse come ambiente di sviluppo, Apache Maven per la compilazione e la gestione delle dipendenze, H2 embedded per la gestione del database.
 
 Le funzionalità vengono integrate in modo incrementale, verificando la compilazione e il comportamento del sistema a ogni passaggio significativo.
-
 
 ### 8.4 Controllo della configurazione
 
@@ -276,9 +266,9 @@ Gli obiettivi di qualità sono definiti secondo le caratteristiche di qualità d
 
 **Funzionalità**
 
-- *Accuratezza*: il sistema deve memorizzare correttamente gli attività.
+- *Accuratezza*: il sistema deve memorizzare correttamente ogni attività.
 - *Adeguatezza*: il sistema deve soddisfare i requisiti specificati.
-- *Integrità dei dati*: le operazioni di aggiornamento delle attività devono preservare la coerenza dei dati e impedire modifiche incompatibili con le regole di business.
+- *Integrità dei dati*: durante qualisasi operazione deve essere preservata la coerenza dei dati e impedire modifiche incompatibili con le regole di business.
 
 **Affidabilità**
 
@@ -286,7 +276,7 @@ Gli obiettivi di qualità sono definiti secondo le caratteristiche di qualità d
 
 **Manutenibilità**
 
-- *Modificabilità*: l'architettura deve favorire la separazione delle responsabilità e il basso accoppiamento.
+- *Modificabilità*: l'architettura deve favorire la separazione delle responsabilità e il basso accoppiamento ricorrendo ad interfacce.
 - *Testabilità*: le classi di dominio e i servizi devono poter essere verificati indipendentemente dall'interfaccia grafica e, quando possibile, dai dettagli del database.
 
 **Portabilità**
@@ -324,11 +314,11 @@ Le risorse umane sono costituite dai due sviluppatori del progetto, che condivid
 
 ### 10.3 Risorse economiche
 
-Nessun costo previsto
+Nessun costo previsto.
 
 ### 10.4 Risorse hardware
 
-Un pc windows 11 per persona.
+Un pc Windows 11 per sviluppatore.
 
 ---
 
