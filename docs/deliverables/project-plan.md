@@ -81,7 +81,7 @@ Per la gestione operativa delle attività viene utilizzata una board Kanban su G
 Le milestone sono su GitHub con relativa scadenza. Le consegne settimanali sono **issue** assegnate alla milestone, con le etichette `documento`, `codice`, `test` (tipo).
 
 | Milestone | Inizio | Scadenza | Si considera raggiunta quando |
-|---|---|---|
+|---|---|---| ---|
 | M0 – – Setup del repository | 01/10/2026 |08/10/2026 | Creazione e configurazione del repository GitHub. |
 | M1 – Ingegneria dei requisiti | 8/10/2026 | 22/10/2026 | Specifica dei requisiti pubblicato nel repository |
 | M2 – Design | | 22/10/2026 |26/11/2026 | Tutti i diagrammi UML e il Documento di Design sono nel repository e approvati dall'altro membro |
