@@ -26,8 +26,6 @@ Corso di Ingegneria del Software, A.A. 2026/27
 
 Questo documento descrive come il team gestisce lo sviluppo di **MPlan**: il processo seguito, gli strumenti con cui si tiene sotto controllo il codice e i documenti, e l'organizzazione del lavoro tra le persone.
 
-Descrive il processo **effettivamente seguito**. Le differenze rispetto a quanto previsto nel Project Plan (Documento 1) sono indicate in 2.5.
-
 ---
 
 ## 2. Ciclo di vita del software
@@ -44,6 +42,7 @@ Il team segue un approccio agile ispirato a **Scrum**, adattato a un gruppo di d
 | Scrum Master / Agile Coordinator | Michele Bisignano | Cura il rispetto del processo, gestisce la board Kanban e rimuove gli ostacoli |
 | Sviluppatori | Entrambi i membri | Svolgono i compiti dello sprint |
 
+
 | Evento o artefatto di Scrum | Come lo svolgiamo |
 |---|---|
 | Sprint planning | Ogni giovedì, nella sessione congiunta di tre ore (Project Plan, 2.2), si scelgono i compiti dello sprint e si assegnano le issue ai membri |
@@ -52,12 +51,12 @@ Il team segue un approccio agile ispirato a **Scrum**, adattato a un gruppo di d
 | Sprint retrospective | Svolta nella sessione del giovedì (Project Plan, 2.2) |
 | Backlog | Come backlog si usa la specifica dei requisiti, ordinata con le priorità MoSCoW (sezione 6). Lo sprint backlog di ogni sprint è la tabella di 2.3, compilata man mano con i compiti scelti dalla specifica |
 
-### 2.3 Milestone e sprint
+### 2.3 Milestone
 
 Le milestone sono su GitHub con le loro scadenze (Project Plan, 2.3):
 
 - **M0 – Setup del repository** (01/10/2026 – 08/10/2026): creazione e configurazione del repository GitHub, con la struttura delle cartelle `code/` e `docs/`, il `.gitignore`, la licenza MIT e il `README`.
-- **M1 – Ingegneria dei requisiti** (08/10/2026 – 22/10/2026): intervista al committente e documenti che la raccolgono; specifica dei requisiti (Documento 3), con casi d'uso e diagramma UML in StarUML, pubblicata nel repository. Nello stesso periodo si producono anche il Project Plan e questo documento, che il Project Plan non assegna a una milestone.
+- **M1 – Ingegneria dei requisiti** (08/10/2026 – 22/10/2026): intervista al committente e documenti che la raccolgono; specifica dei requisiti (Documento 3), con casi d'uso e diagramma UML in StarUML, pubblicata nel repository. Nello stesso periodo si produce anche il Project Plan.
 - **M2 – Design** (22/10/2026 – 26/11/2026): tutti i diagrammi UML richiesti (casi d'uso, classi, stati, sequenza, comunicazione o timing, attività, componenti, package) e il Documento di Design, con architettura (almeno due viste) e design pattern, nel repository e approvati dall'altro membro.
 - **M3 – Sviluppo del codice** (19/11/2026 – 09/12/2026): i casi d'uso UC2–UC10 funzionano dall'interfaccia grafica; il codice, con una prima versione generata dal diagramma delle classi con StarUML e completata a mano, è unito in `main` e compila con Maven.
 - **M4 – Sviluppo dei test** (19/11/2026 – 16/12/2026): test JUnit di unità superati e Documento di Testing con la descrizione dei test, la misura di copertura (se generata) e la tracciabilità requisito → test (specifica, 9.4).
@@ -65,6 +64,8 @@ Le milestone sono su GitHub con le loro scadenze (Project Plan, 2.3):
 - **M6 – Revisione dei documenti e consegna** (23/12/2026 – 01/01/2027): revisione incrociata di tutti i documenti, tracciabilità controllata, release finale con tag `v1.0.0` e consegna. La release deve essere pronta almeno cinque giorni prima dell'appello (Project Plan, 13.1).
 
 Lo sprint backlog di ogni sprint è una tabella, compilata all'inizio dello sprint scegliendo i compiti dalla specifica e aggiornata man mano. Dagli sprint di sviluppo ogni compito cita gli ID dei requisiti che realizza.
+
+## 2.4 Sprint Backlog
 
 | Sprint | Periodo | Sprint backlog | Responsabile | Stato |
 |---|---|---|---|---|
@@ -74,9 +75,9 @@ Lo sprint backlog di ogni sprint è una tabella, compilata all'inizio dello spri
 | | | Gestione del progetto (Documento 2, questo documento) | Product Owner | Completato |
 | Sprint 3 e successivi | Dal 22/10/2026, ogni giovedì | Da compilare all'inizio di ogni sprint | Assegnato a inizio sprint | – |
 
-### 2.4 Approccio basato su modelli (MDA)
+### 2.5 Approccio basato su modelli (MDA)
 
-Il design parte dai diagrammi UML realizzati con StarUML. Dal diagramma delle classi si genera una prima versione del codice Java, poi completata a mano. Le classi generate e quelle modificate saranno indicate nella relazione.
+Il design parte dai diagrammi UML realizzati con StarUML v5. Dal diagramma delle classi si genera una prima versione del codice Java, poi completata a mano. Le classi generate e quelle modificate saranno indicate nella relazione.
 
 
 ---
@@ -162,4 +163,4 @@ Ogni sprint il lavoro si divide in compiti individuali, ciascuno con la propria 
 
 ### 4.4 Comunicazione
 
-Il team si incontra di persona ogni giovedì (2.1) e prevede un allineamento quotidiano di 15 minuti (2.2) svolto in videchiamata tramite WhatsApp o di persona nel caso sia possibile in Università. Lo strumento di comunicazione virtuale è GitHub tramite i commenti delle issue e delle pull request.
+Il team si incontra di persona ogni giovedì (2.1) e prevede un allineamento quotidiano di 15 minuti (2.2) svolto di persona in Università. Lo strumento di comunicazione virtuale è GitHub tramite i commenti delle issue e delle pull request.
