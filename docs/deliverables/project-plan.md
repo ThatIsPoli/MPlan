@@ -312,10 +312,6 @@ La persona che sviluppa una modifica non può essere l'unico revisore della rela
 
 Le risorse umane sono costituite dai due sviluppatori del progetto, che condividono le attività di analisi, progettazione, implementazione, testing e documentazione.
 
-### 10.3 Risorse economiche
-
-Nessun costo previsto.
-
 ### 10.4 Risorse hardware
 
 Un pc Windows 11 per sviluppatore.
@@ -342,6 +338,10 @@ Il progetto adotta sprint settimanali con pianificazione e revisione il giovedì
 Le attività sono organizzate secondo le milestone nella sezione 2.3 di questo documento. 
 
 La pianificazione dettagliata degli sprint viene mantenuta su GitHub Projects ricorrendo alle issues. Il codice e la documentazione devono essere congelati almeno cinque giorni prima dell'appello.
+
+### 11.3 Budget
+
+Non è previsto alcun costo.
 
 ---
 
