@@ -118,10 +118,10 @@ Il ramo principale `main` è protetto: non si fa push diretto e ogni modifica en
 
 | Operazione | Comando |
 |---|---|
-| Aggiornare il ramo principale | `git pull` |
+| Aggiornare il workspace | `git pull` |
 | Creare il branch di una issue | `git switch -c <numero>-<nome-del-branch>` |
-| Preparare e salvare le modifiche | `git add <file>` e `git commit -m "<messaggio con ID>"` |
-| Pubblicare il branch | `git push -u origin <branch>` |
+| Caricare sullo stage | `git add <file>` e `git commit -m "<messaggio con ID>"` |
+| Caricare sul repository remoto le modifiche | `git push -u origin <branch>` |
 | Rivedere, approvare e unire | pull request su GitHub |
 
 In alternativa si può utilizzare l'applicativo GitHub Desktop con le sue azioni equivalenti.
