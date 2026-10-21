@@ -110,6 +110,22 @@ Il repository è condiviso con il docente e con l'esercitatrice.
 5. **Revisione.** Il reviewer scrive gli eventuali commenti nella pull request; se non servono commenti, si completa insieme il lavoro rimasto. Il confronto può avvenire anche nei commenti della issue.
 6. **Merge e chiusura.** Dopo l'approvazione la pull request è unita al ramo principale e la issue è chiusa.
 
+```mermaid
+sequenceDiagram
+    actor A as Assegnatario
+    participant GH as GitHub
+    actor R as Reviewer
+
+    A->>GH: prende in carico issue (CR)
+    A->>GH: aggiorna baseline (commit su branch)
+    A->>GH: apre PR
+    GH-->>R: richiesta review
+    R->>GH: approva PR
+    R->>GH: merge su main
+    GH-->>A: issue chiusa
+```
+
+
 Lo stato di ciascun requisito (proposto, validato, implementato, verificato) è tracciato nelle issue, come previsto dalla specifica dei requisiti (sezione 1.7).
 
 Il ramo principale `main` è protetto: non si fa push diretto e ogni modifica entra con una pull request approvata dall'altro membro su un branch separato.
