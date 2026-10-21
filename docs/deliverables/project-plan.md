@@ -84,7 +84,7 @@ Le milestone sono su GitHub con relativa scadenza. Le consegne settimanali sono 
 |---|---|---| ---|
 | M0 – – Setup del repository | 01/10/2026 |08/10/2026 | Creazione e configurazione del repository GitHub. |
 | M1 – Ingegneria dei requisiti | 8/10/2026 | 22/10/2026 | Specifica dei requisiti pubblicato nel repository |
-| M2 – Design | | 22/10/2026 |26/11/2026 | Tutti i diagrammi UML e il Documento di Design sono nel repository e approvati dall'altro membro |
+| M2 – Design | 22/10/2026 | 26/11/2026 | Tutti i diagrammi UML e il Documento di Design sono nel repository e approvati dall'altro membro |
 | M3 – Sviluppo del codice | 19/11/2026 | 09/12/2026 | UC2–UC10 funzionano da GUI; il codice è unito in `main` e compila con Maven |
 | M4 – Sviluppo dei test | 19/11/2026 | 16/12/2026 | Test JUnit superati e Documento di Testing con tracciabilità |
 | M5 – Manutenzione | 16/12/2026 | 23/12/2026 | Modifica applicata, test ancora superati e Documento di Maintenance |
