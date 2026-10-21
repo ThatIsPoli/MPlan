@@ -112,7 +112,7 @@ Il repository è condiviso con il docente e con l'esercitatrice.
 
 Lo stato di ciascun requisito (proposto, validato, implementato, verificato) è tracciato nelle issue, come previsto dalla specifica dei requisiti (sezione 1.7).
 
-Il ramo principale `main` è protetto: non si fa push diretto e ogni modifica entra con una pull request approvata dall'altro membro. **[DA COMPLETARE:** verificare dopo aver attivato la protezione e indicare il tipo di merge usato.**]**
+Il ramo principale `main` è protetto: non si fa push diretto e ogni modifica entra con una pull request approvata dall'altro membro su un branch separato.
 
 ### 3.3 Comandi usati
 
