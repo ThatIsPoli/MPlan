@@ -1,2 +1,4 @@
 # MPlan
-Sistema per la verifica delle giacenze e la gestione dei materiali per interventi elettrici.
+
+App desktop in Java per gestire i clienti, cantieri e attività di interventi presso terzi della società MP elettrica s.a.s. : storico agenda giornaliera e note sui materiali
+
