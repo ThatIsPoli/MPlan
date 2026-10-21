@@ -258,7 +258,7 @@ flowchart LR
 
 ### 3.3 Utenti
 
-Gli utenti sono le persone del team di lavoro del committente. Nella v1 usano lo stesso PC a turno, senza account distinti (A1). Il committente privilegia la semplicità e il raggiungimento, tramite pochi passaggi, delle varie funzioni dell'applicazione(D9.4†): per questo la semplicità d'uso è un requisito prioritario (NFR.1).
+Gli utenti sono le persone del team di lavoro del committente. Nella v1 usano lo stesso PC a turno, senza account distinti (A1). Il committente privilegia la semplicità e il raggiungimento, tramite pochi passaggi, delle varie funzioni dell'applicazione(D9.4): per questo la semplicità d'uso è un requisito prioritario (NFR.1).
 
 ### 3.4 Vincoli generali
 
