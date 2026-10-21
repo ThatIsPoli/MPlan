@@ -8,6 +8,7 @@ Corso di Ingegneria del Software, A.A. 2026/27
 | 0.1.0 | 15/10/2026 | Versione iniziale |
 | 0.1.1 | 17/10/2026 | Aggiornamento rispetto al Project Plan, alla specifica dei requisiti e al modo di lavorare sulle issue |
 | 0.1.2 | 18/10/2026 | Milestone dettagliate, sprint backlog in tabella, procedura di lavoro sulle issue |
+| 0.1.3 | 18/10/2026 | Piccole correzioni e specificazione di MDA |
 
 > **Stato:** bozza. I punti segnati **[DA COMPLETARE]** richiedono dati che il team deve ancora inserire.
 
@@ -77,7 +78,11 @@ Lo sprint backlog di ogni sprint è una tabella, compilata all'inizio dello spri
 
 ### 2.5 Approccio basato su modelli (MDA)
 
-Il design parte dai diagrammi UML realizzati con StarUML v5. Dal diagramma delle classi si genera una prima versione del codice Java, poi completata a mano. Le classi generate e quelle modificate saranno indicate nella relazione.
+Per questo progetto utilizziamo il modello MDA basato sullo sviulppo della documentazione in maniera circolare.
+
+Il design parte dai diagrammi UML realizzati con StarUML v5.1.0 con estensione Rebel per la conversione in codice Java . Dal diagramma delle classi si genera una prima versione del codice Java, poi completata a mano. Le classi generate e quelle modificate saranno indicate nella relazione.
+
+Se il codice generato presenta problemi strutturali, di progettazione o di requisiti, il team deve aggiornare la varia documentazione al fine di raggiungere gli obbiettivi prestabiliti ed infine ricreare il codice.
 
 
 ---
