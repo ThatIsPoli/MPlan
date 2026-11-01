@@ -248,7 +248,7 @@ La progettazione viene realizzata utilizzando StarUML v5 (use case, class, state
 
 ### 8.3 Implementazione
 
-Il sistema viene implementato in Java, utilizzando Eclipse come ambiente di sviluppo, Apache Maven per la compilazione e la gestione delle dipendenze, H2 embedded per la gestione del database.
+Il sistema viene implementato in Java, utilizzando Eclipse come ambiente di sviluppo, Apache Maven per la compilazione e la gestione delle dipendenze, H2 embedded per la gestione del database e Swing per la GUI.
 
 Le funzionalità vengono integrate in modo incrementale, verificando la compilazione e il comportamento del sistema a ogni passaggio significativo.
 
@@ -310,6 +310,8 @@ La persona che sviluppa una modifica non può essere l'unico revisore della rela
 | Collaborazione | GitHub | Repository, issue, Pull Request e board Kanban |
 | Documentazione | Markdown | Redazione dei documenti tecnici |
 | Logging | Apache Log4j | Tracciamento eventi a runtime e gestione log applicativi |
+| GUI | Swing | Libreria per la GUI |
+
 
 ### 10.2 Risorse umane
 
