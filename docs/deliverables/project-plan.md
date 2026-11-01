@@ -6,9 +6,11 @@
 
 | Versione | Data |  Descrizione delle modifiche |
 | --- | --- | --- |
-| **0.1.0** | 15/10/2026 | Prima bozza del Project Plan. |
-| **0.1.1** | 17/10/2026 | Correzione di alcune imprecisioni. |
-| **0.2.0** | 18/10/2026 | Rivisitazione integrale del documento. |
+| **0.1.0** | 15/10/2026 | Prima bozza del Project Plan |
+| **0.1.1** | 17/10/2026 | Correzione di alcune imprecisioni |
+| **0.2.0** | 18/10/2026 | Rivisitazione integrale del documento |
+| **0.3.0** | 01/11/2026 | Aggiunta di log4j |
+
 
 ---
 
@@ -307,6 +309,7 @@ La persona che sviluppa una modifica non può essere l'unico revisore della rela
 | Versionamento | Git | Gestione delle versioni |
 | Collaborazione | GitHub | Repository, issue, Pull Request e board Kanban |
 | Documentazione | Markdown | Redazione dei documenti tecnici |
+| Logging | Apache Log4j | Tracciamento eventi a runtime e gestione log applicativi |
 
 ### 10.2 Risorse umane
 
