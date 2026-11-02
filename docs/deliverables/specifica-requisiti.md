@@ -435,7 +435,7 @@ Le schermate e le transizioni sono illustrate nelle Figure 8.2, 8.3 e 8.4. Come 
 | NFR.1.1 | Creare un'attività dalla Home in ≤ 6 click. | M | D3.3, D9.4 |
 | NFR.1.2 | Almeno 80% delle persone del team completa UC6, UC7, UC8 in ≤ 2 min senza aiuto | S | D9.4 |
 | **NFR.2** | **Affidabilità.** Dopo ogni operazione di salvataggio i dati dovrebbero essere scritti in modo persistente, così da non perderli in caso di chiusura inattesa.<br>*Rationale:* il lavoro di una giornata non deve andare perso. | S | Team |
-| **NFR.3** | **Efficienza.** L'apertura di una scheda contatto dovrebbe richiedere meno di 2 secondi con almeno 5000 attività salvate.<br>*Rationale:* il committente vuole consultare la storia per anni (D9.2). | S | Team |
+| **NFR.3** | **Efficienza.** L'apertura di una scheda contatto deve richiedere meno di 2 secondi con almeno 5000 attività salvate.<br>*Rationale:* il committente vuole consultare la storia per anni (D9.2). | M | Team |
 | **NFR.4** | **Portabilità.** L'applicazione deve funzionare su Windows 11. | M | D9.1 |
 | **NFR.5** | **Manutenibilità.** Il sistema deve poter evolvere verso l'uso da cellulare e da più dispositivi senza dover riscrivere le funzioni già realizzate. | M | D9.1, Team |
 | **NFR.6** | **Funzionamento offline.** L'applicazione deve funzionare senza connessione a Internet e senza servizi da installare. | M | Reg., D9.2 |
@@ -482,10 +482,10 @@ La priorità e l'affidabilità della fonte sono indipendenti. Un requisito Must 
 | FUN – Funzionali | 30 | 2 | 4 | – | 36 |
 | DAT – Dati | 17 | 1 | 1 | – | 19 |
 | GUI – Interfaccia | 18 | 1 | – | – | 19 |
-| NFR – Non funzionali | 6 | 4 | – | – | 10 |
+| NFR – Non funzionali | 7 | 3 | – | – | 10 |
 | VIN – Vincoli | 8 | – | – | – | 8 |
 | FUT – Futuri | – | – | – | 4 | 4 |
-| **Totale** | **79** | **8** | **5** | **4** | **96** |
+| **Totale** | **80** | **7** | **5** | **4** | **96** |
 
 ---
 

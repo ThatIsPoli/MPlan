@@ -9,6 +9,7 @@
 | **0.1.0** | 15/10/2026 | Prima bozza del Project Plan. |
 | **0.1.1** | 17/10/2026 | Correzione di alcune imprecisioni. |
 | **0.2.0** | 18/10/2026 | Rivisitazione integrale del documento. |
+| **0.2.1** | 24/10/2026 | Aggiunte le caratteristiche ISO/IEC 9126 mancanti negli obiettivi di qualità (9.1). |
 
 ---
 
@@ -81,10 +82,10 @@ Per la gestione operativa delle attività viene utilizzata una board Kanban su G
 Le milestone sono su GitHub con relativa scadenza. Le consegne settimanali sono **issue** assegnate alla milestone, con le etichette `documento`, `codice`, `test` (tipo).
 
 | Milestone | Inizio | Scadenza | Si considera raggiunta quando |
-|---|---|---| ---|
+|---|---|---|
 | M0 – – Setup del repository | 01/10/2026 |08/10/2026 | Creazione e configurazione del repository GitHub. |
 | M1 – Ingegneria dei requisiti | 8/10/2026 | 22/10/2026 | Specifica dei requisiti pubblicato nel repository |
-| M2 – Design | 22/10/2026 | 26/11/2026 | Tutti i diagrammi UML e il Documento di Design sono nel repository e approvati dall'altro membro |
+| M2 – Design | | 22/10/2026 |26/11/2026 | Tutti i diagrammi UML e il Documento di Design sono nel repository e approvati dall'altro membro |
 | M3 – Sviluppo del codice | 19/11/2026 | 09/12/2026 | UC2–UC10 funzionano da GUI; il codice è unito in `main` e compila con Maven |
 | M4 – Sviluppo dei test | 19/11/2026 | 16/12/2026 | Test JUnit superati e Documento di Testing con tracciabilità |
 | M5 – Manutenzione | 16/12/2026 | 23/12/2026 | Modifica applicata, test ancora superati e Documento di Maintenance |
@@ -262,7 +263,7 @@ La documentazione tecnica e i diagrammi UML vengono aggiornati quando cambiano r
 
 ### 9.1 Obiettivi di qualità
 
-Gli obiettivi di qualità sono definiti secondo le caratteristiche di qualità del prodotto dello standard ISO/IEC 9126.
+Gli obiettivi di qualità sono definiti secondo le caratteristiche di qualità del prodotto (ISO/IEC 9126-1) e della qualità in uso (ISO/IEC 9126-4) dello standard ISO/IEC 9126. I criteri di verifica sono nella sezione 10 del Documento 3.
 
 **Funzionalità**
 
@@ -273,6 +274,16 @@ Gli obiettivi di qualità sono definiti secondo le caratteristiche di qualità d
 **Affidabilità**
 
 - *Tolleranza ai guasti*: il sistema deve gestire gli input non validi e le condizioni di errore prevedibili senza terminazioni anomale non controllate.
+- *Recuperabilità*: dopo una chiusura inattesa del programma i dati già salvati devono essere ancora presenti alla riapertura.
+
+**Usabilità**
+
+- *Apprendibilità*: le persone del team devono riuscire a usare le funzioni principali senza aiuto.
+- *Operabilità*: creare un'attività deve richiedere pochi passaggi e poche informazioni da compilare.
+
+**Efficienza**
+
+- *Comportamento rispetto al tempo*: l'apertura della scheda di un contatto deve richiedere meno di 2 secondi con almeno 5000 attività salvate.
 
 **Manutenibilità**
 
@@ -281,7 +292,15 @@ Gli obiettivi di qualità sono definiti secondo le caratteristiche di qualità d
 
 **Portabilità**
 
+- *Installabilità*: l'applicazione deve funzionare su Windows senza installare servizi esterni.
 - *Sostituibilità*: i componenti devono poter essere sostituiti attraverso interfacce dedicate.
+
+**Qualità in uso**
+
+- *Efficacia*: l'utente deve riuscire a registrare e a ritrovare ciò che ha fatto, eseguendo senza assistenza gli scenari principali dei casi d'uso.
+- *Produttività*: registrare il lavoro deve costare poco tempo: creare un'attività dalla Home richiede al massimo 6 click e i casi d'uso principali si completano in al massimo 2 minuti.
+- *Sicurezza*: solo il team di lavoro del committente deve poter accedere ai dati; nella versione 1 i dati restano solo sul PC e l'applicazione non apre connessioni di rete.
+- *Soddisfazione*: il committente deve ritenere l'applicazione adatta al proprio lavoro e confermarlo all'accettazione finale.
 
 ### 9.2 Organizzazione della qualità
 
@@ -312,6 +331,10 @@ La persona che sviluppa una modifica non può essere l'unico revisore della rela
 
 Le risorse umane sono costituite dai due sviluppatori del progetto, che condividono le attività di analisi, progettazione, implementazione, testing e documentazione.
 
+### 10.3 Risorse economiche
+
+Nessun costo previsto.
+
 ### 10.4 Risorse hardware
 
 Un pc Windows 11 per sviluppatore.
@@ -338,10 +361,6 @@ Il progetto adotta sprint settimanali con pianificazione e revisione il giovedì
 Le attività sono organizzate secondo le milestone nella sezione 2.3 di questo documento. 
 
 La pianificazione dettagliata degli sprint viene mantenuta su GitHub Projects ricorrendo alle issues. Il codice e la documentazione devono essere congelati almeno cinque giorni prima dell'appello.
-
-### 11.3 Budget
-
-Non è previsto alcun costo.
 
 ---
 
