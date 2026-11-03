@@ -11,6 +11,7 @@ Corso di Ingegneria del Software, A.A. 2026/27
 | 0.2.1 | 17/10/2026 | Piccole correzioni sintattiche e relative ad ambiguità |
 | 0.3.0 | 17/10/2026 | Inserimento dello use case diagram  |
 | 0.3.1 | 18/10/2026 | Risolto l'ultimo punto aperto: la fatturazione non è svolta dal sistema |
+| 0.3.2 | 24/10/2026 | Qualità del software allineate a ISO/IEC 9126 |
 
 ---
 
@@ -89,6 +90,7 @@ Nel documento "committente" indica sempre l'azienda che commissiona il software,
 - *Requisiti per il progetto di ingegneria del software, A.A. 2026/27*, v1.0.0 (A. Gargantini, S. Bonfanti).
 - S. Bonfanti, A. Gargantini, *Mechanical Lung Ventilator – Software Requirements Specification for ABZ 2024 case study*, v1.5, dicembre 2023 (documento di riferimento per il formato).
 - IEEE Std 830-1998, *Recommended Practice for Software Requirements Specifications*, IEEE, 1998: <https://ieeexplore.ieee.org/document/720574>. Il testo completo è a pagamento; lo standard è stato sostituito da ISO/IEC/IEEE 29148:2011.
+- ISO/IEC 9126-1:2001, *Software engineering – Product quality – Part 1: Quality model*, e ISO/IEC TR 9126-4:2004, *Part 4: Quality in use metrics*. Sono stati sostituiti da ISO/IEC 25010, ma sono il modello di qualità usato nel corso e nel Project Plan (9.1).
 - Intervista di elicitazione del 08/10/2026: `intervista-01-domande-risposte.md`, `intervista-01-riassunto-esigenze-cliente.md`.
 
 ### 1.5 Struttura del documento
@@ -108,7 +110,7 @@ Il formato dei requisiti (identificatori, rationale e riferimento di origine, ta
 | Descrizione generale (prospettiva, funzioni, utenti, vincoli, assunzioni, ripartizione dei requisiti) | 3.1–3.6 |
 | Requisiti specifici – interfacce esterne | 5.3 (GUI); nessuna interfaccia hardware, software o di comunicazione verso altri sistemi nella v1 (NFR.6) |
 | Requisiti specifici – funzioni | 5.1 (FUN) e sezione 4 |
-| Requisiti specifici – prestazioni | 5.4 (NFR.3) |
+| Requisiti specifici – prestazioni (efficienza) | 5.4 (NFR.3) |
 | Requisiti specifici – dati | 5.2 (DAT) |
 | Requisiti specifici – vincoli di progetto | 5.5 (VIN) |
 | Requisiti specifici – attributi del sistema (affidabilità, sicurezza, manutenibilità, portabilità) | 5.4 (NFR) e sezione 10 |
@@ -130,7 +132,7 @@ Come richiesto dallo standard, i requisiti sono identificati in modo univoco, cl
 | FUN | Funzionali |
 | DAT | Dati: attributi, formati e valori ammessi |
 | GUI | Interfaccia grafica |
-| NFR | Non funzionali (usabilità, prestazioni, affidabilità, portabilità) |
+| NFR | Non funzionali (usabilità, affidabilità, efficienza, manutenibilità, portabilità, sicurezza) |
 | VIN | Vincoli di progetto e di processo |
 | FUT | Requisiti futuri, non nella v1 |
 
@@ -433,11 +435,11 @@ Le schermate e le transizioni sono illustrate nelle Figure 8.2, 8.3 e 8.4. Come 
 | NFR.1.1 | Creare un'attività dalla Home in ≤ 6 click. | M | D3.3, D9.4 |
 | NFR.1.2 | Almeno 80% delle persone del team completa UC6, UC7, UC8 in ≤ 2 min senza aiuto | S | D9.4 |
 | **NFR.2** | **Affidabilità.** Dopo ogni operazione di salvataggio i dati dovrebbero essere scritti in modo persistente, così da non perderli in caso di chiusura inattesa.<br>*Rationale:* il lavoro di una giornata non deve andare perso. | S | Team |
-| **NFR.3** | **Prestazioni.** L'apertura di una scheda contatto dovrebbe richiedere meno di 2 secondi con almeno 5000 attività salvate.<br>*Rationale:* il committente vuole consultare la storia per anni (D9.2). | S | Team |
+| **NFR.3** | **Efficienza.** L'apertura di una scheda contatto deve richiedere meno di 2 secondi con almeno 5000 attività salvate.<br>*Rationale:* il committente vuole consultare la storia per anni (D9.2). | M | Team |
 | **NFR.4** | **Portabilità.** L'applicazione deve funzionare su Windows 11. | M | D9.1 |
-| **NFR.5** | **Estendibilità.** Il sistema deve poter evolvere verso l'uso da cellulare e da più dispositivi senza dover riscrivere le funzioni già realizzate. | M | D9.1, Team |
+| **NFR.5** | **Manutenibilità.** Il sistema deve poter evolvere verso l'uso da cellulare e da più dispositivi senza dover riscrivere le funzioni già realizzate. | M | D9.1, Team |
 | **NFR.6** | **Funzionamento offline.** L'applicazione deve funzionare senza connessione a Internet e senza servizi da installare. | M | Reg., D9.2 |
-| **NFR.7** | **Riservatezza.** dati salvati solo in locale, nessun invio in rete (A1).<br>*Rationale:* il committente ha detto che solo il suo team di lavoro deve accedere tramite pc. | M | D8.2 |
+| **NFR.7** | **Sicurezza.** dati salvati solo in locale, nessun invio in rete (A1).<br>*Rationale:* il committente ha detto che solo il suo team di lavoro deve accedere tramite pc. | M | D8.2 |
 
 ### 5.5 Vincoli (VIN)
 
@@ -480,10 +482,10 @@ La priorità e l'affidabilità della fonte sono indipendenti. Un requisito Must 
 | FUN – Funzionali | 30 | 2 | 4 | – | 36 |
 | DAT – Dati | 17 | 1 | 1 | – | 19 |
 | GUI – Interfaccia | 18 | 1 | – | – | 19 |
-| NFR – Non funzionali | 6 | 4 | – | – | 10 |
+| NFR – Non funzionali | 7 | 3 | – | – | 10 |
 | VIN – Vincoli | 8 | – | – | – | 8 |
 | FUT – Futuri | – | – | – | 4 | 4 |
-| **Totale** | **79** | **8** | **5** | **4** | **96** |
+| **Totale** | **80** | **7** | **5** | **4** | **96** |
 
 ---
 
@@ -729,7 +731,7 @@ Ogni requisito ha un identificatore di test segnaposto `T-<ID requisito>` e un m
 | NFR.1.1 | T-NFR.1.1 | Prova d'uso |
 | NFR.1.2 | T-NFR.1.2 | Prova d'uso |
 | NFR.2 | T-NFR.2 | Test di sistema |
-| NFR.3 | T-NFR.3 | Test di prestazioni |
+| NFR.3 | T-NFR.3 | Test di efficienza |
 | NFR.4 | T-NFR.4 | Prova su PC Windows |
 | NFR.5 | T-NFR.5 | Ispezione |
 | NFR.6 | T-NFR.6 | Prova su PC Windows |
@@ -747,18 +749,27 @@ Ogni requisito ha un identificatore di test segnaposto `T-<ID requisito>` e un m
 
 ## 10. Qualità del software
 
-Le qualità seguenti guidano il progetto. Per ciascuna si indica perché conta in questo contesto, dove è richiesta e con quale criterio si decide se è soddisfatta o no.
+Le qualità seguono lo standard ISO/IEC 9126, come il Project Plan (9.1): le sei caratteristiche del prodotto (parte 1) e le quattro della qualità in uso (parte 4). Per ciascuna si indica perché conta in questo contesto, dove è richiesta e con quale criterio si decide se è soddisfatta o no.
+
+### 10.1 Qualità del prodotto (ISO/IEC 9126-1)
 
 | Qualità | Perché conta per MPlan | Requisiti | Criterio di verifica |
 |---|---|---|---|
-| **Usabilità** | Il committente vuole poche informazioni da compilare e nessuna complicazione (D9.4) | NFR.1, FUN.4.2, GUI.5.1 | Prova d'uso: una persona del team crea un'attività (UC7), la aggiorna (UC8) e consulta l'agenda (UC6) senza assistenza |
-| **Integrità dei dati** | Lo storico serve per ritrovare gli interventi da fatturare e deve restare completo: per questo non si eliminano le attività | FUN.12.2, FUN.15.1, DAT.3.1 | Test: dopo l'annullamento l'attività è ancora nello storico con stato *annullata* e motivo; nessuna funzione dell'applicazione elimina un'attività |
-| **Affidabilità** | Il lavoro di una giornata non deve andare perso | NFR.2, FUN.15 | Test: dopo una chiusura forzata successiva a un salvataggio, tutte le attività salvate sono presenti alla riapertura (0 attività perse) |
-| **Prestazioni** | Lo storico cresce per anni | NFR.3  | Test: l'apertura di una scheda contatto richiede meno di 2 secondi con almeno 5000 attività salvate |
-| **Portabilità** | Funzionamento su Windows senza installare servizi esterni | NFR.4, NFR.6, VIN.3 | Prova: su un PC Windows con la sola Java installata l'applicazione si avvia e si eseguono UC2–UC10 senza connessione a Internet |
-| **Riservatezza** | Solo il team di lavoro del committente deve accedere ai dati (D8.2) | NFR.7 | Ispezione: nella v1 i dati risiedono solo sul PC e l'applicazione non apre connessioni di rete |
-| **Estendibilità** | È prevista l'evoluzione a cellulare e più dispositivi | NFR.5 | Ispezione: le funzioni su contatti, attività e agenda si eseguono da test automatici senza avviare la GUI |
-| **Testabilità** | Il regolamento richiede test JUnit | VIN.5 | Ispezione: per ogni requisito Must funzionale esiste almeno un test JUnit; la copertura è riportata nel Documento 5 |
+| **Funzionalità** | Il software deve fare ciò che serve (adeguatezza), memorizzare correttamente i dati (accuratezza) e tenere lo storico completo, perché serve per ritrovare gli interventi da fatturare (integrità dei dati): per questo non si eliminano le attività | Requisiti funzionali Must; DAT.5; FUN.12.2, FUN.15.1, DAT.3.1 | Test: ogni requisito funzionale Must ha un test superato (9.4) e gli scenari UC2–UC10 danno il risultato atteso (4.1). Dopo l'annullamento l'attività è ancora nello storico con stato *annullata* e motivo, e nessuna funzione dell'applicazione elimina un'attività |
+| **Affidabilità** | Il lavoro di una giornata non deve andare perso (recuperabilità) e un dato non valido non deve far chiudere il programma (tolleranza ai guasti) | NFR.2, FUN.15, DAT.5 | Test: dopo una chiusura forzata successiva a un salvataggio, tutte le attività salvate sono presenti alla riapertura (0 attività perse). Un dato non valido produce un messaggio di errore senza chiusura anomala |
+| **Usabilità** | Il committente vuole poche informazioni da compilare e nessuna complicazione (D9.4): il software deve essere facile da capire e da usare | NFR.1, FUN.4.2, GUI.5.1 | Prova d'uso: una persona del team crea un'attività (UC7), la aggiorna (UC8) e consulta l'agenda (UC6) senza assistenza |
+| **Efficienza** | Lo storico cresce per anni (comportamento nel tempo) | NFR.3 | Test: l'apertura di una scheda contatto richiede meno di 2 secondi con almeno 5000 attività salvate |
+| **Manutenibilità** | È prevista l'evoluzione a cellulare e più dispositivi (modificabilità) e il regolamento richiede test JUnit (testabilità) | NFR.5, VIN.5 | Ispezione: le funzioni su contatti, attività e agenda si eseguono da test automatici senza avviare la GUI; per ogni requisito Must funzionale esiste almeno un test JUnit e la copertura è riportata nel Documento 5 |
+| **Portabilità** | Funzionamento su Windows senza installare servizi esterni (installabilità) | NFR.4, NFR.6, VIN.3 | Prova: su un PC Windows con la sola Java installata l'applicazione si avvia e si eseguono UC2–UC10 senza connessione a Internet |
+
+### 10.2 Qualità in uso (ISO/IEC 9126-4)
+
+| Qualità | Perché conta per MPlan | Requisiti | Criterio di verifica |
+|---|---|---|---|
+| **Efficacia** | L'utente deve riuscire a registrare e a ritrovare ciò che ha fatto | UC2–UC10; FUN.4, FUN.9, FUN.10 | Accettazione: il committente esegue senza assistenza gli scenari principali della sezione 4.1 e il risultato atteso si verifica (12.2) |
+| **Produttività** | Registrare il lavoro deve costare poco tempo | NFR.1.1, NFR.1.2 | Prova d'uso: creare un'attività dalla Home richiede al massimo 6 click e UC6, UC7 e UC8 si completano in al massimo 2 minuti (NFR.1.1, NFR.1.2) |
+| **Sicurezza** | Solo il team di lavoro del committente deve accedere ai dati (D8.2): riservatezza | NFR.7 | Ispezione: nella v1 i dati risiedono solo sul PC e l'applicazione non apre connessioni di rete |
+| **Soddisfazione** | Il committente deve ritenere il software adatto al proprio lavoro | NFR.1 | Accettazione finale: il committente conferma che l'applicazione è adatta all'uso e l'esito è scritto nel registro della validazione (12.3) |
 
 ---
 
