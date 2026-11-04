@@ -6,8 +6,9 @@ Corso di Ingegneria del Software, A.A. 2026/27
 | Versione | Data | Modifiche |
 |---|---|---|
 | 0.1.0 | 01/11/2026 | Prima bozza della sezione Software Architecture |
-| 0.2.0 | 02/11/2026 | Architettura a 5 moduli Maven con `mplan-api`; eccezioni e `ErroreValidazione` spostati in `mplan-api`; salvaguardia dei costruttori delle entità; corretta la regola su cosa blocca il compilatore; aggiunti appunti non definitivi per la stesura nelle sezioni 1 e 3 |
+| 0.2.0 | 02/11/2026 | Architettura a 5 moduli Maven con `api`; eccezioni e `ErroreValidazione` spostati in `api`; salvaguardia dei costruttori delle entità; corretta la regola su cosa blocca il compilatore; aggiunti appunti non definitivi per la stesura nelle sezioni 1 e 3 |
 | 0.2.1 | 03/11/2026 | Riduzione dei contenuti |
+| 0.2.2 | 04/11/2026 | Rivisitazione dell'organizzazione del modulo Maven |
 
 
 > **Stato:** bozza. È compilata solo la sezione 2 (architettura). Le sezioni 1 e 3 sono **[DA COMPLETARE]** e contengono solo appunti non definitivi, emersi durante la stesura dell'architettura, come base di partenza.
@@ -28,7 +29,7 @@ Corso di Ingegneria del Software, A.A. 2026/27
 
 > **Appunti per la stesura (non definitivi).** Emersi durante la sezione 2; non sono decisioni approvate.
 
-- **Diagramma delle classi (StarUML).** Entità, oggetti di input e interfacce dei servizi stanno in `mplan-api`; le interfacce dei repository in `mplan-core` (D2, D3).
+- **Diagramma delle classi (StarUML).** Entità, oggetti di input e interfacce dei servizi stanno in `api`; le interfacce dei repository in `core` (D2, D3).
 - **Macchina a stati di `Attivita`.** Dall'intervista emergono *da fare*, *parziale*, *completata* e *annullata*. Le transizioni consentite sono da definire e da confrontare con FUN.6.2 e FUN.6.3. Un'attività annullata non si elimina e non si modifica (FUN.12.2).
 - **Diagrammi già previsti come segnaposto nella sezione 2:** package (2.5), componenti (2.6) e deployment (2.7).
 - **Da verificare:** se il generatore di codice di StarUML produce i `record` Java (appunto di D3); altrimenti si usano classi con campi `final`.
@@ -47,8 +48,8 @@ Le qualità seguono ISO/IEC 9126 e sono elencate in ordine di priorità. Secondo
 | ID | Caratteristica (ISO 9126) | Requisiti | Scenario (Stimolo e Contesto) | Risposta attesa (Criterio di verifica) |
 |---|---|---|---|---|
 | **Q1** | **Manutenibilità** *(Testabilità)* | NFR.5, VIN.5 | Esecuzione automatica dei test sui casi d'uso UC2–UC10 durante la build Maven. | Le funzioni su contatti, attività e agenda si eseguono da test JUnit senza avviare la GUI né accedere al disco, simulando date arbitrarie con `Clock` (D10). |
-| **Q2** | **Manutenibilità** *(Modificabilità)* | NFR.5, VIN.1 | Modifica di un vincolo di validazione (DAT.5), estensione dell'interfaccia utente. | Si modifica un solo punto del modulo `mplan-core`; `mplan-ui-swing` e `mplan-persistence`. |
-| **Q3** | **Manutenibilità** *(Sostituibilità)* | VIN.3, VIN.4 | Sostituzione del motore di database embedded. | Si scrive un nuovo modulo Maven implementando le interfacce dei repository; `mplan-api`, `mplan-core` e `mplan-ui-swing` rimangono invariati. |
+| **Q2** | **Manutenibilità** *(Modificabilità)* | NFR.5, VIN.1 | Modifica di un vincolo di validazione (DAT.5), estensione dell'interfaccia utente. | Si modifica un solo punto di `core`; `ui-swing` e `persistence`. |
+| **Q3** | **Manutenibilità** *(Sostituibilità)* | VIN.3, VIN.4 | Sostituzione del motore di database embedded. | Si scrive un nuovo package implementando le interfacce dei repository; `api`, `core` e `ui-swing` rimangono invariati. |
 | **Q4** | **Affidabilità** | NFR.2, FUN.15, DAT.5 | Chiusura forzata. | In caso di errore durante l'operazione, la transazione esegue il rollback. |
 | **Q5** | **Efficienza** | NFR.3 | Apertura di una scheda contatto con uno storico di almeno 5.000 attività. | Tempo di risposta inferiore a 2,0 secondi su macchina di riferimento Windows 11 con DB H2 locale. |
 | **Q6** | **Portabilità** | NFR.4, NFR.6, VIN.3 | Installazione e primo avvio dell'applicazione su un PC Windows 11 con la sola JVM Java 21 installata. | L'applicazione si avvia, crea automaticamente lo schema H2 su file locale ed esegue i casi d'uso UC2–UC10. |
@@ -62,31 +63,31 @@ Le qualità seguono ISO/IEC 9126 e sono elencate in ordine di priorità. Secondo
 | Elemento | Descrizione |
 |---|---|
 | Problema | Strutturare il sistema in modo che sia modificabile e testabile senza GUI (Q1, Q2) |
-| Decisione | Un unico programma eseguibile con tre strati: presentazione, logica applicativa (core), persistenza. La presentazione dipende solo dal contratto pubblico (`mplan-api`), che il core implementa; la persistenza implementa le interfacce dei repository definite nel core |
+| Decisione | Un unico programma eseguibile con tre strati: presentazione, logica applicativa (core), persistenza. La presentazione dipende solo dal contratto pubblico (`api`), che il core implementa; la persistenza implementa le interfacce dei repository definite nel core |
 | Stato | Approvato |
 | Presupposti | Un solo PC, un solo utente alla volta, nessun requisito in tempo reale (A1) |
 | Alternative | Microservizi; monolite con accesso diretto ai dati dalla GUI |
 | Motivazione | La separazione in strati rende il core testabile da solo e aumenta la manutenibilità |
 | Implicazioni | Ogni azione dell'utente attraversa tutti gli strati, con un piccolo costo prestazionale irrilevante per NFR.3 |
 
-**D2 – Contratto pubblico in `mplan-api` e cinque moduli Maven**
+**D2 – Contratto pubblico in `api` e cinque moduli Maven**
 
 | Elemento | Descrizione |
 |---|---|
 | Problema | Impedire che core, GUI e persistenza si accoppino e che la GUI raggiunga i dati senza passare dai servizi (Q1, Q2, Q3) |
-| Decisione | Il sistema è diviso in cinque moduli Maven: `mplan-api` (contratto pubblico: interfacce dei servizi, entità, oggetti di input, errori ed eccezioni), `mplan-core` (implementazione dei servizi e interfacce dei repository), `mplan-persistence`, `mplan-ui-swing` e `mplan-app`. `mplan-ui-swing` dipende **solo** da `mplan-api`. Le dipendenze sono verificate dal compilatore |
+| Decisione | Un solo progetto Maven è diviso in cinque package: `api` (contratto pubblico: interfacce dei servizi, entità, oggetti di input, errori ed eccezioni), `core` (implementazione dei servizi e interfacce dei repository), `persistence`, `ui-swing` e `app`. `ui-swing` dipende **solo** da `api`. |
 | Stato | Approvato |
 | Presupposti | Il team sa usare Maven con più moduli |
-| Alternative | Modulo unico con package separati; quattro moduli, con la GUI che dipende da `mplan-core` |
-| Motivazione | Con `mplan-api` il compilatore impedisce alla GUI sia di accedere al database (JDBC, H2) sia di usare i repository: può usare solo i servizi. Le interfacce dei servizi permettono inoltre di testare la GUI con servizi finti |
-| Implicazioni | Maggiore configurazione Maven. Tutto ciò che la GUI deve vedere o intercettare (entità, input, `ErroreValidazione`, `ValidazioneException`, `PersistenzaException`) deve stare in `mplan-api`. Una classe di assemblaggio nel modulo `mplan-app` (D5) |
+| Alternative | quattro moduli, con la GUI che dipende da `core` |
+| Motivazione | Con `api` il compilatore impedisce alla GUI sia di accedere al database (JDBC, H2) sia di usare i repository: può usare solo i servizi. Le interfacce dei servizi permettono inoltre di testare la GUI con servizi finti |
+| Implicazioni | Maggiore configurazione Maven. Tutto ciò che la GUI deve vedere o intercettare (entità, input, `ErroreValidazione`, `ValidazioneException`, `PersistenzaException`) deve stare in `api`. Una classe di assemblaggio nel modulo `app` (D5) |
 
 **D3 – Entità immutabili e dati di input separati**
 
 | Elemento | Descrizione |
 |---|---|
 | Problema | Impedire che la GUI modifichi lo stato di contatti e attività aggirando le regole (FUN.6.2, FUN.6.3, FUN.12.2) |
-| Decisione | Il core restituisce alla GUI entità di dominio **immutabili** (`Contatto`, `Attivita`), definite in `mplan-api`. Ogni cambiamento passa da un metodo del servizio. La GUI invia ciò che l'utente ha scritto in oggetti di input separati (`DatiContatto`, `DatiAttivita`), che possono contenere valori non validi. Come salvaguardia estrema, il costruttore di un'entità lancia una `ValidazioneException` (non controllata) se i dati violano le regole |
+| Decisione | Il core restituisce alla GUI entità di dominio **immutabili** (`Contatto`, `Attivita`), definite in `api`. Ogni cambiamento passa da un metodo del servizio. La GUI invia ciò che l'utente ha scritto in oggetti di input separati (`DatiContatto`, `DatiAttivita`), che possono contenere valori non validi. Come salvaguardia estrema, il costruttore di un'entità lancia una `ValidazioneException` (non controllata) se i dati violano le regole |
 | Stato | Approvato |
 | Presupposti | Gli oggetti sono piccoli e la loro copia non pesa su NFR.3 |
 | Alternative | Entità modificabili con setter; DTO che duplicano le entità |
@@ -98,7 +99,7 @@ Le qualità seguono ISO/IEC 9126 e sono elencate in ordine di priorità. Secondo
 | Elemento | Descrizione |
 |---|---|
 | Problema | Applicare DAT.5 in un solo punto e gestire i guasti della persistenza senza coinvolgere il core in JDBC (Q2, Q4) |
-| Decisione | La validazione vive solo nel core. L'interfaccia del servizio (in `mplan-api`) offre un metodo `valida()` che valida senza salvare e restituisce gli errori **per campo** (`ErroreValidazione`: campo e motivo); il salvataggio usa lo stesso validatore. I guasti della persistenza sono una eccezione non controllata (`PersistenzaException`) che incapsula ogni `SQLException`. `ErroreValidazione`, `ValidazioneException` e `PersistenzaException` sono definiti in `mplan-api`, perché la GUI deve poterli leggere e intercettare |
+| Decisione | La validazione vive solo nel core. L'interfaccia del servizio (in `api`) offre un metodo `valida()` che valida senza salvare e restituisce gli errori **per campo** (`ErroreValidazione`: campo e motivo); il salvataggio usa lo stesso validatore. I guasti della persistenza sono una eccezione non controllata (`PersistenzaException`) che incapsula ogni `SQLException`. `ErroreValidazione`, `ValidazioneException` e `PersistenzaException` sono definiti in `api`, perché la GUI deve poterli leggere e intercettare |
 | Stato | Approvato |
 | Presupposti | I moduli sono piccoli e la validazione è veloce |
 | Alternative | Validazione anche nella GUI; eccezioni controllate; codici di errore |
@@ -132,15 +133,15 @@ Punto di vista: **scomposizione e strati** (Tabella 11.3). Interessa a sviluppat
 
 | Modulo Maven | Package radice | Contenuto | Dipende da |
 |---|---|---|---|
-| `mplan-api` | `mplan.api` | Contratto pubblico: interfacce dei servizi, entità di dominio immutabili, oggetti di input, `ErroreValidazione`, `ValidazioneException`, `PersistenzaException` | nessun modulo |
-| `mplan-core` | `mplan.core` | Implementazione dei servizi, regole di dominio e validatore, interfacce dei repository e delle transazioni | `mplan-api` |
-| `mplan-persistence` | `mplan.persistence` | Implementazione JDBC/H2 dei repository e delle transazioni, creazione dello schema | `mplan-core`, `mplan-api` |
-| `mplan-ui-swing` | `mplan.ui` | Schermate Swing (GUI.1) e loro logica di presentazione | `mplan-api` |
-| `mplan-app` | `mplan.app` | `MPlanApplication`, configurazione, avvio | tutti i moduli |
+| `api` | `mplan.api` | Contratto pubblico: interfacce dei servizi, entità di dominio immutabili, oggetti di input, `ErroreValidazione`, `ValidazioneException`, `PersistenzaException` | nessun modulo |
+| `core` | `mplan.core` | Implementazione dei servizi, regole di dominio e validatore, interfacce dei repository e delle transazioni | `api` |
+| `persistence` | `mplan.persistence` | Implementazione JDBC/H2 dei repository e delle transazioni, creazione dello schema | `core`, `api` |
+| `ui-swing` | `mplan.ui` | Schermate Swing (GUI.1) e loro logica di presentazione | `api` |
+| `app` | `mplan.app` | `MPlanApplication`, configurazione, avvio | tutti i moduli |
 
-**Regole di dipendenza:** `mplan-ui-swing` → `mplan-api` ← `mplan-core` ← `mplan-persistence`; `mplan-app` → tutti.
+**Regole di dipendenza:** `ui-swing` → `api` ← `core` ← `persistence`; `app` → tutti.
 
-**Cosa blocca il compilatore:** poiché `mplan-ui-swing` dipende solo da `mplan-api`, la GUI non può compilare riferimenti né al database (JDBC, H2, `mplan-persistence`) né ai repository e alle altre classi di `mplan-core`: può usare solo le interfacce dei servizi e i tipi del contratto. Allo stesso modo `mplan-core` non può importare Swing né JDBC.
+**Cosa blocca il compilatore:** poiché `ui-swing` dipende solo da `api`, la GUI non può compilare riferimenti né al database (JDBC, H2, `persistence`) né ai repository e alle altre classi di `core`: può usare solo le interfacce dei servizi e i tipi del contratto. Allo stesso modo `core` non può importare Swing né JDBC.
 
 *[Spazio riservato: diagramma dei package, StarUML]*
 
@@ -150,15 +151,14 @@ Punto di vista: **componenti e connettori** (Tabella 11.4), descritto con lo sch
 
 | Voce | Descrizione |
 |---|---|
-| **Stile** | A strati (*layered*), con visibilità limitata e inversione delle dipendenze: a runtime ogni strato chiama quello immediatamente inferiore tramite interfacce; in compilazione le dipendenze puntano verso `mplan-api` e `mplan-core` |
+| **Stile** | A strati (*layered*), con visibilità limitata e inversione delle dipendenze: a runtime ogni strato chiama quello immediatamente inferiore tramite interfacce; in compilazione le dipendenze puntano verso `api` e `core` |
 | **Problema** | Le funzioni si possono organizzare gerarchicamente in presentazione, logica e dati, con un solo verso di chiamata |
 | **Contesto** | Applicazione desktop in un solo processo, con un solo thread di controllo per le azioni dell'utente |
-| **Modello di sistema** | Il sistema è una gerarchia di tre strati. La GUI vede solo il contratto pubblico (`mplan-api`), implementato dal core; la persistenza non è chiamata dalla GUI e implementa interfacce definite nel core |
+| **Modello di sistema** | Il sistema è una gerarchia di tre strati. La GUI vede solo il contratto pubblico (`api`), implementato dal core; la persistenza non è chiamata dalla GUI e implementa interfacce definite nel core |
 | **Componenti** | *Presentazione*: schermate Swing (Home, Form contatto, Scheda contatto, Form attività, Agenda giornaliera). *Logica*: servizi dei contatti e delle attività (tipo *manager*), dominio con le regole di stato, validatore (tipo *computazionale*). *Persistenza*: repository JDBC (tipo *manager*) e database H2 (tipo *memoria*) |
-| **Connettori** | Chiamata di procedura tra presentazione e servizi (interfacce di `mplan-api`) e tra servizi e repository (interfacce di `mplan-core`); chiamate SQL tramite JDBC tra repository e H2 |
+| **Connettori** | Chiamata di procedura tra presentazione e servizi (interfacce di `api`) e tra servizi e repository (interfacce di `core`); chiamate SQL tramite JDBC tra repository e H2 |
 | **Struttura di controllo** | Un solo thread di controllo, avviato dall'utente; le operazioni sono sincrone |
 | **Varianti** | Visibilità limitata al solo strato adiacente. Qui la persistenza dipende dal core e non viceversa, a differenza dello strato classico |
-| **Esempi** | Modello a sette strati ISO OSI (libro, 11.4) |
 
 *[Spazio riservato: diagramma dei componenti, StarUML]*
 
@@ -169,7 +169,7 @@ Punto di vista: **distribuzione** (Tabella 11.5), con le risorse hardware.
 | Elemento | Descrizione |
 |---|---|
 | Nodo | Un PC con Windows 11 (A1, A2) |
-| Processo | Una sola JVM (Java 21) che esegue `mplan-app` e i moduli `mplan-api`, `mplan-core`, `mplan-persistence` e `mplan-ui-swing` |
+| Processo | Una sola JVM (Java 21) che esegue `app` e i moduli `api`, `core`, `persistence` e `ui-swing` |
 | Dati | File del database H2 in una cartella dati dell'utente, senza percorsi assoluti nel codice (VIN.2) |
 | Log | File di log in una cartella dell'applicazione, scritto da log4j2 |
 | Comunicazioni | Nessuna connessione di rete (NFR.6, NFR.7) |
@@ -200,7 +200,7 @@ Punto di vista: **distribuzione** (Tabella 11.5), con le risorse hardware.
 **Decisioni già prese**
 - Il metodo che esegue un'operazione in transazione si chiama `inTransazione` (D6).
 - Il costruttore di un'entità lancia `ValidazioneException` (non controllata) come salvaguardia; nel flusso normale la GUI chiama prima `valida()` (D3, D4).
-- `valida()` sta nell'interfaccia del servizio (`mplan-api`) e restituisce gli errori per campo come `ErroreValidazione` (D4).
+- `valida()` sta nell'interfaccia del servizio (`api`) e restituisce gli errori per campo come `ErroreValidazione` (D4).
 - I repository delle attività non hanno un metodo di eliminazione fisica (FUN.12.2).
 - Il test dei servizi usa repository in memoria (D9).
 - I servizi ricevono un'istanza di java.time.Clock tramite costruttore per test deterministici (D10).
@@ -209,7 +209,7 @@ Punto di vista: **distribuzione** (Tabella 11.5), con le risorse hardware.
 **Da decidere**
 - Nomi definitivi delle interfacce dei servizi e dei repository (D2).
 - Pattern interno della GUI (D11).
-- Tipi usati o implicati dalle firme dei servizi ma non ancora descritti: `DatiAttivita`, `Periodo`, `VoceRegistro`, `TipoModifica`. Va deciso quali stanno in `mplan-api` (se compaiono nelle firme dei servizi) e quali restano in `mplan-core`.
+- Tipi usati o implicati dalle firme dei servizi ma non ancora descritti: `DatiAttivita`, `Periodo`, `VoceRegistro`, `TipoModifica`. Va deciso quali stanno in `api` (se compaiono nelle firme dei servizi) e quali restano in `core`.
 - Idea non decisa: un record di sola lettura per l'agenda, con attività e nome del contatto. Va deciso se serve o se basta il caricamento separato.
 
 **Requisiti dell'intervista non ancora coperti dal design**
