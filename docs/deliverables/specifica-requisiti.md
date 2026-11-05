@@ -12,7 +12,7 @@ Corso di Ingegneria del Software, A.A. 2026/27
 | 0.3.0 | 17/10/2026 | Inserimento dello use case diagram  |
 | 0.3.1 | 18/10/2026 | Risolto l'ultimo punto aperto: la fatturazione non è svolta dal sistema |
 | 0.3.2 | 24/10/2026 | Qualità del software allineate a ISO/IEC 9126 |
-| 0.3.3 | 04/11/2026 | Macchine a stati complete (8.1 e 8.2) |
+| 0.3.3 | 05/11/2026 | Macchine a stati complete (8.1 e 8.2) |
 
 ---
 
