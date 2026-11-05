@@ -10,7 +10,7 @@
 | **0.1.1** | 17/10/2026 | Correzione di alcune imprecisioni. |
 | **0.2.0** | 18/10/2026 | Rivisitazione integrale del documento. |
 | **0.2.1** | 24/10/2026 | Aggiunte le caratteristiche ISO/IEC 9126 mancanti negli obiettivi di qualità (9.1). |
-| **0.2.2** | 04/11/2026 | Allineamento con la specifica dei requisiti (9.1), rimosso il riferimento alle consegne in 1.2, correzione di refusi. |
+| **0.2.2** | 05/11/2026 | Allineamento con la specifica dei requisiti (9.1), rimosso il riferimento alle consegne in 1.2, correzione di refusi. |
 
 ---
 
