@@ -12,6 +12,7 @@ Corso di Ingegneria del Software, A.A. 2026/27
 | 0.3.0 | 17/10/2026 | Inserimento dello use case diagram  |
 | 0.3.1 | 18/10/2026 | Risolto l'ultimo punto aperto: la fatturazione non è svolta dal sistema |
 | 0.3.2 | 24/10/2026 | Qualità del software allineate a ISO/IEC 9126 |
+| 0.3.3 | 05/11/2026 | Macchine a stati complete (8.1 e 8.2) |
 
 ---
 
@@ -355,7 +356,7 @@ Coprono la rubrica, le attività, i materiali, lo storico, l'agenda giornaliera,
 | **FUN.6** | Ogni attività deve avere uno stato tra: *da fare*, *parziale*, *completata*, *annullata*.<br>*Rationale:* il committente ha citato *completata*, *parziale* e *annullata* e lo considera opzionale; lo stato iniziale *da fare* è stato aggiunto dal team perché ogni attività nasce prima dell'intervento. | M | D3.5, Impl., O1 |
 | FUN.6.1 | L'utente deve poter segnare un'attività come *parziale* o *completata*. | M | D3.5 |
 | FUN.6.2 | Lo stato *annullata* deve essere definitivo: un'attività annullata non può essere modificata né tornare ad altri stati.<br>*Rationale:* semplifica lo storico; da confermare. | M | Impl. |
-| FUN.6.3 | Le sole transizioni di stato ammesse sono: da *da fare* a *parziale*; da *da fare* o *parziale* a *completata*; da *da fare* o *parziale* ad *annullata*. Un'attività *completata* non può essere annullata.<br>*Rationale:* la Figura 8.1 illustra queste transizioni. | M | Impl. |
+| FUN.6.3 | Il sistema deve ammettere solo queste transizioni di stato: da *da fare* a *parziale*; da *da fare* o *parziale* a *completata*; da *da fare* o *parziale* ad *annullata*. Un'attività *completata* non può essere annullata.<br>*Rationale:* la Figura 8.1 illustra queste transizioni. | M | Impl. |
 | **FUN.7** | Un lavoro che dura più giorni deve essere rappresentato da più attività, una per ogni giorno lavorato, associate allo stesso contatto.<br>*Rationale:* il committente non ha chiesto una funzione di pianificazione di cantiere. | M | D3.6 |
 | **FUN.8** | Il sistema deve permettere di annotare materiali usati, mancanti o necessari come testo libero nelle note dell'attività. | M | D4.1, O1, O3 |
 | FUN.8.1 | La nota su ciò che serve per la visita successiva deve essere scritta nell'attività del giorno stesso, non in quella del giorno dopo. | M | D4.2, O3 |
@@ -419,8 +420,8 @@ Le schermate e le transizioni sono illustrate nelle Figure 8.2, 8.3 e 8.4. Come 
 | GUI.4.1 | La scheda deve offrire l'opzione di creare una nuova attività con i campi di DAT.2 | M | D5.1; FUN.4 |
 | GUI.4.2 | Dallo storico deve essere possibile aprire un'attività per consultarla o modificarla. | M | Impl.; FUN.5 |
 | **GUI.5** | **Form attività.** Un modulo deve permettere di inserire o modificare titolo, data, orario, descrizione, note e stato. | M | D3.1, D3.2; FUN.4, FUN.5 |
-| GUI.5.1 | Per salvare una nuova attività valgono le regole di FUN.4.2. | M | D3.3; FUN.4.2 |
-| GUI.5.2 | Dal form deve essere possibile segnare l'attività come *parziale* o *completata*. | C | D3.5; FUN.6.1 |
+| GUI.5.1 | Per salvare una nuova attività il form deve applicare le regole di FUN.4.2. | M | D3.3; FUN.4.2 |
+| GUI.5.2 | Dal form deve essere possibile segnare l'attività come *parziale* o *completata*. | M | D3.5; FUN.6.1 |
 | **GUI.6** | **Annullamento.** L'opzione di annullamento deve chiedere il motivo (DAT.3.1) e una conferma prima di procedere. | M | D7.1; FUN.12 |
 | **GUI.7** | **Agenda giornaliera.** La schermata deve realizzare l'agenda giornaliera (FUN.10) e mostrare le frecce per cambiare giorno (FUN.10.1). | M | D6.2; FUN.10 |
 | GUI.7.1 | Ogni attività nell'agenda dovrebbe mostrare l'orario, il contatto e il titolo. | S | Impl.; FUN.10 |
@@ -526,42 +527,80 @@ I diagrammi seguenti sono schemi di lavoro che illustrano i requisiti. Le versio
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Aperta : crea attività [titolo non vuoto]
+    direction LR
+    [*] --> Nuova
+    Nuova --> Aperta : salva [validi] / da fare
     state Aperta {
+        direction LR
         [*] --> DaFare
-        DaFare --> Parziale : segna parziale
-        DaFare --> DaFare : aggiorna dati
-        Parziale --> Parziale : aggiorna dati
+        DaFare --> Parziale : segnaParziale
     }
-    Aperta --> Completata : segna completata
-    Aperta --> Annullata : annulla [motivo non vuoto e conferma]
-    Completata --> Completata : aggiorna dati
+    Aperta --> Completata : segnaCompletata
+    Aperta --> Annullata : annulla(motivo) [confermato]
+    Completata --> Completata : aggiorna [validi] / salva
     Annullata --> [*]
 ```
 
-*Figura 8.1 – Stati di un'attività (illustra FUN.5, FUN.6 e FUN.12).* *Aperta* è uno stato composto usato solo in questo diagramma per raggruppare *da fare* e *parziale*. Le transizioni ammesse sono scritte nel testo di FUN.6.3.
+*Figura 8.1 – Stati di un'attività (illustra FUN.5, FUN.6, FUN.12, DAT.3, DAT.5 e FUN.13).* È una macchina di **Mealy**: gli effetti sono sulle transizioni, con etichetta `evento [guardia] / effetto`. *Nuova* è l'attività non ancora salvata. *Aperta* è uno stato composto, usato solo in questo diagramma per raggruppare *da fare* e *parziale*. Per leggibilità la figura mostra solo le transizioni che cambiano stato; l'elenco completo, compresi i casi con dati non validi, è nella Tabella 8.1.
+
+*Tabella 8.1 – Transizioni dell'attività.*
+
+| Stato di partenza | Evento [guardia] | Effetto | Stato di arrivo |
+|---|---|---|---|
+| Nuova | salva [dati validi] | salva l'attività con stato *da fare* | Aperta (*da fare*) |
+| Nuova | salva [dati non validi] | mostra gli errori (DAT.5) | Nuova |
+| *Da fare* | segnaParziale | salva lo stato *parziale*; registra il cambio di stato | *Parziale* |
+| *Da fare*, *parziale* | aggiorna [dati validi] | salva; registra la modifica | stato invariato |
+| *Da fare*, *parziale* | aggiorna [dati non validi] | mostra gli errori (DAT.5) | stato invariato |
+| Aperta (*da fare*, *parziale*) | segnaCompletata | salva lo stato *completata*; registra il cambio di stato | *Completata* |
+| Aperta (*da fare*, *parziale*) | annulla(motivo) [motivo non vuoto e conferma] | salva lo stato *annullata* e il motivo; registra l'annullamento | *Annullata* |
+| Aperta (*da fare*, *parziale*) | annulla(motivo) [motivo vuoto o senza conferma] | mostra l'errore (DAT.3.1) | stato invariato |
+| *Completata* | aggiorna [dati validi] | salva; registra la modifica | *Completata* |
+| *Completata* | aggiorna [dati non validi] | mostra gli errori (DAT.5) | *Completata* |
+| *Annullata* | qualunque evento | nessuno: il servizio lo rifiuta (FUN.6.2) | *Annullata* (finale) |
+
+Le parole "registra" valgono solo se si realizza il registro delle modifiche (FUN.13, Should). Gli eventi non elencati non fanno cambiare stato e il servizio li rifiuta: un annullamento su un'attività *completata*, `segnaParziale` su una *parziale* (FUN.6.3). Le transizioni ammesse sono scritte nel testo di FUN.6.3.
 
 ### 8.2 Navigazione tra le schermate
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Home : avvio
-    Home --> FormContatto : nuovo contatto
-    FormContatto --> Home : salva o chiudi
-    Home --> SchedaContatto : seleziona contatto
-    SchedaContatto --> FormContatto : modifica dati
-    FormContatto --> SchedaContatto : salva o chiudi da scheda
-    SchedaContatto --> FormAttivita : nuova attività o apri attività
-    FormAttivita --> SchedaContatto : salva o chiudi da scheda
+    direction TB
+    state sceltaContatto <<choice>>
+    state sceltaAttivita <<choice>>
+    [*] --> Home
+    state "Home<br/>entry / mostra rubrica" as Home
+    state "FormContatto<br/>entry / mostra modulo contatto" as FormContatto
+    state "SchedaContatto<br/>entry / mostra dati e storico" as SchedaContatto
+    state "FormAttivita<br/>entry / mostra modulo attività" as FormAttivita
+    state "AgendaGiornaliera<br/>entry / mostra agenda del giorno" as AgendaGiornaliera
+    Home --> FormContatto : nuovoContatto
+    Home --> SchedaContatto : selezionaContatto
+    Home --> AgendaGiornaliera : apriAgenda
+    SchedaContatto --> FormContatto : modificaContatto
+    SchedaContatto --> FormAttivita : nuovaAttivita, apriAttivita
+    AgendaGiornaliera --> FormAttivita : apriAttivita
     SchedaContatto --> Home : indietro
-    Home --> AgendaGiornaliera : menu a tendina
-    AgendaGiornaliera --> FormAttivita : apri attività
-    FormAttivita --> AgendaGiornaliera : salva o chiudi da agenda
     AgendaGiornaliera --> Home : indietro
-    Home --> [*] : chiudi applicazione
+    FormContatto --> sceltaContatto : salva [validi], chiudi
+    sceltaContatto --> Home : [origine = home]
+    sceltaContatto --> SchedaContatto : [origine = scheda]
+    FormAttivita --> sceltaAttivita : salva [validi], chiudi
+    sceltaAttivita --> SchedaContatto : [origine = scheda]
+    sceltaAttivita --> AgendaGiornaliera : [origine = agenda]
+    Home --> [*] : chiudi
 ```
 
-*Figura 8.2 – Schermate della GUI (illustra GUI.1 e GUI.1.1).* Dal *Form attività* si torna alla schermata da cui è stato aperto.
+*Figura 8.2 – Schermate della GUI (illustra GUI.1, GUI.1.1 e DAT.5).* È una macchina di **Moore**: l'uscita (ciò che si mostra) dipende solo dallo stato ed è l'azione `entry` di ogni schermata. I rombi sono scelte: dopo "salva" o "chiudi" riportano alla schermata di provenienza, memorizzata nelle variabili `origine` descritte nella Tabella 8.2. Per leggibilità la figura non mostra i casi con dati non validi.
+
+*Tabella 8.2 – Variabili e casi particolari della navigazione.*
+
+| Elemento | Descrizione |
+|---|---|
+| `origine` (scelta dopo il Form contatto) | Vale *home* se il form è stato aperto con `nuovoContatto` dalla Home, *scheda* se è stato aperto con `modificaContatto` dalla Scheda contatto |
+| `origine` (scelta dopo il Form attività) | Vale *scheda* se il form è stato aperto dalla Scheda contatto (`nuovaAttivita` o `apriAttivita`), *agenda* se è stato aperto dall'Agenda giornaliera (`apriAttivita`) |
+| `selezionaContatto` | Memorizza il contatto scelto, mostrato poi nella Scheda contatto |
+| `salva` [dati non validi] | Resta nel Form contatto o nel Form attività e mostra gli errori (DAT.5) |
 
 ### 8.3 Bozza della scheda contatto
 

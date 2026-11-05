@@ -10,7 +10,8 @@
 | **0.1.1** | 17/10/2026 | Correzione di alcune imprecisioni |
 | **0.2.0** | 18/10/2026 | Rivisitazione integrale del documento |
 | **0.2.1** | 24/10/2026 | Aggiunte le caratteristiche ISO/IEC 9126 mancanti negli obiettivi di qualità (9.1). |
-| **0.3.0** | 01/11/2026 | Aggiunta di log4j |
+| **0.2.2** | 05/11/2026 | Allineamento con la specifica dei requisiti (9.1), rimosso il riferimento alle consegne in 1.2, correzione di refusi. |
+| **0.3.0** | 05/11/2026 | Aggiunta di log4j |
 
 ---
 
@@ -21,7 +22,7 @@
 3. Organization of the project
 4. Standards, guidelines, procedures
 5. Management activities
-6. Risks Potential 
+6. Potential Risks 
 7. Staffing
 8. Methods and techniques
 9. Quality assurance
@@ -39,7 +40,7 @@ MPlan nasce nel corso di Ingegneria del Software (A.A. 2026/27). Il committente,
 ### 1.2 Obiettivi del progetto
 
 1. Realizzare la versione 1 di MPlan: applicazione per PC (Windows) con archivio dati locale, per gestire clienti, cantieri e attività, con storico per contatto e agenda giornaliera.
-2. Consegnare entro gennaio 2027 i documenti e i diagrammi UML richiesti dal corso (13 consegne, scomposte al punto 11.1).
+2. Consegnare entro gennaio 2027 i documenti e i diagrammi UML richiesti dal corso.
 3. Applicare in modo documentato le tecniche del corso: requisiti, modellazione, progettazione, test, manutenzione e gestione del progetto.
 
 ### 1.3 Risultati attesi (Deliverable)
@@ -194,7 +195,7 @@ Le Pull Request vengono sottoposte a revisione da parte dell'altro componente de
 
 ---
 
-## 6\. Risks Potential
+## 6\. Potential Risks
 
 ### 6.1 Ampliamento incontrollato del perimetro (Scope Creep)
 
@@ -202,7 +203,7 @@ Le Pull Request vengono sottoposte a revisione da parte dell'altro componente de
 
 **Impatto:** ritardi, aumento della complessità e riduzione del tempo disponibile per test e documentazione.
 
-**Mitigazione:** Assegnazione delle priorità con medoto MOSCOW in funzione del tempo residuo.
+**Mitigazione:** Assegnazione delle priorità con metodo MoSCoW in funzione del tempo residuo.
 
 ### 6.2 Disallineamento tra modelli UML e codice
 
@@ -270,7 +271,7 @@ Gli obiettivi di qualità sono definiti secondo le caratteristiche di qualità d
 
 - *Accuratezza*: il sistema deve memorizzare correttamente ogni attività.
 - *Adeguatezza*: il sistema deve soddisfare i requisiti specificati.
-- *Integrità dei dati*: durante qualisasi operazione deve essere preservata la coerenza dei dati e impedire modifiche incompatibili con le regole di business.
+- *Integrità dei dati*: durante qualsiasi operazione deve essere preservata la coerenza dei dati e impedire modifiche incompatibili con le regole di business.
 
 **Affidabilità**
 
@@ -407,4 +408,4 @@ La consegna operativa a MP elettrica s.a.s. è prevista come attività distinta 
 
 
 - **Installazione e configurazione**: Installazione assistita sul dispositivo usato dal committente.
-- **Formazione e affiancamento**: È prevista una breve formazione,dedicata alle operazioni principali.
+- **Formazione e affiancamento**: È prevista una breve formazione dedicata alle operazioni principali.
