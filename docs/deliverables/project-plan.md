@@ -6,11 +6,12 @@
 
 | Versione | Data |  Descrizione delle modifiche |
 | --- | --- | --- |
-| **0.1.0** | 15/10/2026 | Prima bozza del Project Plan. |
-| **0.1.1** | 17/10/2026 | Correzione di alcune imprecisioni. |
-| **0.2.0** | 18/10/2026 | Rivisitazione integrale del documento. |
+| **0.1.0** | 15/10/2026 | Prima bozza del Project Plan |
+| **0.1.1** | 17/10/2026 | Correzione di alcune imprecisioni |
+| **0.2.0** | 18/10/2026 | Rivisitazione integrale del documento |
 | **0.2.1** | 24/10/2026 | Aggiunte le caratteristiche ISO/IEC 9126 mancanti negli obiettivi di qualità (9.1). |
 | **0.2.2** | 05/11/2026 | Allineamento con la specifica dei requisiti (9.1), rimosso il riferimento alle consegne in 1.2, correzione di refusi. |
+| **0.3.0** | 05/11/2026 | Aggiunta di log4j |
 
 ---
 
@@ -248,7 +249,7 @@ La progettazione viene realizzata utilizzando StarUML v5 (use case, class, state
 
 ### 8.3 Implementazione
 
-Il sistema viene implementato in Java, utilizzando Eclipse come ambiente di sviluppo, Apache Maven per la compilazione e la gestione delle dipendenze, H2 embedded per la gestione del database.
+Il sistema viene implementato in Java, utilizzando Eclipse come ambiente di sviluppo, Apache Maven per la compilazione e la gestione delle dipendenze, H2 embedded per la gestione del database e Swing per la GUI.
 
 Le funzionalità vengono integrate in modo incrementale, verificando la compilazione e il comportamento del sistema a ogni passaggio significativo.
 
@@ -279,7 +280,7 @@ Gli obiettivi di qualità sono definiti secondo le caratteristiche di qualità d
 
 **Usabilità**
 
-- *Apprendibilità*: le persone del team dovrebbero riuscire a usare le funzioni principali senza aiuto.
+- *Apprendibilità*: le persone del team devono riuscire a usare le funzioni principali senza aiuto.
 - *Operabilità*: creare un'attività deve richiedere pochi passaggi e poche informazioni da compilare.
 
 **Efficienza**
@@ -299,7 +300,7 @@ Gli obiettivi di qualità sono definiti secondo le caratteristiche di qualità d
 **Qualità in uso**
 
 - *Efficacia*: l'utente deve riuscire a registrare e a ritrovare ciò che ha fatto, eseguendo senza assistenza gli scenari principali dei casi d'uso.
-- *Produttività*: registrare il lavoro deve costare poco tempo: creare un'attività dalla Home richiede al massimo 6 click e UC6, UC7 e UC8 si completano in al massimo 2 minuti.
+- *Produttività*: registrare il lavoro deve costare poco tempo: creare un'attività dalla Home richiede al massimo 6 click e i casi d'uso principali si completano in al massimo 2 minuti.
 - *Sicurezza*: solo il team di lavoro del committente deve poter accedere ai dati; nella versione 1 i dati restano solo sul PC e l'applicazione non apre connessioni di rete.
 - *Soddisfazione*: il committente deve ritenere l'applicazione adatta al proprio lavoro e confermarlo all'accettazione finale.
 
@@ -327,6 +328,9 @@ La persona che sviluppa una modifica non può essere l'unico revisore della rela
 | Versionamento | Git | Gestione delle versioni |
 | Collaborazione | GitHub | Repository, issue, Pull Request e board Kanban |
 | Documentazione | Markdown | Redazione dei documenti tecnici |
+| Logging | Apache Log4j | Tracciamento eventi a runtime e gestione log applicativi |
+| GUI | Swing | Libreria per la GUI |
+
 
 ### 10.2 Risorse umane
 
