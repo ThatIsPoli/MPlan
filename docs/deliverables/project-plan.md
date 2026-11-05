@@ -9,6 +9,8 @@
 | **0.1.0** | 15/10/2026 | Prima bozza del Project Plan. |
 | **0.1.1** | 17/10/2026 | Correzione di alcune imprecisioni. |
 | **0.2.0** | 18/10/2026 | Rivisitazione integrale del documento. |
+| **0.2.1** | 24/10/2026 | Aggiunte le caratteristiche ISO/IEC 9126 mancanti negli obiettivi di qualità (9.1). |
+| **0.2.2** | 04/11/2026 | Allineamento con la specifica dei requisiti (9.1), rimosso il riferimento alle consegne in 1.2, correzione di refusi. |
 
 ---
 
@@ -19,7 +21,7 @@
 3. Organization of the project
 4. Standards, guidelines, procedures
 5. Management activities
-6. Risks Potential 
+6. Potential Risks 
 7. Staffing
 8. Methods and techniques
 9. Quality assurance
@@ -37,7 +39,7 @@ MPlan nasce nel corso di Ingegneria del Software (A.A. 2026/27). Il committente,
 ### 1.2 Obiettivi del progetto
 
 1. Realizzare la versione 1 di MPlan: applicazione per PC (Windows) con archivio dati locale, per gestire clienti, cantieri e attività, con storico per contatto e agenda giornaliera.
-2. Consegnare entro gennaio 2027 i documenti e i diagrammi UML richiesti dal corso (13 consegne, scomposte al punto 11.1).
+2. Consegnare entro gennaio 2027 i documenti e i diagrammi UML richiesti dal corso.
 3. Applicare in modo documentato le tecniche del corso: requisiti, modellazione, progettazione, test, manutenzione e gestione del progetto.
 
 ### 1.3 Risultati attesi (Deliverable)
@@ -81,14 +83,14 @@ Per la gestione operativa delle attività viene utilizzata una board Kanban su G
 Le milestone sono su GitHub con relativa scadenza. Le consegne settimanali sono **issue** assegnate alla milestone, con le etichette `documento`, `codice`, `test` (tipo).
 
 | Milestone | Inizio | Scadenza | Si considera raggiunta quando |
-|---|---|---| ---|
-| M0 – – Setup del repository | 01/10/2026 |08/10/2026 | Creazione e configurazione del repository GitHub. |
-| M1 – Ingegneria dei requisiti | 8/10/2026 | 22/10/2026 | Specifica dei requisiti pubblicato nel repository |
-| M2 – Design | 22/10/2026 | 26/11/2026 | Tutti i diagrammi UML e il Documento di Design sono nel repository e approvati dall'altro membro |
-| M3 – Sviluppo del codice | 19/11/2026 | 09/12/2026 | UC2–UC10 funzionano da GUI; il codice è unito in `main` e compila con Maven |
-| M4 – Sviluppo dei test | 19/11/2026 | 16/12/2026 | Test JUnit superati e Documento di Testing con tracciabilità |
-| M5 – Manutenzione | 16/12/2026 | 23/12/2026 | Modifica applicata, test ancora superati e Documento di Maintenance |
-| M6 – Revisione dei documenti e consegna | 23/12/2026 | 01/01/2027 | Revisione incrociata completata, tracciabilità controllata, consegna effettuata |
+| :--- | :--- | :--- | :--- |
+| **M0** – Setup del repository | 01/10/2026 | 08/10/2026 | Creazione e configurazione del repository GitHub. |
+| **M1** – Ingegneria dei requisiti | 08/10/2026 | 22/10/2026 | Specifica dei requisiti pubblicata nel repository. |
+| **M2** – Design | 22/10/2026 | 26/11/2026 | Tutti i diagrammi UML e il Documento di Design sono nel repository e approvati dall'altro membro. |
+| **M3** – Sviluppo del codice | 19/11/2026 | 09/12/2026 | UC2–UC10 funzionano da GUI; il codice è unito in `main` e compila con Maven. |
+| **M4** – Sviluppo dei test | 19/11/2026 | 16/12/2026 | Test JUnit superati e Documento di Testing con tracciabilità. |
+| **M5** – Manutenzione | 16/12/2026 | 23/12/2026 | Modifica applicata, test ancora superati e Documento di Maintenance. |
+| **M6** – Revisione dei documenti e consegna | 23/12/2026 | 01/01/2027 | Revisione incrociata completata, tracciabilità controllata, consegna effettuata. |
 
 
 ---
@@ -192,7 +194,7 @@ Le Pull Request vengono sottoposte a revisione da parte dell'altro componente de
 
 ---
 
-## 6\. Risks Potential
+## 6\. Potential Risks
 
 ### 6.1 Ampliamento incontrollato del perimetro (Scope Creep)
 
@@ -200,7 +202,7 @@ Le Pull Request vengono sottoposte a revisione da parte dell'altro componente de
 
 **Impatto:** ritardi, aumento della complessità e riduzione del tempo disponibile per test e documentazione.
 
-**Mitigazione:** Assegnazione delle priorità con medoto MOSCOW in funzione del tempo residuo.
+**Mitigazione:** Assegnazione delle priorità con metodo MoSCoW in funzione del tempo residuo.
 
 ### 6.2 Disallineamento tra modelli UML e codice
 
@@ -262,17 +264,27 @@ La documentazione tecnica e i diagrammi UML vengono aggiornati quando cambiano r
 
 ### 9.1 Obiettivi di qualità
 
-Gli obiettivi di qualità sono definiti secondo le caratteristiche di qualità del prodotto dello standard ISO/IEC 9126.
+Gli obiettivi di qualità sono definiti secondo le caratteristiche di qualità del prodotto (ISO/IEC 9126-1) e della qualità in uso (ISO/IEC 9126-4) dello standard ISO/IEC 9126. I criteri di verifica sono nella sezione 10 del Documento 3.
 
 **Funzionalità**
 
 - *Accuratezza*: il sistema deve memorizzare correttamente ogni attività.
 - *Adeguatezza*: il sistema deve soddisfare i requisiti specificati.
-- *Integrità dei dati*: durante qualisasi operazione deve essere preservata la coerenza dei dati e impedire modifiche incompatibili con le regole di business.
+- *Integrità dei dati*: durante qualsiasi operazione deve essere preservata la coerenza dei dati e impedire modifiche incompatibili con le regole di business.
 
 **Affidabilità**
 
 - *Tolleranza ai guasti*: il sistema deve gestire gli input non validi e le condizioni di errore prevedibili senza terminazioni anomale non controllate.
+- *Recuperabilità*: dopo una chiusura inattesa del programma i dati già salvati devono essere ancora presenti alla riapertura.
+
+**Usabilità**
+
+- *Apprendibilità*: le persone del team dovrebbero riuscire a usare le funzioni principali senza aiuto.
+- *Operabilità*: creare un'attività deve richiedere pochi passaggi e poche informazioni da compilare.
+
+**Efficienza**
+
+- *Comportamento rispetto al tempo*: l'apertura della scheda di un contatto deve richiedere meno di 2 secondi con almeno 5000 attività salvate.
 
 **Manutenibilità**
 
@@ -281,7 +293,15 @@ Gli obiettivi di qualità sono definiti secondo le caratteristiche di qualità d
 
 **Portabilità**
 
+- *Installabilità*: l'applicazione deve funzionare su Windows senza installare servizi esterni.
 - *Sostituibilità*: i componenti devono poter essere sostituiti attraverso interfacce dedicate.
+
+**Qualità in uso**
+
+- *Efficacia*: l'utente deve riuscire a registrare e a ritrovare ciò che ha fatto, eseguendo senza assistenza gli scenari principali dei casi d'uso.
+- *Produttività*: registrare il lavoro deve costare poco tempo: creare un'attività dalla Home richiede al massimo 6 click e UC6, UC7 e UC8 si completano in al massimo 2 minuti.
+- *Sicurezza*: solo il team di lavoro del committente deve poter accedere ai dati; nella versione 1 i dati restano solo sul PC e l'applicazione non apre connessioni di rete.
+- *Soddisfazione*: il committente deve ritenere l'applicazione adatta al proprio lavoro e confermarlo all'accettazione finale.
 
 ### 9.2 Organizzazione della qualità
 
@@ -312,6 +332,10 @@ La persona che sviluppa una modifica non può essere l'unico revisore della rela
 
 Le risorse umane sono costituite dai due sviluppatori del progetto, che condividono le attività di analisi, progettazione, implementazione, testing e documentazione.
 
+### 10.3 Risorse economiche
+
+Nessun costo previsto.
+
 ### 10.4 Risorse hardware
 
 Un pc Windows 11 per sviluppatore.
@@ -338,10 +362,6 @@ Il progetto adotta sprint settimanali con pianificazione e revisione il giovedì
 Le attività sono organizzate secondo le milestone nella sezione 2.3 di questo documento. 
 
 La pianificazione dettagliata degli sprint viene mantenuta su GitHub Projects ricorrendo alle issues. Il codice e la documentazione devono essere congelati almeno cinque giorni prima dell'appello.
-
-### 11.3 Budget
-
-Non è previsto alcun costo.
 
 ---
 
@@ -384,4 +404,4 @@ La consegna operativa a MP elettrica s.a.s. è prevista come attività distinta 
 
 
 - **Installazione e configurazione**: Installazione assistita sul dispositivo usato dal committente.
-- **Formazione e affiancamento**: È prevista una breve formazione,dedicata alle operazioni principali.
+- **Formazione e affiancamento**: È prevista una breve formazione dedicata alle operazioni principali.

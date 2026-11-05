@@ -11,6 +11,8 @@ Corso di Ingegneria del Software, A.A. 2026/27
 | 0.2.1 | 17/10/2026 | Piccole correzioni sintattiche e relative ad ambiguità |
 | 0.3.0 | 17/10/2026 | Inserimento dello use case diagram  |
 | 0.3.1 | 18/10/2026 | Risolto l'ultimo punto aperto: la fatturazione non è svolta dal sistema |
+| 0.3.2 | 24/10/2026 | Qualità del software allineate a ISO/IEC 9126 |
+| 0.3.3 | 04/11/2026 | Macchine a stati complete (8.1 e 8.2) |
 
 ---
 
@@ -89,6 +91,7 @@ Nel documento "committente" indica sempre l'azienda che commissiona il software,
 - *Requisiti per il progetto di ingegneria del software, A.A. 2026/27*, v1.0.0 (A. Gargantini, S. Bonfanti).
 - S. Bonfanti, A. Gargantini, *Mechanical Lung Ventilator – Software Requirements Specification for ABZ 2024 case study*, v1.5, dicembre 2023 (documento di riferimento per il formato).
 - IEEE Std 830-1998, *Recommended Practice for Software Requirements Specifications*, IEEE, 1998: <https://ieeexplore.ieee.org/document/720574>. Il testo completo è a pagamento; lo standard è stato sostituito da ISO/IEC/IEEE 29148:2011.
+- ISO/IEC 9126-1:2001, *Software engineering – Product quality – Part 1: Quality model*, e ISO/IEC TR 9126-4:2004, *Part 4: Quality in use metrics*. Sono stati sostituiti da ISO/IEC 25010, ma sono il modello di qualità usato nel corso e nel Project Plan (9.1).
 - Intervista di elicitazione del 08/10/2026: `intervista-01-domande-risposte.md`, `intervista-01-riassunto-esigenze-cliente.md`.
 
 ### 1.5 Struttura del documento
@@ -108,7 +111,7 @@ Il formato dei requisiti (identificatori, rationale e riferimento di origine, ta
 | Descrizione generale (prospettiva, funzioni, utenti, vincoli, assunzioni, ripartizione dei requisiti) | 3.1–3.6 |
 | Requisiti specifici – interfacce esterne | 5.3 (GUI); nessuna interfaccia hardware, software o di comunicazione verso altri sistemi nella v1 (NFR.6) |
 | Requisiti specifici – funzioni | 5.1 (FUN) e sezione 4 |
-| Requisiti specifici – prestazioni | 5.4 (NFR.3) |
+| Requisiti specifici – prestazioni (efficienza) | 5.4 (NFR.3) |
 | Requisiti specifici – dati | 5.2 (DAT) |
 | Requisiti specifici – vincoli di progetto | 5.5 (VIN) |
 | Requisiti specifici – attributi del sistema (affidabilità, sicurezza, manutenibilità, portabilità) | 5.4 (NFR) e sezione 10 |
@@ -130,7 +133,7 @@ Come richiesto dallo standard, i requisiti sono identificati in modo univoco, cl
 | FUN | Funzionali |
 | DAT | Dati: attributi, formati e valori ammessi |
 | GUI | Interfaccia grafica |
-| NFR | Non funzionali (usabilità, prestazioni, affidabilità, portabilità) |
+| NFR | Non funzionali (usabilità, affidabilità, efficienza, manutenibilità, portabilità, sicurezza) |
 | VIN | Vincoli di progetto e di processo |
 | FUT | Requisiti futuri, non nella v1 |
 
@@ -353,7 +356,7 @@ Coprono la rubrica, le attività, i materiali, lo storico, l'agenda giornaliera,
 | **FUN.6** | Ogni attività deve avere uno stato tra: *da fare*, *parziale*, *completata*, *annullata*.<br>*Rationale:* il committente ha citato *completata*, *parziale* e *annullata* e lo considera opzionale; lo stato iniziale *da fare* è stato aggiunto dal team perché ogni attività nasce prima dell'intervento. | M | D3.5, Impl., O1 |
 | FUN.6.1 | L'utente deve poter segnare un'attività come *parziale* o *completata*. | M | D3.5 |
 | FUN.6.2 | Lo stato *annullata* deve essere definitivo: un'attività annullata non può essere modificata né tornare ad altri stati.<br>*Rationale:* semplifica lo storico; da confermare. | M | Impl. |
-| FUN.6.3 | Le sole transizioni di stato ammesse sono: da *da fare* a *parziale*; da *da fare* o *parziale* a *completata*; da *da fare* o *parziale* ad *annullata*. Un'attività *completata* non può essere annullata.<br>*Rationale:* la Figura 8.1 illustra queste transizioni. | M | Impl. |
+| FUN.6.3 | Il sistema deve ammettere solo queste transizioni di stato: da *da fare* a *parziale*; da *da fare* o *parziale* a *completata*; da *da fare* o *parziale* ad *annullata*. Un'attività *completata* non può essere annullata.<br>*Rationale:* la Figura 8.1 illustra queste transizioni. | M | Impl. |
 | **FUN.7** | Un lavoro che dura più giorni deve essere rappresentato da più attività, una per ogni giorno lavorato, associate allo stesso contatto.<br>*Rationale:* il committente non ha chiesto una funzione di pianificazione di cantiere. | M | D3.6 |
 | **FUN.8** | Il sistema deve permettere di annotare materiali usati, mancanti o necessari come testo libero nelle note dell'attività. | M | D4.1, O1, O3 |
 | FUN.8.1 | La nota su ciò che serve per la visita successiva deve essere scritta nell'attività del giorno stesso, non in quella del giorno dopo. | M | D4.2, O3 |
@@ -417,8 +420,8 @@ Le schermate e le transizioni sono illustrate nelle Figure 8.2, 8.3 e 8.4. Come 
 | GUI.4.1 | La scheda deve offrire l'opzione di creare una nuova attività con i campi di DAT.2 | M | D5.1; FUN.4 |
 | GUI.4.2 | Dallo storico deve essere possibile aprire un'attività per consultarla o modificarla. | M | Impl.; FUN.5 |
 | **GUI.5** | **Form attività.** Un modulo deve permettere di inserire o modificare titolo, data, orario, descrizione, note e stato. | M | D3.1, D3.2; FUN.4, FUN.5 |
-| GUI.5.1 | Per salvare una nuova attività valgono le regole di FUN.4.2. | M | D3.3; FUN.4.2 |
-| GUI.5.2 | Dal form deve essere possibile segnare l'attività come *parziale* o *completata*. | C | D3.5; FUN.6.1 |
+| GUI.5.1 | Per salvare una nuova attività il form deve applicare le regole di FUN.4.2. | M | D3.3; FUN.4.2 |
+| GUI.5.2 | Dal form deve essere possibile segnare l'attività come *parziale* o *completata*. | M | D3.5; FUN.6.1 |
 | **GUI.6** | **Annullamento.** L'opzione di annullamento deve chiedere il motivo (DAT.3.1) e una conferma prima di procedere. | M | D7.1; FUN.12 |
 | **GUI.7** | **Agenda giornaliera.** La schermata deve realizzare l'agenda giornaliera (FUN.10) e mostrare le frecce per cambiare giorno (FUN.10.1). | M | D6.2; FUN.10 |
 | GUI.7.1 | Ogni attività nell'agenda dovrebbe mostrare l'orario, il contatto e il titolo. | S | Impl.; FUN.10 |
@@ -430,14 +433,14 @@ Le schermate e le transizioni sono illustrate nelle Figure 8.2, 8.3 e 8.4. Come 
 | ID | Requisito / Rationale | Pri. | Fonte |
 |---|---|---|---|
 | **NFR.1** | **Usabilità.** L'applicazione deve essere semplice da usare, con poche informazioni da compilare. La verifica è una prova d'uso con il committente (sezione 10).<br>*Rationale:* il committente chiede poche informazioni da scrivere e nessuna complicazione. | M | D9.4 |
-| NFR.1.1 | Creare un'attività dalla Home in ≤ 6 click. | M | D3.3, D9.4 |
-| NFR.1.2 | Almeno 80% delle persone del team completa UC6, UC7, UC8 in ≤ 2 min senza aiuto | S | D9.4 |
-| **NFR.2** | **Affidabilità.** Dopo ogni operazione di salvataggio i dati dovrebbero essere scritti in modo persistente, così da non perderli in caso di chiusura inattesa.<br>*Rationale:* il lavoro di una giornata non deve andare perso. | S | Team |
-| **NFR.3** | **Prestazioni.** L'apertura di una scheda contatto dovrebbe richiedere meno di 2 secondi con almeno 5000 attività salvate.<br>*Rationale:* il committente vuole consultare la storia per anni (D9.2). | S | Team |
+| NFR.1.1 | Il sistema deve permettere di creare un'attività dalla Home in ≤ 6 click. | M | D3.3, D9.4 |
+| NFR.1.2 | La totalità del team dovrebbe completare UC6, UC7 e UC8 in ≤ 2 min senza aiuto. | S | D9.4 |
+| **NFR.2** | **Affidabilità.** Dopo ogni operazione di salvataggio i dati devono essere scritti in modo persistente, così da non perderli in caso di chiusura inattesa.<br>*Rationale:* il lavoro di una giornata non deve andare perso. | M | Team |
+| **NFR.3** | **Efficienza.** L'apertura di una scheda contatto deve richiedere meno di 2 secondi con almeno 5000 attività salvate.<br>*Rationale:* il committente vuole consultare la storia per anni (D9.2). | M | Team |
 | **NFR.4** | **Portabilità.** L'applicazione deve funzionare su Windows 11. | M | D9.1 |
-| **NFR.5** | **Estendibilità.** Il sistema deve poter evolvere verso l'uso da cellulare e da più dispositivi senza dover riscrivere le funzioni già realizzate. | M | D9.1, Team |
+| **NFR.5** | **Manutenibilità.** Il sistema deve poter evolvere verso l'uso da cellulare e da più dispositivi senza dover riscrivere le funzioni già realizzate. | M | D9.1, Team |
 | **NFR.6** | **Funzionamento offline.** L'applicazione deve funzionare senza connessione a Internet e senza servizi da installare. | M | Reg., D9.2 |
-| **NFR.7** | **Riservatezza.** dati salvati solo in locale, nessun invio in rete (A1).<br>*Rationale:* il committente ha detto che solo il suo team di lavoro deve accedere tramite pc. | M | D8.2 |
+| **NFR.7** | **Sicurezza.** I dati devono essere salvati solo in locale, senza invio in rete (A1).<br>*Rationale:* il committente ha detto che solo il suo team di lavoro deve accedere tramite pc. | M | D8.2 |
 
 ### 5.5 Vincoli (VIN)
 
@@ -480,10 +483,10 @@ La priorità e l'affidabilità della fonte sono indipendenti. Un requisito Must 
 | FUN – Funzionali | 30 | 2 | 4 | – | 36 |
 | DAT – Dati | 17 | 1 | 1 | – | 19 |
 | GUI – Interfaccia | 18 | 1 | – | – | 19 |
-| NFR – Non funzionali | 6 | 4 | – | – | 10 |
+| NFR – Non funzionali | 8 | 1 | – | – | 9 |
 | VIN – Vincoli | 8 | – | – | – | 8 |
 | FUT – Futuri | – | – | – | 4 | 4 |
-| **Totale** | **79** | **8** | **5** | **4** | **96** |
+| **Totale** | **81** | **5** | **5** | **4** | **95** |
 
 ---
 
@@ -524,42 +527,80 @@ I diagrammi seguenti sono schemi di lavoro che illustrano i requisiti. Le versio
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Aperta : crea attività [titolo non vuoto]
+    direction LR
+    [*] --> Nuova
+    Nuova --> Aperta : salva [validi] / da fare
     state Aperta {
+        direction LR
         [*] --> DaFare
-        DaFare --> Parziale : segna parziale
-        DaFare --> DaFare : aggiorna dati
-        Parziale --> Parziale : aggiorna dati
+        DaFare --> Parziale : segnaParziale
     }
-    Aperta --> Completata : segna completata
-    Aperta --> Annullata : annulla [motivo non vuoto e conferma]
-    Completata --> Completata : aggiorna dati
+    Aperta --> Completata : segnaCompletata
+    Aperta --> Annullata : annulla(motivo) [confermato]
+    Completata --> Completata : aggiorna [validi] / salva
     Annullata --> [*]
 ```
 
-*Figura 8.1 – Stati di un'attività (illustra FUN.5, FUN.6 e FUN.12).* *Aperta* è uno stato composto usato solo in questo diagramma per raggruppare *da fare* e *parziale*. Le transizioni ammesse sono scritte nel testo di FUN.6.3.
+*Figura 8.1 – Stati di un'attività (illustra FUN.5, FUN.6, FUN.12, DAT.3, DAT.5 e FUN.13).* È una macchina di **Mealy**: gli effetti sono sulle transizioni, con etichetta `evento [guardia] / effetto`. *Nuova* è l'attività non ancora salvata. *Aperta* è uno stato composto, usato solo in questo diagramma per raggruppare *da fare* e *parziale*. Per leggibilità la figura mostra solo le transizioni che cambiano stato; l'elenco completo, compresi i casi con dati non validi, è nella Tabella 8.1.
+
+*Tabella 8.1 – Transizioni dell'attività.*
+
+| Stato di partenza | Evento [guardia] | Effetto | Stato di arrivo |
+|---|---|---|---|
+| Nuova | salva [dati validi] | salva l'attività con stato *da fare* | Aperta (*da fare*) |
+| Nuova | salva [dati non validi] | mostra gli errori (DAT.5) | Nuova |
+| *Da fare* | segnaParziale | salva lo stato *parziale*; registra il cambio di stato | *Parziale* |
+| *Da fare*, *parziale* | aggiorna [dati validi] | salva; registra la modifica | stato invariato |
+| *Da fare*, *parziale* | aggiorna [dati non validi] | mostra gli errori (DAT.5) | stato invariato |
+| Aperta (*da fare*, *parziale*) | segnaCompletata | salva lo stato *completata*; registra il cambio di stato | *Completata* |
+| Aperta (*da fare*, *parziale*) | annulla(motivo) [motivo non vuoto e conferma] | salva lo stato *annullata* e il motivo; registra l'annullamento | *Annullata* |
+| Aperta (*da fare*, *parziale*) | annulla(motivo) [motivo vuoto o senza conferma] | mostra l'errore (DAT.3.1) | stato invariato |
+| *Completata* | aggiorna [dati validi] | salva; registra la modifica | *Completata* |
+| *Completata* | aggiorna [dati non validi] | mostra gli errori (DAT.5) | *Completata* |
+| *Annullata* | qualunque evento | nessuno: il servizio lo rifiuta (FUN.6.2) | *Annullata* (finale) |
+
+Le parole "registra" valgono solo se si realizza il registro delle modifiche (FUN.13, Should). Gli eventi non elencati non fanno cambiare stato e il servizio li rifiuta: un annullamento su un'attività *completata*, `segnaParziale` su una *parziale* (FUN.6.3). Le transizioni ammesse sono scritte nel testo di FUN.6.3.
 
 ### 8.2 Navigazione tra le schermate
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Home : avvio
-    Home --> FormContatto : nuovo contatto
-    FormContatto --> Home : salva o chiudi
-    Home --> SchedaContatto : seleziona contatto
-    SchedaContatto --> FormContatto : modifica dati
-    FormContatto --> SchedaContatto : salva o chiudi da scheda
-    SchedaContatto --> FormAttivita : nuova attività o apri attività
-    FormAttivita --> SchedaContatto : salva o chiudi da scheda
+    direction TB
+    state sceltaContatto <<choice>>
+    state sceltaAttivita <<choice>>
+    [*] --> Home
+    state "Home<br/>entry / mostra rubrica" as Home
+    state "FormContatto<br/>entry / mostra modulo contatto" as FormContatto
+    state "SchedaContatto<br/>entry / mostra dati e storico" as SchedaContatto
+    state "FormAttivita<br/>entry / mostra modulo attività" as FormAttivita
+    state "AgendaGiornaliera<br/>entry / mostra agenda del giorno" as AgendaGiornaliera
+    Home --> FormContatto : nuovoContatto
+    Home --> SchedaContatto : selezionaContatto
+    Home --> AgendaGiornaliera : apriAgenda
+    SchedaContatto --> FormContatto : modificaContatto
+    SchedaContatto --> FormAttivita : nuovaAttivita, apriAttivita
+    AgendaGiornaliera --> FormAttivita : apriAttivita
     SchedaContatto --> Home : indietro
-    Home --> AgendaGiornaliera : menu a tendina
-    AgendaGiornaliera --> FormAttivita : apri attività
-    FormAttivita --> AgendaGiornaliera : salva o chiudi da agenda
     AgendaGiornaliera --> Home : indietro
-    Home --> [*] : chiudi applicazione
+    FormContatto --> sceltaContatto : salva [validi], chiudi
+    sceltaContatto --> Home : [origine = home]
+    sceltaContatto --> SchedaContatto : [origine = scheda]
+    FormAttivita --> sceltaAttivita : salva [validi], chiudi
+    sceltaAttivita --> SchedaContatto : [origine = scheda]
+    sceltaAttivita --> AgendaGiornaliera : [origine = agenda]
+    Home --> [*] : chiudi
 ```
 
-*Figura 8.2 – Schermate della GUI (illustra GUI.1 e GUI.1.1).* Dal *Form attività* si torna alla schermata da cui è stato aperto.
+*Figura 8.2 – Schermate della GUI (illustra GUI.1, GUI.1.1 e DAT.5).* È una macchina di **Moore**: l'uscita (ciò che si mostra) dipende solo dallo stato ed è l'azione `entry` di ogni schermata. I rombi sono scelte: dopo "salva" o "chiudi" riportano alla schermata di provenienza, memorizzata nelle variabili `origine` descritte nella Tabella 8.2. Per leggibilità la figura non mostra i casi con dati non validi.
+
+*Tabella 8.2 – Variabili e casi particolari della navigazione.*
+
+| Elemento | Descrizione |
+|---|---|
+| `origine` (scelta dopo il Form contatto) | Vale *home* se il form è stato aperto con `nuovoContatto` dalla Home, *scheda* se è stato aperto con `modificaContatto` dalla Scheda contatto |
+| `origine` (scelta dopo il Form attività) | Vale *scheda* se il form è stato aperto dalla Scheda contatto (`nuovaAttivita` o `apriAttivita`), *agenda* se è stato aperto dall'Agenda giornaliera (`apriAttivita`) |
+| `selezionaContatto` | Memorizza il contatto scelto, mostrato poi nella Scheda contatto |
+| `salva` [dati non validi] | Resta nel Form contatto o nel Form attività e mostra gli errori (DAT.5) |
 
 ### 8.3 Bozza della scheda contatto
 
@@ -729,7 +770,7 @@ Ogni requisito ha un identificatore di test segnaposto `T-<ID requisito>` e un m
 | NFR.1.1 | T-NFR.1.1 | Prova d'uso |
 | NFR.1.2 | T-NFR.1.2 | Prova d'uso |
 | NFR.2 | T-NFR.2 | Test di sistema |
-| NFR.3 | T-NFR.3 | Test di prestazioni |
+| NFR.3 | T-NFR.3 | Test di efficienza |
 | NFR.4 | T-NFR.4 | Prova su PC Windows |
 | NFR.5 | T-NFR.5 | Ispezione |
 | NFR.6 | T-NFR.6 | Prova su PC Windows |
@@ -747,18 +788,27 @@ Ogni requisito ha un identificatore di test segnaposto `T-<ID requisito>` e un m
 
 ## 10. Qualità del software
 
-Le qualità seguenti guidano il progetto. Per ciascuna si indica perché conta in questo contesto, dove è richiesta e con quale criterio si decide se è soddisfatta o no.
+Le qualità seguono lo standard ISO/IEC 9126, come il Project Plan (9.1): le sei caratteristiche del prodotto (parte 1) e le quattro della qualità in uso (parte 4). Per ciascuna si indica perché conta in questo contesto, dove è richiesta e con quale criterio si decide se è soddisfatta o no.
+
+### 10.1 Qualità del prodotto (ISO/IEC 9126-1)
 
 | Qualità | Perché conta per MPlan | Requisiti | Criterio di verifica |
 |---|---|---|---|
-| **Usabilità** | Il committente vuole poche informazioni da compilare e nessuna complicazione (D9.4) | NFR.1, FUN.4.2, GUI.5.1 | Prova d'uso: una persona del team crea un'attività (UC7), la aggiorna (UC8) e consulta l'agenda (UC6) senza assistenza |
-| **Integrità dei dati** | Lo storico serve per ritrovare gli interventi da fatturare e deve restare completo: per questo non si eliminano le attività | FUN.12.2, FUN.15.1, DAT.3.1 | Test: dopo l'annullamento l'attività è ancora nello storico con stato *annullata* e motivo; nessuna funzione dell'applicazione elimina un'attività |
-| **Affidabilità** | Il lavoro di una giornata non deve andare perso | NFR.2, FUN.15 | Test: dopo una chiusura forzata successiva a un salvataggio, tutte le attività salvate sono presenti alla riapertura (0 attività perse) |
-| **Prestazioni** | Lo storico cresce per anni | NFR.3  | Test: l'apertura di una scheda contatto richiede meno di 2 secondi con almeno 5000 attività salvate |
-| **Portabilità** | Funzionamento su Windows senza installare servizi esterni | NFR.4, NFR.6, VIN.3 | Prova: su un PC Windows con la sola Java installata l'applicazione si avvia e si eseguono UC2–UC10 senza connessione a Internet |
-| **Riservatezza** | Solo il team di lavoro del committente deve accedere ai dati (D8.2) | NFR.7 | Ispezione: nella v1 i dati risiedono solo sul PC e l'applicazione non apre connessioni di rete |
-| **Estendibilità** | È prevista l'evoluzione a cellulare e più dispositivi | NFR.5 | Ispezione: le funzioni su contatti, attività e agenda si eseguono da test automatici senza avviare la GUI |
-| **Testabilità** | Il regolamento richiede test JUnit | VIN.5 | Ispezione: per ogni requisito Must funzionale esiste almeno un test JUnit; la copertura è riportata nel Documento 5 |
+| **Funzionalità** | Il software deve fare ciò che serve (adeguatezza), memorizzare correttamente i dati (accuratezza) e tenere lo storico completo, perché serve per ritrovare gli interventi da fatturare (integrità dei dati): per questo non si eliminano le attività | Requisiti funzionali Must; DAT.5; FUN.12.2, FUN.15.1, DAT.3.1 | Test: ogni requisito funzionale Must ha un test superato (9.4) e gli scenari UC2–UC10 danno il risultato atteso (4.1). Dopo l'annullamento l'attività è ancora nello storico con stato *annullata* e motivo, e nessuna funzione dell'applicazione elimina un'attività |
+| **Affidabilità** | Il lavoro di una giornata non deve andare perso (recuperabilità) e un dato non valido non deve far chiudere il programma (tolleranza ai guasti) | NFR.2, FUN.15, DAT.5 | Test: dopo una chiusura forzata successiva a un salvataggio, tutte le attività salvate sono presenti alla riapertura (0 attività perse). Un dato non valido produce un messaggio di errore senza chiusura anomala |
+| **Usabilità** | Il committente vuole poche informazioni da compilare e nessuna complicazione (D9.4): il software deve essere facile da capire e da usare | NFR.1, FUN.4.2, GUI.5.1 | Prova d'uso: una persona del team crea un'attività (UC7), la aggiorna (UC8) e consulta l'agenda (UC6) senza assistenza |
+| **Efficienza** | Lo storico cresce per anni (comportamento nel tempo) | NFR.3 | Test: l'apertura di una scheda contatto richiede meno di 2 secondi con almeno 5000 attività salvate |
+| **Manutenibilità** | È prevista l'evoluzione a cellulare e più dispositivi (modificabilità) e il regolamento richiede test JUnit (testabilità) | NFR.5, VIN.5 | Ispezione: le funzioni su contatti, attività e agenda si eseguono da test automatici senza avviare la GUI; per ogni requisito Must funzionale esiste almeno un test JUnit e la copertura è riportata nel Documento 5 |
+| **Portabilità** | Funzionamento su Windows senza installare servizi esterni (installabilità) | NFR.4, NFR.6, VIN.3 | Prova: su un PC Windows con la sola Java installata l'applicazione si avvia e si eseguono UC2–UC10 senza connessione a Internet |
+
+### 10.2 Qualità in uso (ISO/IEC 9126-4)
+
+| Qualità | Perché conta per MPlan | Requisiti | Criterio di verifica |
+|---|---|---|---|
+| **Efficacia** | L'utente deve riuscire a registrare e a ritrovare ciò che ha fatto | UC2–UC10; FUN.4, FUN.9, FUN.10 | Accettazione: il committente esegue senza assistenza gli scenari principali della sezione 4.1 e il risultato atteso si verifica (12.2) |
+| **Produttività** | Registrare il lavoro deve costare poco tempo | NFR.1.1, NFR.1.2 | Prova d'uso: creare un'attività dalla Home richiede al massimo 6 click e UC6, UC7 e UC8 si completano in al massimo 2 minuti (NFR.1.1, NFR.1.2) |
+| **Sicurezza** | Solo il team di lavoro del committente deve accedere ai dati (D8.2): riservatezza | NFR.7 | Ispezione: nella v1 i dati risiedono solo sul PC e l'applicazione non apre connessioni di rete |
+| **Soddisfazione** | Il committente deve ritenere il software adatto al proprio lavoro | NFR.1 | Accettazione finale: il committente conferma che l'applicazione è adatta all'uso e l'esito è scritto nel registro della validazione (12.3) |
 
 ---
 
