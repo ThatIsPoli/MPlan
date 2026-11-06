@@ -290,7 +290,7 @@ Il progetto deve rispettare il regolamento del corso: Java, progetti Eclipse con
 
 ## 4. Casi d'uso
 
-![Diagramma dei Casi d'Uso del sistema MPlan](../uml/export/mplan-use-case-diagram.jpg)
+![Diagramma dei Casi d'Uso del sistema MPlan](../uml/export/Mplan-use-case-diagram.jpg)
 *Figura 4.1: Diagramma dei Casi d'Uso di MPlan.*
 
 | ID | Caso d'uso | Descrizione | Requisiti collegati |
@@ -525,7 +525,7 @@ I diagrammi di stato (8.1 e 8.2) sono realizzati con StarUML, salvati in `docs/u
 
 ### 8.1 Stati di un'attività
 
-![Diagramma di stato dell'attività](../uml/export/FSM-Attività.jpg)
+![Diagramma di stato dell'attività](../uml/export/Mplan-FSM-Attività.jpg)
 
 *Figura 8.1 – Stati di un'attività (illustra FUN.5, FUN.6, FUN.12, DAT.3, DAT.5 e FUN.13).* Le transizioni seguono la notazione del corso, `evento(parametri) [guardia] / effetto`: gli effetti sono sulle transizioni (macchina di Mealy). *Aperta* è uno stato composto, usato solo in questo diagramma per raggruppare *da fare* e *parziale*. Se la guardia è falsa l'evento è scartato (stato invariato). Per leggibilità la figura mostra solo le transizioni che cambiano stato e l'aggiornamento di un'attività *completata*; l'elenco completo è nella Tabella 8.1.
 
@@ -545,7 +545,7 @@ Quando la guardia di un evento è falsa l'evento è scartato, lo stato non cambi
 
 ### 8.2 Navigazione tra le schermate
 
-![Diagramma di navigazione tra le schermate della GUI](../uml/export/FSM-Navigazione-gui.jpg)
+![Diagramma di navigazione tra le schermate della GUI](../uml/export/Mplan-FSM-Navigazione-gui.jpg)
 
 *Figura 8.2 – Schermate della GUI (illustra GUI.1, GUI.1.1 e DAT.5).* Ogni stato è una schermata e le transizioni usano la stessa notazione della Figura 8.1 (macchina di Mealy). I rombi sono nodi decisionali: dopo "salva" o "chiudi" riportano alla schermata da cui il form è stato aperto, come indicato nella Tabella 8.2. Per leggibilità la figura non mostra i casi con guardia falsa.
 
