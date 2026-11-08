@@ -48,7 +48,7 @@ MPlan nasce nel corso di Ingegneria del Software (A.A. 2026/27). Il committente,
 I principali risultati attesi sono:
 
 - Codice sorgente Java organizzato in un progetto Maven.
-- Database relazionale embedded H2.
+- Database relazionale SQLite.
 - Interfaccia grafica locale per la dimostrazione delle funzionalità principali.
 - Release finale identificata dal tag Git `v1.0.0`.
 - Soddisfacimento dei requisiti del progetto imposti dal corso.
@@ -249,7 +249,7 @@ La progettazione viene realizzata utilizzando StarUML v5 (use case, class, state
 
 ### 8.3 Implementazione
 
-Il sistema viene implementato in Java, utilizzando Eclipse come ambiente di sviluppo, Apache Maven per la compilazione e la gestione delle dipendenze, H2 embedded per la gestione del database e Swing per la GUI.
+Il sistema viene implementato in Java, utilizzando Eclipse come ambiente di sviluppo, Apache Maven per la compilazione e la gestione delle dipendenze, SQLite per la gestione del database e Swing per la GUI.
 
 Le funzionalità vengono integrate in modo incrementale, verificando la compilazione e il comportamento del sistema a ogni passaggio significativo.
 
@@ -322,7 +322,7 @@ La persona che sviluppa una modifica non può essere l'unico revisore della rela
 | Linguaggio e runtime | Java Development Kit | Compilazione ed esecuzione |
 | Build automation | Apache Maven | Compilazione e gestione delle dipendenze |
 | Modellazione | StarUML v5 | Creazione dei diagrammi UML |
-| Database | H2 Database Engine | Persistenza relazionale embedded |
+| Database | SQLite Database Engine | Persistenza relazionale embedded |
 | Testing | JUnit 5 | Test unitari e di integrazione |
 | Analisi statica | SonarLint | Individuazione di problemi nel codice |
 | Versionamento | Git | Gestione delle versioni |

@@ -12,7 +12,7 @@ Corso di Ingegneria del Software, A.A. 2026/27
 | 0.3.0 | 05/11/2026 | Rivisitazione dell'organizzazione del modulo Maven |
 | 0.3.1 | 05/11/2026 | Un solo modulo Maven con cinque package: aggiornati D2, vista dei package e verifica delle dipendenze; corretta la risposta di Q4 |
 | 0.3.2 | 06/11/2026 | Sezione 2: ritorno a cinque moduli Maven; database SQLite con accesso ai dati tramite jOOQ al posto di H2 con JDBC |
-
+| 0.3.3 | 08/11/2026 | Sezione 2: schema SQL unico per generazione jOOQ e creazione al primo avvio; tipo dei componenti per modulo; architettura interna degli strati (2.5.1); corretto refuso in 2.3 |
 
 > **Stato:** bozza. È compilata solo la sezione 2 (architettura). Le sezioni 1 e 3 sono **[DA COMPLETARE]** e contengono solo appunti non definitivi, emersi durante la stesura dell'architettura, come base di partenza.
 
@@ -114,7 +114,7 @@ Le qualità seguono ISO/IEC 9126 e sono elencate in ordine di priorità. Secondo
 | ID | Decisione | Motivazione breve |
 |---|---|---|
 | D5 | Transazioni come astrazione nel core, con implementazione nella persistenza (jOOQ e JDBC) | Atomicità senza che il core conosca `Connection` (Q4) |
-| D6 | Accesso ai dati con jOOQ sopra il driver JDBC di SQLite, dietro l'interfaccia repository | La logica non scrive SQL: le query sono codice Java con controllo dei tipi e le classi generate restano solo in `mplan-persistence`; JPA richiederebbe più studio e annotazioni |
+| D6 | Accesso ai dati con jOOQ sopra il driver JDBC di SQLite, dietro l'interfaccia repository. Lo schema è descritto in un unico file `schema.sql` in `mplan-persistence`: Maven lo usa per generare le classi jOOQ (senza database acceso) e l'applicazione lo esegue al primo avvio per creare le tabelle | La logica non scrive SQL: le query sono codice Java con controllo dei tipi e le classi generate restano solo in `mplan-persistence`; una sola descrizione dello schema evita disallineamenti (Q6); JPA richiederebbe più studio e annotazioni |
 | D7 | GUI con Swing | Scelta del team per semplicità e conoscenza |
 | D8 | Test di unità sul core (repository in memoria) e test di integrazione su persistence (SQLite in memoria); collaudo manuale per la GUI | Verifica di logica e query SQL (Q1, Q3) senza la fragilità dei test automatici su Swing |
 | D9 | Orologio iniettabile (`Clock`) nei costruttori dei servizi. | Rende i test su date e agenda deterministici e indipendenti dall'ora del PC (Q1) |
@@ -126,6 +126,7 @@ Le qualità seguono ISO/IEC 9126 e sono elencate in ordine di priorità. Secondo
 |---|---|
 | SQLite (driver JDBC) | Database relazionale embedded, in un file locale (VIN.3) |
 | jOOQ | Accesso ai dati da codice Java, con generazione delle classi dallo schema (D6) |
+| jooq-meta-extensions | Solo in fase di build: permette a jOOQ di leggere `schema.sql` per generare le classi (D6) |
 | log4j2 | Registrazione delle operazioni e degli errori nel file di log |
 | JUnit 5 | Test di unità (VIN.5) |
 
@@ -134,14 +135,13 @@ Le versioni sono fissate nei `pom.xml`.
 ### 2.4 Vista a moduli
 
 Punto di vista: **scomposizione e strati** (Tabella 11.3). Interessa a sviluppatori e manutentori.
-
-| Modulo Maven | Package radice | Contenuto | Dipende da |
-|---|---|---|---|
-| `mplan-api` | `mplan.api` | Contratto pubblico: interfacce dei servizi, entità di dominio immutabili, oggetti di input, `ErroreValidazione`, `ValidazioneException`, `PersistenzaException` | nessun modulo |
-| `mplan-core` | `mplan.core` | Implementazione dei servizi, regole di dominio e validatore, interfacce dei repository e delle transazioni | `mplan-api` |
-| `mplan-persistence` | `mplan.persistence` | Implementazione dei repository e delle transazioni con jOOQ e SQLite, creazione dello schema | `mplan-core`, `mplan-api` |
-| `mplan-ui-swing` | `mplan.ui` | Schermate Swing (GUI.1) e loro logica di presentazione | `mplan-api` |
-| `mplan-app` | `mplan.app` | `MPlanApplication`, configurazione, avvio | tutti i moduli |
+| Modulo Maven | Package radice | Contenuto | Tipo | Dipende da |
+|---|---|---|---|---|
+| `mplan-api` | `mplan.api` | Contratto pubblico: interfacce dei servizi, entità di dominio immutabili, oggetti di input, `ErroreValidazione`, `ValidazioneException`, `PersistenzaException` | gestore | nessun modulo |
+| `mplan-core` | `mplan.core` | Implementazione dei servizi, regole di dominio e validatore, interfacce dei repository e delle transazioni | computazionale | `mplan-api` |
+| `mplan-persistence` | `mplan.persistence` | Implementazione dei repository e delle transazioni con jOOQ e SQLite, `schema.sql` e creazione dello schema | memoria | `mplan-core`, `mplan-api` |
+| `mplan-ui-swing` | `mplan.ui` | Schermate Swing (GUI.1) e loro logica di presentazione | controllore | `mplan-api` |
+| `mplan-app` | `mplan.app` | `MPlanApplication`, configurazione, avvio, creazione e collegamento degli oggetti | controllore | tutti i moduli |
 
 **Progetti Eclipse e struttura del repository:** ogni modulo è un progetto Maven e un progetto Eclipse (con il proprio `.project`), sotto la cartella `code/`; un POM padre li aggrega. I test di ogni modulo stanno in una cartella separata dai sorgenti (`src/test/java`), nella radice del repository non c'è alcun `.project` e i documenti stanno in `docs/` (VIN.2, VIN.8).
 
@@ -161,11 +161,12 @@ Punto di vista: **componenti e connettori** (Tabella 11.4), descritto con lo sch
 | **Problema** | Le funzioni si possono organizzare gerarchicamente in presentazione, logica e dati, con un solo verso di chiamata |
 | **Contesto** | Applicazione desktop in un solo processo, con un solo thread di controllo per le azioni dell'utente |
 | **Modello di sistema** | Il sistema è una gerarchia di tre strati. La GUI vede solo il contratto pubblico (`mplan-api`), implementato dal core; la persistenza non è chiamata dalla GUI e implementa interfacce definite nel core |
-| **Componenti** | *Presentazione*: schermate Swing (Home, Form contatto, Scheda contatto, Form attività, Agenda giornaliera). *Logica*: servizi dei contatti e delle attività (tipo *manager*), dominio con le regole di stato, validatore (tipo *computazionale*). *Persistenza*: repository con jOOQ (tipo *manager*) e database SQLite (tipo *memoria*) |
+| **Componenti** | *Presentazione*: schermate Swing (Home, Form contatto, Scheda contatto, Form attività, Agenda giornaliera), di tipo *controllore*. *Logica*: servizi dei contatti e delle attività, dominio con le regole di stato e validatore, di tipo *computazionale*. *Persistenza*: repository con jOOQ e database SQLite, di tipo *memoria* |
 | **Connettori** | Chiamata di procedura tra presentazione e servizi (interfacce di `mplan-api`) e tra servizi e repository (interfacce di `mplan-core`); accesso ai dati con jOOQ e JDBC tra repository e SQLite |
 | **Struttura di controllo** | Un solo thread di controllo, avviato dall'utente; le operazioni sono sincrone |
 | **Varianti** | Visibilità limitata al solo strato adiacente. Qui la persistenza dipende dal core e non viceversa, a differenza dello strato classico |
 | **Esempi** | Modello a sette strati ISO OSI (libro, 11.4) |
+
 
 *[Spazio riservato: diagramma dei componenti, StarUML]*
 
@@ -177,7 +178,7 @@ Punto di vista: **distribuzione** (Tabella 11.5), con le risorse hardware.
 |---|---|
 | Nodo | Un PC con Windows 11 (A1, A2) |
 | Processo | Una sola JVM (Java 21) che esegue il programma, formato dai moduli `mplan-app`, `mplan-api`, `mplan-core`, `mplan-persistence` e `mplan-ui-swing` |
-| Dati | File del database SQLite in una cartella dati dell'utente, senza percorsi assoluti nel codice (VIN.2) |
+| Dati | File del database SQLite in una cartella dati dell'utente, creato al primo avvio eseguendo `schema.sql`; nessun percorso assoluto nel codice (VIN.2) |
 | Log | File di log in una cartella dell'applicazione, scritto da log4j2 |
 | Comunicazioni | Nessuna connessione di rete (NFR.6, NFR.7) |
 
