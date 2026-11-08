@@ -59,6 +59,8 @@ buildNumber.properties
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
 
+hs_err_pid*
+replay_pid*
 
 # ==========================================
 # 4. BUILD OUTPUTS & AMBIENTE
@@ -90,3 +92,18 @@ logs/
 *.sw?
 .DS_Store
 Thumbs.db
+
+# ==========================================
+# 6. SQLite Database & Runtime Lock/Journal
+# ==========================================
+# File di database binari
+*.db
+*.sqlite
+*.sqlite3
+*.db3
+*.s3db
+
+# File temporanei generati durante l'uso di SQLite (transazioni e WAL mode)
+*-journal
+*-wal
+*-shm
