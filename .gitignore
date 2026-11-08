@@ -1,3 +1,53 @@
+# ==========================================
+# 1. SVILUPPO CON AI (Claude, Agents, Memory)
+# ==========================================
+# File di contesto Claude (root e sottocartelle)
+[cC][lL][aA][uU][dD][eE].md
+.claude/
+.CLAUDE/
+.CLAUDE
+
+# File di istruzioni per Agenti AI
+[aA][gG][eE][nN][tT][sS].md
+agent.md
+AGENTS.md
+
+# Cartelle o file di memoria per AI
+memory/
+memory.md
+.memory/
+
+# Altri assistenti (Cursor, Windsurf, Copilot chat)
+.cursor/
+.cursorrules
+.windsurf/
+.codeium/
+
+
+# ==========================================
+# 2. GOOGLE AI STUDIO & PROJECT IDX
+# ==========================================
+# Configurazione e runtime dell'ambiente IDX/AI Studio
+.idx/
+.index
+*.index
+/metadata.json
+*.prompt.json
+
+# Preview sandbox creata da AI Studio (ancorata solo alla ROOT)
+/node_modules/
+/bun.lock
+/package.json
+/package-lock.json
+/tsconfig.json
+/vite.config.ts
+/index.html
+/src/
+
+
+# ==========================================
+# 3. JAVA / MAVEN (Ricorsivo per ./code/...)
+# ==========================================
 target/
 pom.xml.tag
 pom.xml.releaseBackup
@@ -7,6 +57,53 @@ release.properties
 dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
-# https://maven.apache.org/tools/wrapper/#Usage_with_or_without_Binary_JAR
 .mvn/wrapper/maven-wrapper.jar
 
+hs_err_pid*
+replay_pid*
+
+# ==========================================
+# 4. BUILD OUTPUTS & AMBIENTE
+# ==========================================
+dist/
+dist-ssr/
+build/
+dist_win/
+*.local
+logs/
+*.log
+
+# Segreti / API keys (importante se usi chiavi Gemini/Claude)
+.env*
+!.env.example
+
+
+# ==========================================
+# 5. IDE & SISTEMA OPERATIVO
+# ==========================================
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
+
+# ==========================================
+# 6. SQLite Database & Runtime Lock/Journal
+# ==========================================
+# File di database binari
+*.db
+*.sqlite
+*.sqlite3
+*.db3
+*.s3db
+
+# File temporanei generati durante l'uso di SQLite (transazioni e WAL mode)
+*-journal
+*-wal
+*-shm
