@@ -1,40 +1,33 @@
 # ==========================================
 # 1. SVILUPPO CON AI (Claude, Agents, Memory)
 # ==========================================
-# File di contesto Claude (root e sottocartelle)
 [cC][lL][aA][uU][dD][eE].md
 .claude/
 .CLAUDE/
 .CLAUDE
 
-# File di istruzioni per Agenti AI
 [aA][gG][eE][nN][tT][sS].md
 agent.md
 AGENTS.md
 
-# Cartelle o file di memoria per AI
 memory/
 memory.md
 .memory/
 
-# Altri assistenti (Cursor, Windsurf, Copilot chat)
 .cursor/
 .cursorrules
 .windsurf/
 .codeium/
 
-
 # ==========================================
 # 2. GOOGLE AI STUDIO & PROJECT IDX
 # ==========================================
-# Configurazione e runtime dell'ambiente IDX/AI Studio
 .idx/
 .index
 *.index
 /metadata.json
 *.prompt.json
 
-# Preview sandbox creata da AI Studio (ancorata solo alla ROOT)
 /node_modules/
 /bun.lock
 /package.json
@@ -42,13 +35,17 @@ memory.md
 /tsconfig.json
 /vite.config.ts
 /index.html
-/src/
-
+# NOTA: solo /src alla root per sandbox IDX, non dentro code/
+^/src/
 
 # ==========================================
-# 3. JAVA / MAVEN (Ricorsivo per ./code/...)
+# 3. JAVA & MAVEN (VIN.2, VIN.6)
 # ==========================================
+# Cartelle di compilazione Maven (target/ in ogni modulo)
 target/
+*.class
+
+# File di backup e rilascio Maven
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
@@ -59,11 +56,12 @@ buildNumber.properties
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
 
+# Crash logs JVM
 hs_err_pid*
 replay_pid*
 
 # ==========================================
-# 4. BUILD OUTPUTS & AMBIENTE
+# 4. LOGS, OUTPUTS & DATABASE (VIN.3)
 # ==========================================
 dist/
 dist-ssr/
@@ -73,14 +71,40 @@ dist_win/
 logs/
 *.log
 
-# Segreti / API keys (importante se usi chiavi Gemini/Claude)
+# Database SQLite embedded e file di transazione WAL/Journal
+*.db
+*.sqlite
+*.sqlite3
+*.db3
+*.s3db
+*-journal
+*-wal
+*-shm
+
+# File ambiente e segreti
 .env*
 !.env.example
 
+# ==========================================
+# 5. IDE & SISTEMA OPERATIVO (VIN.6, VIN.8)
+# ==========================================
+# File locali di Eclipse (.settings/) che contengono org.eclipse...
+.settings/
+.metadata/
+bin/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
 
-# ==========================================
-# 5. IDE & SISTEMA OPERATIVO
-# ==========================================
+# IMPORTANTE (VIN.6 e VIN.8):
+# Non ignoriamo i file .project e .classpath dei sottomoduli!
+# Ma ci assicuriamo che NON esista alcun .project nella root di Git:
+/.project
+/.classpath
+
+# Altri IDE
 .vscode/*
 !.vscode/extensions.json
 !.vscode/settings.json
@@ -90,20 +114,7 @@ logs/
 *.njsproj
 *.sln
 *.sw?
+
+# OS
 .DS_Store
 Thumbs.db
-
-# ==========================================
-# 6. SQLite Database & Runtime Lock/Journal
-# ==========================================
-# File di database binari
-*.db
-*.sqlite
-*.sqlite3
-*.db3
-*.s3db
-
-# File temporanei generati durante l'uso di SQLite (transazioni e WAL mode)
-*-journal
-*-wal
-*-shm
