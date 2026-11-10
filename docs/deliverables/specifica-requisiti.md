@@ -433,14 +433,14 @@ Le schermate e le transizioni sono illustrate nelle Figure 8.2, 8.3 e 8.4. Come 
 | ID | Requisito / Rationale | Pri. | Fonte |
 |---|---|---|---|
 | **NFR.1** | **Usabilità.** L'applicazione deve essere semplice da usare, con poche informazioni da compilare. La verifica è una prova d'uso con il committente (sezione 10).<br>*Rationale:* il committente chiede poche informazioni da scrivere e nessuna complicazione. | M | D9.4 |
-| NFR.1.1 | Creare un'attività dalla Home in ≤ 6 click. | M | D3.3, D9.4 |
-| NFR.1.2 | Almeno 80% delle persone del team completa UC6, UC7, UC8 in ≤ 2 min senza aiuto | S | D9.4 |
-| **NFR.2** | **Affidabilità.** Dopo ogni operazione di salvataggio i dati dovrebbero essere scritti in modo persistente, così da non perderli in caso di chiusura inattesa.<br>*Rationale:* il lavoro di una giornata non deve andare perso. | S | Team |
+| NFR.1.1 | Il sistema deve permettere di creare un'attività dalla Home in ≤ 6 click. | M | D3.3, D9.4 |
+| NFR.1.2 | La totalità del team dovrebbe completare UC6, UC7 e UC8 in ≤ 2 min senza aiuto. | S | D9.4 |
+| **NFR.2** | **Affidabilità.** Dopo ogni operazione di salvataggio i dati devono essere scritti in modo persistente, così da non perderli in caso di chiusura inattesa.<br>*Rationale:* il lavoro di una giornata non deve andare perso. | M | Team |
 | **NFR.3** | **Efficienza.** L'apertura di una scheda contatto deve richiedere meno di 2 secondi con almeno 5000 attività salvate.<br>*Rationale:* il committente vuole consultare la storia per anni (D9.2). | M | Team |
 | **NFR.4** | **Portabilità.** L'applicazione deve funzionare su Windows 11. | M | D9.1 |
 | **NFR.5** | **Manutenibilità.** Il sistema deve poter evolvere verso l'uso da cellulare e da più dispositivi senza dover riscrivere le funzioni già realizzate. | M | D9.1, Team |
 | **NFR.6** | **Funzionamento offline.** L'applicazione deve funzionare senza connessione a Internet e senza servizi da installare. | M | Reg., D9.2 |
-| **NFR.7** | **Sicurezza.** dati salvati solo in locale, nessun invio in rete (A1).<br>*Rationale:* il committente ha detto che solo il suo team di lavoro deve accedere tramite pc. | M | D8.2 |
+| **NFR.7** | **Sicurezza.** I dati devono essere salvati solo in locale, senza invio in rete (A1).<br>*Rationale:* il committente ha detto che solo il suo team di lavoro deve accedere tramite pc. | M | D8.2 |
 
 ### 5.5 Vincoli (VIN)
 
@@ -483,10 +483,10 @@ La priorità e l'affidabilità della fonte sono indipendenti. Un requisito Must 
 | FUN – Funzionali | 30 | 2 | 4 | – | 36 |
 | DAT – Dati | 17 | 1 | 1 | – | 19 |
 | GUI – Interfaccia | 18 | 1 | – | – | 19 |
-| NFR – Non funzionali | 7 | 3 | – | – | 10 |
+| NFR – Non funzionali | 8 | 1 | – | – | 9 |
 | VIN – Vincoli | 8 | – | – | – | 8 |
 | FUT – Futuri | – | – | – | 4 | 4 |
-| **Totale** | **80** | **7** | **5** | **4** | **96** |
+| **Totale** | **81** | **5** | **5** | **4** | **95** |
 
 ---
 
@@ -521,88 +521,46 @@ Le evoluzioni saranno specificate in dettaglio quando verranno pianificate.
 
 ## 8. Modelli di comportamento
 
-I diagrammi seguenti sono schemi di lavoro che illustrano i requisiti. Le versioni definitive saranno realizzate con StarUML, arricchite con gli elementi UML richiesti per i diagrammi di stato, e salvate in `docs/uml/` ed esportate in `docs/uml/export/`. Gli altri diagrammi (classi, sequenza, comunicazione o timing, attività, componenti, package) fanno parte del Documento 4 (Design).
+I diagrammi di stato (8.1 e 8.2) sono realizzati con StarUML, salvati in `docs/uml/` ed esportati in `docs/uml/export/`. Le figure 8.3 e 8.4 sono per ora schemi indicativi: le versioni definitive sono **[DA COMPLETARE]**. Gli altri diagrammi (classi, sequenza, comunicazione o timing, attività, componenti, package) fanno parte del Documento 4 (Design).
 
 ### 8.1 Stati di un'attività
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> Nuova
-    Nuova --> Aperta : salva [validi] / da fare
-    state Aperta {
-        direction LR
-        [*] --> DaFare
-        DaFare --> Parziale : segnaParziale
-    }
-    Aperta --> Completata : segnaCompletata
-    Aperta --> Annullata : annulla(motivo) [confermato]
-    Completata --> Completata : aggiorna [validi] / salva
-    Annullata --> [*]
-```
+![Diagramma di stato dell'attività](../uml/export/mplan-fsm-attività.jpg)
 
-*Figura 8.1 – Stati di un'attività (illustra FUN.5, FUN.6, FUN.12, DAT.3, DAT.5 e FUN.13).* È una macchina di **Mealy**: gli effetti sono sulle transizioni, con etichetta `evento [guardia] / effetto`. *Nuova* è l'attività non ancora salvata. *Aperta* è uno stato composto, usato solo in questo diagramma per raggruppare *da fare* e *parziale*. Per leggibilità la figura mostra solo le transizioni che cambiano stato; l'elenco completo, compresi i casi con dati non validi, è nella Tabella 8.1.
+*Figura 8.1 – Stati di un'attività (illustra FUN.5, FUN.6, FUN.12, DAT.3, DAT.5 e FUN.13).* Le transizioni seguono la notazione del corso, `evento(parametri) [guardia] / effetto`: gli effetti sono sulle transizioni (macchina di Mealy). *Aperta* è uno stato composto, usato solo in questo diagramma per raggruppare *da fare* e *parziale*. Se la guardia è falsa l'evento è scartato (stato invariato). Per leggibilità la figura mostra solo le transizioni che cambiano stato e l'aggiornamento di un'attività *completata*; l'elenco completo è nella Tabella 8.1.
 
 *Tabella 8.1 – Transizioni dell'attività.*
 
-| Stato di partenza | Evento [guardia] | Effetto | Stato di arrivo |
+| Stato di origine | Evento [guardia] | Effetto | Stato di arrivo |
 |---|---|---|---|
-| Nuova | salva [dati validi] | salva l'attività con stato *da fare* | Aperta (*da fare*) |
-| Nuova | salva [dati non validi] | mostra gli errori (DAT.5) | Nuova |
+| (iniziale) | crea(dati) [titolo valido] | salva l'attività con stato *da fare* | Aperta (*da fare*) |
+| Aperta (*da fare*, *parziale*) | aggiorna(dati) [dati validi] | salva; registra la modifica | stato invariato |
 | *Da fare* | segnaParziale | salva lo stato *parziale*; registra il cambio di stato | *Parziale* |
-| *Da fare*, *parziale* | aggiorna [dati validi] | salva; registra la modifica | stato invariato |
-| *Da fare*, *parziale* | aggiorna [dati non validi] | mostra gli errori (DAT.5) | stato invariato |
 | Aperta (*da fare*, *parziale*) | segnaCompletata | salva lo stato *completata*; registra il cambio di stato | *Completata* |
 | Aperta (*da fare*, *parziale*) | annulla(motivo) [motivo non vuoto e conferma] | salva lo stato *annullata* e il motivo; registra l'annullamento | *Annullata* |
-| Aperta (*da fare*, *parziale*) | annulla(motivo) [motivo vuoto o senza conferma] | mostra l'errore (DAT.3.1) | stato invariato |
-| *Completata* | aggiorna [dati validi] | salva; registra la modifica | *Completata* |
-| *Completata* | aggiorna [dati non validi] | mostra gli errori (DAT.5) | *Completata* |
+| *Completata* | aggiorna(dati) [dati validi] | salva; registra la modifica | *Completata* |
 | *Annullata* | qualunque evento | nessuno: il servizio lo rifiuta (FUN.6.2) | *Annullata* (finale) |
 
-Le parole "registra" valgono solo se si realizza il registro delle modifiche (FUN.13, Should). Gli eventi non elencati non fanno cambiare stato e il servizio li rifiuta: un annullamento su un'attività *completata*, `segnaParziale` su una *parziale* (FUN.6.3). Le transizioni ammesse sono scritte nel testo di FUN.6.3.
+Quando la guardia di un evento è falsa l'evento è scartato, lo stato non cambia e l'interfaccia mostra l'errore: dati non validi (DAT.5) oppure motivo vuoto o annullamento non confermato (DAT.3.1). Le parole "registra" valgono solo se si realizza il registro delle modifiche (FUN.13, Should). Gli eventi non elencati non fanno cambiare stato e il servizio li rifiuta: un annullamento su un'attività *completata* o `segnaParziale` su una *parziale* (FUN.6.3). Le transizioni ammesse sono scritte nel testo di FUN.6.3.
 
 ### 8.2 Navigazione tra le schermate
 
-```mermaid
-stateDiagram-v2
-    direction TB
-    state sceltaContatto <<choice>>
-    state sceltaAttivita <<choice>>
-    [*] --> Home
-    state "Home<br/>entry / mostra rubrica" as Home
-    state "FormContatto<br/>entry / mostra modulo contatto" as FormContatto
-    state "SchedaContatto<br/>entry / mostra dati e storico" as SchedaContatto
-    state "FormAttivita<br/>entry / mostra modulo attività" as FormAttivita
-    state "AgendaGiornaliera<br/>entry / mostra agenda del giorno" as AgendaGiornaliera
-    Home --> FormContatto : nuovoContatto
-    Home --> SchedaContatto : selezionaContatto
-    Home --> AgendaGiornaliera : apriAgenda
-    SchedaContatto --> FormContatto : modificaContatto
-    SchedaContatto --> FormAttivita : nuovaAttivita, apriAttivita
-    AgendaGiornaliera --> FormAttivita : apriAttivita
-    SchedaContatto --> Home : indietro
-    AgendaGiornaliera --> Home : indietro
-    FormContatto --> sceltaContatto : salva [validi], chiudi
-    sceltaContatto --> Home : [origine = home]
-    sceltaContatto --> SchedaContatto : [origine = scheda]
-    FormAttivita --> sceltaAttivita : salva [validi], chiudi
-    sceltaAttivita --> SchedaContatto : [origine = scheda]
-    sceltaAttivita --> AgendaGiornaliera : [origine = agenda]
-    Home --> [*] : chiudi
-```
+![Diagramma di navigazione tra le schermate della GUI](../uml/export/mplan-fsm-navigazione-gui.jpg)
 
-*Figura 8.2 – Schermate della GUI (illustra GUI.1, GUI.1.1 e DAT.5).* È una macchina di **Moore**: l'uscita (ciò che si mostra) dipende solo dallo stato ed è l'azione `entry` di ogni schermata. I rombi sono scelte: dopo "salva" o "chiudi" riportano alla schermata di provenienza, memorizzata nelle variabili `origine` descritte nella Tabella 8.2. Per leggibilità la figura non mostra i casi con dati non validi.
+*Figura 8.2 – Schermate della GUI (illustra GUI.1, GUI.1.1 e DAT.5).* Ogni stato è una schermata e le transizioni usano la stessa notazione della Figura 8.1 (macchina di Mealy). I rombi sono nodi decisionali: dopo "salva" o "chiudi" riportano alla schermata da cui il form è stato aperto, come indicato nella Tabella 8.2. Per leggibilità la figura non mostra i casi con guardia falsa.
 
-*Tabella 8.2 – Variabili e casi particolari della navigazione.*
+*Tabella 8.2 – Casi particolari della navigazione.*
 
 | Elemento | Descrizione |
 |---|---|
-| `origine` (scelta dopo il Form contatto) | Vale *home* se il form è stato aperto con `nuovoContatto` dalla Home, *scheda* se è stato aperto con `modificaContatto` dalla Scheda contatto |
-| `origine` (scelta dopo il Form attività) | Vale *scheda* se il form è stato aperto dalla Scheda contatto (`nuovaAttivita` o `apriAttivita`), *agenda* se è stato aperto dall'Agenda giornaliera (`apriAttivita`) |
-| `selezionaContatto` | Memorizza il contatto scelto, mostrato poi nella Scheda contatto |
-| `salva` [dati non validi] | Resta nel Form contatto o nel Form attività e mostra gli errori (DAT.5) |
+| `[aperto da Home]`, `[aperto da scheda]`, `[aperto da agenda]` | La schermata da cui è stato aperto il Form contatto o il Form attività, memorizzata all'apertura. Il Form contatto si apre dalla Home (`nuovoContatto`) o dalla Scheda contatto (`modificaContatto`); il Form attività dalla Scheda contatto (`nuovaAttivita`, `apriAttivita`) o dall'Agenda giornaliera (`apriAttivita`) |
+| `selezionaContatto(c)` | Memorizza il contatto scelto, mostrato poi nella Scheda contatto |
+| `salva(dati)` [dati non validi] | La guardia è falsa: l'evento è scartato, si resta nel Form contatto o nel Form attività e si mostrano gli errori (DAT.5) |
+| `chiudi` | Dal Form contatto o dal Form attività torna alla schermata di provenienza senza salvare; dalla Home chiude l'applicazione |
 
 ### 8.3 Bozza della scheda contatto
+
+**[DA COMPLETARE]** Versione definitiva della figura; per ora è presente lo schema indicativo.
 
 ```
 +--------------------------------------------------------------+
@@ -621,6 +579,8 @@ stateDiagram-v2
 *Figura 8.3 – Schema indicativo della scheda contatto (GUI.4, FUN.9). Il layout definitivo sarà deciso in fase di design.*
 
 ### 8.4 Bozza dell'agenda giornaliera
+
+**[DA COMPLETARE]** Versione definitiva della figura; per ora è presente lo schema indicativo.
 
 ```
 +--------------------------------------------------------------+
@@ -836,8 +796,10 @@ Gli scenari principali della sezione 4.1 sono i criteri di accettazione. Un caso
 
 ### 12.3 Registro della validazione
 
-| Data | Oggetto | Partecipanti | Esito | Modifiche ai requisiti |
-|---|---|---|---|---|
-| da pianificare | Revisione dei requisiti | | | |
-| da pianificare | Prova su carta | | | |
-| da pianificare | Accettazione finale | | | |
+| Data | Oggetto | Partecipanti | Esito |
+|---|---|---|---|
+| 18/10/2026 | Revisione dei requisiti | Committente e due membri del team | Positivo |
+| 18/10/2026 | Prova su carta | Committente e due membri del team | Positivo |
+| **[DA COMPLETARE]** | Accettazione finale | **[DA COMPLETARE]** | **[DA COMPLETARE]** |
+
+La validazione e la verifica dei requisiti sono state svolte alla versione 0.3.1 (18/10/2026).
