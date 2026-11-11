@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>it.mpelettrica.mplan</groupId>
+        <artifactId>mplan-parent</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>mplan-persistence</artifactId>
+    <packaging>jar</packaging>
+    <name>MPlan - Persistence</name>
+
+    <dependencies>
+        <!-- Dipendenze dai moduli interni -->
+        <dependency>
+            <groupId>it.mpelettrica.mplan</groupId>
+            <artifactId>mplan-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>it.mpelettrica.mplan</groupId>
+            <artifactId>mplan-api</artifactId>
+        </dependency>
+
+        <!-- SQLite Driver JDBC e jOOQ (Design D6) -->
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq</artifactId>
+        </dependency>
+
+        <!-- Log4j API -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+        </dependency>
+
+        <!-- JUnit 5 per test di integrazione su SQLite in memoria (Design D8) -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
