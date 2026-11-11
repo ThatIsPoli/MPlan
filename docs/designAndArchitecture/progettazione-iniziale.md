@@ -8,8 +8,8 @@ I nomi sono in italiano, come la specifica. Il package radice è `mplan` (nome d
 
 ## 1. Scelte di partenza
 
-- **Java con Maven**, database **H2 embedded** su file locale, test **JUnit 5**, log con **log4j** (VIN.1–VIN.5, Project Plan).
-- **Il database è in Java**: H2 è un motore scritto in Java che gira dentro l'applicazione (modalità embedded) e si aggiunge come dipendenza Maven (`com.h2database:h2`). Non c'è nessun server da installare (VIN.3, NFR.6) e le tabelle si creano da codice Java con JDBC, in `ConnessioneDatabase`. Il regolamento chiede solo un database embedded; H2 è la scelta del Project Plan.
+- **Java con Maven**, database **SQLite** su file locale, test **JUnit 5**, log con **log4j** (VIN.1–VIN.5, Project Plan).
+- **Il database è in Java**: SQLite è un motore scritto in Java che gira dentro l'applicazione (modalità embedded) e si aggiunge come dipendenza Maven (`com.sqlitedatabase:sqlite`). Non c'è nessun server da installare (VIN.3, NFR.6) e le tabelle si creano da codice Java con JDBC, in `ConnessioneDatabase`. Il regolamento chiede solo un database embedded; SQLite è la scelta del Project Plan.
 - **Architettura a strati**: `ui` → `service` → `persistence` → `model`. Ogni strato conosce solo quello sotto, così i servizi si provano senza interfaccia grafica e senza database (NFR.5, Project Plan 9.1).
 - **Interfacce solo dove servono**: i repository sono interfacce (il database si può sostituire con una versione in memoria nei test). I servizi sono classi concrete.
 - **Java moderno** dove è naturale: `enum`, `record`, `Optional`, `java.time`.
@@ -20,7 +20,7 @@ I nomi sono in italiano, come la specifica. Il package radice è `mplan` (nome d
 mplan
 ├── model          entità e regole di dominio
 ├── persistence    interfacce dei repository
-│   └── h2         implementazione con H2 embedded
+│   └── SQLite         implementazione con SQLite
 ├── service        casi d'uso e validazione dei dati
 ├── ui             schermate e navigazione
 └── app            avvio e collegamento delle parti
@@ -30,7 +30,7 @@ mplan
 |---|---|
 | `model` | nessuno |
 | `persistence` | `model` |
-| `persistence.h2` | `persistence`, `model` |
+| `persistence.sqlite` | `persistence`, `model` |
 | `service` | `persistence`, `model` |
 | `ui` | `service`, `model` |
 | `app` | tutti gli altri |
@@ -55,11 +55,11 @@ Ogni package ha un compito solo. Per ciascuno: cosa contiene, cosa deve fare e c
 - **Contiene:** solo interfacce (e un'eccezione) che dicono *cosa* serve salvare e leggere ("salva un contatto", "dammi le attività di un giorno"), senza dire *come*.
 - **Deve fare:** fissare le operazioni che i servizi possono chiedere all'archivio.
 - **Non deve fare:** contenere SQL, JDBC o altro codice che lavora davvero sui dati.
-- **Chi lo usa:** `service` chiama le interfacce; `persistence.h2` le realizza. Nei test si possono realizzare con semplici liste in memoria.
+- **Chi lo usa:** `service` chiama le interfacce; `persistence.sqlite` le realizza. Nei test si possono realizzare con semplici liste in memoria.
 
-### `persistence.h2` – l'archivio vero, su file
+### `persistence.sqlite` – l'archivio vero, su file
 
-- **Contiene:** le classi che realizzano le interfacce di `persistence` con il database H2 incorporato.
+- **Contiene:** le classi che realizzano le interfacce di `persistence` con il database SQLite incorporato.
 - **Deve fare:** aprire o creare il file del database in una cartella relativa, creare le tabelle al primo avvio, trasformare gli oggetti in righe e le righe in oggetti, confermare ogni operazione subito (così non si perde nulla se il programma si chiude), e trasformare gli errori del database in `PersistenzaException`.
 - **Non deve fare:** decidere regole (validazione, stati): salva ciò che gli arriva.
 - **Chi lo usa:** solo `app`, che crea gli oggetti. Nessun altro cita le sue classi, quindi cambiare database non tocca il resto.
@@ -113,13 +113,13 @@ Associazioni: un `Contatto` ha molte `Attivita`; un'`Attivita` ha molte `VoceReg
 | `RegistroRepository` | interfaccia | `aggiungi(voce)`, `trovaPerAttivita(attivita)` (Should) | FUN.13 |
 | `PersistenzaException` | eccezione | errori del database, non controllata | NFR.2 |
 
-### `persistence.h2`
+### `persistence.sqlite`
 
 | Nome | Tipo | Compito | Requisiti |
 |---|---|---|---|
 | `ConnessioneDatabase` | classe | apre il database su file in una cartella relativa, senza percorsi assoluti; al primo avvio crea le tabelle `contatto`, `attivita`, `registro_modifiche` | FUN.15, NFR.6, NFR.7; VIN.2, VIN.3 |
-| `AbstractH2Repository` | classe astratta | codice JDBC comune: esecuzione delle query, conferma dopo ogni operazione, conversione delle eccezioni | NFR.2 |
-| `H2ContattoRepository`, `H2AttivitaRepository`, `H2RegistroRepository` | classi | implementano le tre interfacce estendendo `AbstractH2Repository` | FUN.15, FUN.15.1 |
+| `AbstractSQLiteRepository` | classe astratta | codice JDBC comune: esecuzione delle query, conferma dopo ogni operazione, conversione delle eccezioni | NFR.2 |
+| `SQLiteContattoRepository`, `SQLiteAttivitaRepository`, `SQLiteRegistroRepository` | classi | implementano le tre interfacce estendendo `AbstractSQLiteRepository` | FUN.15, FUN.15.1 |
 
 ### `service`
 
@@ -161,7 +161,7 @@ Un'interfaccia dice **cosa si può chiedere** a una parte del programma, senza d
 
 ### `ContattoRepository` – archivio dei contatti
 
-Chiamata da `ContattoService`; realizzata da `H2ContattoRepository` (e da una versione in memoria nei test).
+Chiamata da `ContattoService`; realizzata da `SQLiteContattoRepository` (e da una versione in memoria nei test).
 
 | Metodo | Cosa fa | Usato per |
 |---|---|---|
@@ -174,7 +174,7 @@ Non c'è un metodo per eliminare: la specifica non lo prevede.
 
 ### `AttivitaRepository` – archivio delle attività
 
-Chiamata da `AttivitaService`; realizzata da `H2AttivitaRepository`.
+Chiamata da `AttivitaService`; realizzata da `SQLiteAttivitaRepository`.
 
 | Metodo | Cosa fa | Usato per |
 |---|---|---|
@@ -188,7 +188,7 @@ Il repository restituisce i dati senza ordinarli: l'ordine lo decide il servizio
 
 ### `RegistroRepository` – archivio del registro delle modifiche (Should)
 
-Chiamata da `AttivitaService`; realizzata da `H2RegistroRepository`.
+Chiamata da `AttivitaService`; realizzata da `SQLiteRegistroRepository`.
 
 | Metodo | Cosa fa | Usato per |
 |---|---|---|
@@ -215,7 +215,7 @@ Grazie a questo contratto il `Navigatore` tiene una pila di schermate senza sape
 
 1. L'utente compila `SchermataFormAttivita` e salva: la schermata costruisce un'`Attivita` e chiama `AttivitaService.crea`.
 2. Il servizio chiede a `ValidatoreAttivita` di controllare i dati. Se ci sono errori lancia `ValidazioneException`: la schermata mostra campo e motivo, non si salva nulla e gli altri dati restano nel modulo (DAT.5).
-3. Se è tutto valido il servizio imposta lo stato `DA_FARE` e chiama `AttivitaRepository.salva`, che `H2AttivitaRepository` scrive sul file.
+3. Se è tutto valido il servizio imposta lo stato `DA_FARE` e chiama `AttivitaRepository.salva`, che `SQLiteAttivitaRepository` scrive sul file.
 4. Il `Navigatore` torna alla scheda e `alMostrare()` ricarica lo storico.
 
 **Annullare un'attività** (UC10)
@@ -239,7 +239,7 @@ Grazie a questo contratto il `Navigatore` tiene una pila di schermate senza sape
 
 Il regolamento chiede di applicarne un paio. Quelli che nascono dal progetto senza forzature:
 
-- **Repository**: interfacce in `persistence`, implementazione in `persistence.h2`.
+- **Repository**: interfacce in `persistence`, implementazione in `persistence.sqlite`.
 - **Strategy**: i due ordinamenti come `Comparator` intercambiabili.
 - **State** (facoltativo): oggi lo stato è un `enum` con le transizioni. Se serve un pattern esplicito si può trasformare in classi, ma per ora non conviene.
 
@@ -263,7 +263,7 @@ Il regolamento chiede di applicarne un paio. Quelli che nascono dal progetto sen
 
 ## 11. Requisiti → classi
 
-| Requisiti | Classi |
+| Requisiti | Classi |s
 |---|---|
 | FUN.1, FUN.1.1, FUN.1.2, FUN.1.3, FUN.2; DAT.1, DAT.1.1, DAT.1.2, DAT.1.3, DAT.1.4, DAT.1.5, DAT.1.6; GUI.3, GUI.3.1 | `Contatto`, `ContattoService`, `ValidatoreContatto`, `SchermataFormContatto` |
 | FUN.1.4, DAT.1.7 | `TipoContatto` |
@@ -274,7 +274,7 @@ Il regolamento chiede di applicarne un paio. Quelli che nascono dal progetto sen
 | FUN.9, FUN.9.1; GUI.4, GUI.4.2 | `AttivitaService`, `Periodo`, `OrdinamentoAttivita`, `SchermataScheda`, `ElencoAttivita` |
 | FUN.10, FUN.10.1, FUN.10.2, FUN.10.3, FUN.10.4, FUN.11; GUI.7, GUI.7.1, GUI.7.2 | `AttivitaService`, `OrdinamentoAttivita`, `SchermataAgenda`, `ElencoAttivita` |
 | FUN.13; DAT.4 | `VoceRegistro`, `TipoModifica`, `RegistroRepository`, `AttivitaService` |
-| FUN.15, FUN.15.1; NFR.2, NFR.6, NFR.7 | `ConnessioneDatabase`, `AbstractH2Repository`, repository H2 |
+| FUN.15, FUN.15.1; NFR.2, NFR.6, NFR.7 | `ConnessioneDatabase`, `AbstractSQLiteRepository`, repository SQLite |
 | DAT.5 | `ErroreValidazione`, `ValidazioneException`, i due validatori, le schermate dei moduli |
 | GUI.1, GUI.1.1; NFR.1 | `Schermata`, `Navigatore` e le cinque schermate |
 | FUN.14 | non progettata (Could) |
