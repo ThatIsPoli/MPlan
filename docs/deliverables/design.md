@@ -54,7 +54,7 @@ Le qualità seguono ISO/IEC 9126 e sono elencate in ordine di priorità. Secondo
 | **Q3** | **Manutenibilità** *(Sostituibilità)* | VIN.3, VIN.4 | Sostituzione del motore di database embedded. | Si scrive un nuovo package implementando le interfacce dei repository; `api`, `core` e `ui` rimangono invariati. |
 | **Q4** | **Affidabilità** | NFR.2, FUN.15, DAT.5 | Chiusura forzata del programma subito dopo un salvataggio, oppure errore durante un'operazione di scrittura. | Alla riapertura tutte le attività salvate sono presenti (0 attività perse); un'operazione interrotta da un errore non lascia dati parziali (rollback della transazione). |
 | **Q5** | **Efficienza** | NFR.3 | Apertura di una scheda contatto con uno storico di almeno 5.000 attività. | Tempo di risposta inferiore a 2,0 secondi su macchina di riferimento Windows 11 con DB H2 locale. |
-| **Q6** | **Portabilità** | NFR.4, NFR.6, VIN.3 | Installazione e primo avvio dell'applicazione su un PC Windows 11 con la sola JVM Java 21 installata. | L'applicazione si avvia, crea automaticamente lo schema H2 su file locale ed esegue i casi d'uso UC2–UC10. |
+| **Q6** | **Portabilità** | NFR.4, NFR.6, VIN.3 | Installazione e primo avvio dell'applicazione su un PC Windows 11 con la sola JVM Java 27 installata. | L'applicazione si avvia, crea automaticamente lo schema H2 su file locale ed esegue i casi d'uso UC2–UC10. |
 | **Q7** | **Funzionalità** | FUN.12.2, FUN.15.1, DAT.3.1 | Un utente richiede l'annullamento di un'attività già registrata. | L'attività non viene eliminata dal database; resta nello storico con stato `ANNULLATA`, motivo obbligatorio. |
 | **Q8** | **Qualità in uso** | NFR.1, NFR.1.1, NFR.1.2, NFR.7 | L'utente crea una nuova attività (UC7) o gestisce gli errori di digitazione. | Il metodo `valida()` restituisce gli errori per singolo campo; nessun dato esce dalla macchina locale (zero socket di rete aperti). |
 
@@ -176,7 +176,7 @@ Punto di vista: **distribuzione** (Tabella 11.5), con le risorse hardware.
 | Elemento | Descrizione |
 |---|---|
 | Nodo | Un PC con Windows 11 (A1, A2) |
-| Processo | Una sola JVM (Java 21) che esegue il programma, formato dai package `app`, `api`, `core`, `persistence` e `ui` |
+| Processo | Una sola JVM (Java 27) che esegue il programma, formato dai package `app`, `api`, `core`, `persistence` e `ui` |
 | Dati | File del database H2 in una cartella dati dell'utente, senza percorsi assoluti nel codice (VIN.2) |
 | Log | File di log in una cartella dell'applicazione, scritto da log4j2 |
 | Comunicazioni | Nessuna connessione di rete (NFR.6, NFR.7) |

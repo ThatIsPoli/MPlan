@@ -273,7 +273,7 @@ Il progetto deve rispettare il regolamento del corso: Java, progetti Eclipse con
 | ID | Assunzione |
 |---|---|
 | A1 | L'applicazione è installata su un solo PC, che il team di lavoro del committente usa a turno per registrare il proprio lavoro; non ci sono account distinti né accessi contemporanei e i dati stanno solo su quel PC (D8.1, D8.2; assunzione del team) |
-| A2 | Il PC ha Windows 11 e una versione di Java 21 |
+| A2 | Il PC ha Windows 11 e una versione di Java 27 |
 | A3 | Il committente scrive i dati a mano: non esiste un archivio da importare (D2.2) |
 | A4 | Il lavoro su un cantiere lungo si registra con un'attività per ogni giorno lavorato (D3.6) |
 | A5 | Le note di ciò che serve per la visita successiva si scrivono nell'attività del giorno stesso (D4.2) |
