@@ -13,6 +13,7 @@ Corso di Ingegneria del Software, A.A. 2026/27
 | 0.3.1 | 18/10/2026 | Risolto l'ultimo punto aperto: la fatturazione non è svolta dal sistema |
 | 0.3.2 | 24/10/2026 | Qualità del software allineate a ISO/IEC 9126 |
 | 0.3.3 | 05/11/2026 | Macchine a stati complete (8.1 e 8.2) |
+| 0.4.0 | 12/11/2026 | Storico del contatto come elenco cronologico in stile chat (FUN.9, FUN.9.1, FUN.9.2, GUI.4.3); eliminato il requisito sul filtro dello storico per mese o giorno, con rinumerazione dei figli di FUN.9; calendario generale realizzato come agenda giornaliera che si apre sul giorno corrente (FUN.10.4) e permette di andare a una data indicando giorno, mese e anno (FUN.11, GUI.7.3); correzioni di ambiguità, contraddizioni e rimandi in avanti |
 
 ---
 
@@ -74,9 +75,11 @@ MPlan è un'applicazione per tenere traccia dei **clienti e dei cantieri** di un
 | Orario | Ora indicativa di inizio di un'attività, usata per ordinare le attività nella giornata. Non c'è un orario di fine |
 | Stato | Condizione di un'attività: da fare, parziale, completata, annullata |
 | Annullamento | Marcatura di un'attività come annullata, con un motivo, senza eliminarla dallo storico |
-| Storico | Elenco di tutte le attività di un contatto |
+| Storico | Elenco di tutte le attività di un contatto, in ordine cronologico come i messaggi di una chat: la più vecchia in alto, la più recente in basso (FUN.9). È il "registro delle attività" del contatto; non va confuso con il registro delle modifiche |
 | Scheda contatto | Schermata con i dati principali di un contatto e, sotto, il suo storico |
-| Agenda giornaliera | Schermata che mostra le attività di tutti i contatti relative a un singolo giorno, in un elenco a scorrimento verticale ordinato per orario, con frecce per passare al giorno precedente o successivo (detta anche calendario generale) |
+| Form contatto | Modulo per inserire un nuovo contatto o modificarne uno esistente |
+| Form attività | Modulo per inserire una nuova attività o modificarne una esistente, compreso il cambio di stato |
+| Agenda giornaliera | Schermata che mostra le attività di tutti i contatti relative a un singolo giorno, in un elenco a scorrimento verticale ordinato per orario, che si apre sul giorno corrente; con frecce si passa al giorno precedente o successivo e, indicando giorno, mese e anno, si va direttamente a un giorno specifico. Realizza il "calendario generale" chiesto dal committente (D6.2) con la sola vista giornaliera |
 | Home | Schermata iniziale: contiene la rubrica e il menu per aprire l'agenda giornaliera |
 | Registro delle modifiche | Elenco delle modifiche e degli annullamenti delle attività, con data, tipo e motivo |
 | CF / P.IVA | Codice fiscale / Partita IVA |
@@ -160,6 +163,8 @@ I codici sono una convenzione di questo progetto. FUN e GUI derivano da quelli d
 
 I simboli indicano anche i requisiti meno stabili, cioè quelli che hanno più probabilità di cambiare.
 
+**Rimandi in avanti.** Le sezioni 1–4 citano requisiti, assunzioni e figure definiti più avanti. Questi identificatori sono solo rimandi: il testo che li cita usa i termini del glossario (1.3) e dice in parole ciò che serve, così che si possa leggere senza conoscere il requisito citato. Quando un rimando porta a un'altra sezione ne riporta il numero.
+
 ### 1.7 Gestione dei requisiti
 
 Ogni requisito attraversa quattro stati: *proposto*, *validato* (confermato dal committente, sezione 12), *implementato* e *verificato* (test superato, sezione 9.4). Lo stato non è scritto in questo documento ma è tracciato nelle issue di GitHub, ad esempio con un'etichetta per stato.
@@ -168,7 +173,7 @@ Regole di modifica:
 
 1. una modifica a un requisito parte da una issue che ne cita l'ID;
 2. il messaggio di commit riporta lo stesso ID;
-3. dopo la prima validazione con il committente un ID non viene più riutilizzato né rinumerato: un requisito eliminato resta nel documento come *eliminato*;
+3. un requisito eliminato viene tolto dal documento e i requisiti successivi dello stesso livello vengono rinumerati; i nuovi ID sono riportati in tutti i documenti che li citano;
 4. ogni modifica del documento è annotata nella tabella delle versioni.
 
 ---
@@ -197,12 +202,12 @@ I requisiti sono stati raccolti con un'**intervista strutturata** al committente
 
 Dopo l'intervista il team ha deciso che:
 
-- la **v1** è un'applicazione per PC **senza account distinti**, con **archivio dati locale** (A1);
+- la **v1** è un'applicazione per PC **senza account distinti**, con **archivio dati locale** (assunzione A1, sezione 3.5);
 - l'**utente master** e la gestione dei ruoli sono **fuori scope**;
 - il **cellulare** e l'accesso da più dispositivi sono evoluzioni future, con una possibile password unica generale non condivisa con estranei;
 - la **schermata iniziale** è la rubrica dei contatti (D5.3);
 - le **attività annullate** restano visibili e contrassegnate come annullate;
-- al posto di un calendario con viste a mese e a settimana, l'**agenda giornaliera** mostra **un giorno alla volta**, con frecce per cambiare giorno e un elenco a scorrimento verticale ordinato per orario (FUN.10); lo **storico** di un contatto è un elenco ordinato per data (FUN.9). Sono modifiche rispetto a D5.1 e D6.1;
+- non c'è un calendario con viste a mese o a settimana, né nella scheda contatto né come calendario generale. Il **calendario generale** (D6.2) è l'**agenda giornaliera**, che mostra **un giorno alla volta** in un elenco a scorrimento verticale ordinato per orario (FUN.10). Si apre sul **giorno corrente** (FUN.10.4); le **frecce** portano avanti e indietro di un giorno (FUN.10.1) e, per non dover premere più volte le frecce, l'utente può **andare direttamente a un giorno** indicando giorno, mese e anno (FUN.11). Nella scheda contatto, invece, non si selezionano mese e anno. Lo **storico** di un contatto è un elenco di tutte le sue attività in ordine cronologico, come i messaggi di una chat, che si scorre verso l'alto per vedere le attività precedenti (FUN.9). Sono modifiche rispetto a D5.1, D5.2 e D6.1 (versione 0.4.0);
 - ogni attività ha **un solo orario indicativo**, senza orario di fine; non si usano mezza giornata e giornata intera (DAT.2.3). È una modifica rispetto a D3.2.
 
 ### 2.5 Obiettivi del committente
@@ -216,7 +221,7 @@ Nell'intervista (D1.2) il committente ha indicato quattro obiettivi di alto live
 | O3 | Preparare i materiali per il giorno dopo | FUN.8, FUN.8.1 |
 | O4 | Ritrovare a fine mese gli interventi, per la fatturazione | FUN.9, FUN.9.1 |
 
-La fattura mensile non è prodotta dal sistema: l'utente la compila a mano, a partire dallo storico del contatto (sezione 7.2).
+La fattura mensile non è prodotta dal sistema: l'utente la compila a mano scorrendo lo storico del contatto fino al mese che interessa (sezione 7.2).
 
 ---
 
@@ -262,7 +267,7 @@ flowchart LR
 
 ### 3.3 Utenti
 
-Gli utenti sono le persone del team di lavoro del committente. Nella v1 usano lo stesso PC a turno, senza account distinti (A1). Il committente privilegia la semplicità e il raggiungimento, tramite pochi passaggi, delle varie funzioni dell'applicazione(D9.4): per questo la semplicità d'uso è un requisito prioritario (NFR.1).
+Gli utenti sono le persone del team di lavoro del committente. Nella v1 usano lo stesso PC a turno, senza account distinti (assunzione A1, sezione 3.5). Il committente privilegia la semplicità e il raggiungimento, tramite pochi passaggi, delle varie funzioni dell'applicazione(D9.4): per questo la semplicità d'uso è un requisito prioritario (NFR.1).
 
 ### 3.4 Vincoli generali
 
@@ -293,20 +298,22 @@ Il progetto deve rispettare il regolamento del corso: Java, progetti Eclipse con
 ![Diagramma dei Casi d'Uso del sistema MPlan](../uml/export/mplan-use-case-diagram.jpg)
 *Figura 4.1: Diagramma dei Casi d'Uso di MPlan.*
 
+I casi d'uso sono descritti con i soli termini del glossario (1.3). La colonna *Requisiti collegati* rimanda ai requisiti della sezione 5, che li dettagliano.
+
 | ID | Caso d'uso | Descrizione | Requisiti collegati |
 |---|---|---|---|
 | **UC1** | Gestire contatto | *(Caso d'uso astratto)* Gestione dell'anagrafica di un cliente o cantiere nella rubrica. Specializzato da UC2 e UC3. | FUN.1, FUN.2, DAT.1, GUI.3 |
 | **UC2** | Creare contatto | L'utente inserisce a mano un nuovo cliente o cantiere specificandone i dati anagrafici principali. | FUN.1, FUN.1.1, FUN.1.2, FUN.1.3, FUN.1.4, DAT.1, DAT.5, GUI.2.1, GUI.3, GUI.3.1 |
 | **UC3** | Modificare contatto | L'utente corregge o aggiorna le informazioni anagrafiche di un contatto selezionato dalla rubrica. | FUN.2, DAT.1, DAT.5, GUI.3, GUI.3.1 |
 | **UC4** | Selezionare contatto | L'utente individua e seleziona un contatto dalla rubrica (Home) per visualizzarne la scheda, modificarne i dati o associargli una nuova attività. | FUN.3, FUN.3.1, GUI.2, GUI.2.3 |
-| **UC5** | Consultare storico contatto | Dalla scheda di un contatto selezionato, l'utente consulta l'elenco cronologico delle attività svolte e programmate. | FUN.9, FUN.9.1, GUI.4, GUI.4.2 |
-| **UC6** | Consultare agenda giornaliera | Dalla Home, l'utente apre l'agenda per visualizzare le attività di tutti i contatti pianificate in un determinato giorno, navigando con le frecce tra le date. | FUN.10, FUN.10.1, FUN.10.2, FUN.10.3, FUN.10.4, GUI.2.2, GUI.7, GUI.7.1, GUI.7.2 |
+| **UC5** | Consultare storico contatto | Dalla scheda di un contatto selezionato, l'utente consulta l'elenco cronologico (in stile chat) delle attività svolte e programmate. | FUN.9, FUN.9.1, FUN.9.2, GUI.4, GUI.4.2, GUI.4.3 |
+| **UC6** | Consultare agenda giornaliera | Dalla Home, l'utente apre l'agenda per visualizzare le attività di tutti i contatti pianificate in un determinato giorno, navigando con le frecce tra le date o andando direttamente a una data. | FUN.10, FUN.10.1, FUN.10.2, FUN.10.3, FUN.10.4, FUN.11, DAT.5, GUI.2.2, GUI.7, GUI.7.1, GUI.7.2, GUI.7.3 |
 | **UC7** | Creare attività | L'utente inserisce un nuovo intervento associato a un contatto selezionato, specificando titolo, data, orario indicativo ed eventuali note/materiali. | FUN.4, FUN.4.1, FUN.4.2, FUN.4.3, FUN.7, FUN.8, FUN.8.1, DAT.2, DAT.3, DAT.5, GUI.4.1, GUI.5, GUI.5.1 |
 | **UC8** | Modificare attività | L'utente apre un'attività esistente e ne aggiorna i contenuti testuali (descrizione dell'intervento svolto, note e materiali necessari). | FUN.5, FUN.5.1, FUN.8, FUN.8.1, FUN.13, DAT.2, DAT.4, DAT.5, GUI.4.2, GUI.5, GUI.7.2 |
 | **UC9** | Aggiornare stato attività | *Estensione di UC8:* quando un'attività è in stato *da fare* o *parziale*, l'utente ne fa avanzare lo stato contrassegnandola come *parziale* o *completata*. | FUN.6, FUN.6.1, FUN.6.3, DAT.3, GUI.5.2 |
 | **UC10** | Annullare attività | *Estensione di UC8:* quando un'attività non è conclusa, l'utente la marca in modo permanente come *annullata*, inserendo obbligatoriamente il motivo. | FUN.6.2, FUN.6.3, FUN.12, FUN.12.1, FUN.12.2, FUN.13, DAT.3, DAT.3.1, DAT.4, GUI.6, GUI.8 |
 
-> **Nota:** I requisiti `FUN.11` (salto diretto a una data) e `FUN.14` (notifica serale di promemoria) hanno priorità *Could* e non costituiscono casi d'uso a sé stanti: FUN.11 è un raffinamento opzionale di UC6, mentre FUN.14 è un servizio in background. I requisiti `FUN.15`, `NFR.*`, `VIN.*`, `GUI.1` e `GUI.1.1` sono requisiti architetturali e non funzionali trasversali a tutti i casi d'uso.
+> **Nota:** `FUN.11` (andare direttamente a una data) fa parte di UC6 come flusso alternativo dello scenario. `FUN.14` (notifica serale di promemoria) ha priorità *Could* e non costituisce un caso d'uso a sé stante, perché è un servizio in background. I requisiti `FUN.15`, `NFR.*`, `VIN.*`, `GUI.1` e `GUI.1.1` sono requisiti architetturali e non funzionali trasversali a tutti i casi d'uso.
 
 ---
 
@@ -320,8 +327,8 @@ Gli scenari descrivono il flusso nominale di interazione per ciascun caso d'uso 
 | **UC2** | 1. Dalla Home l'utente seleziona "Nuovo contatto".<br>2. Compila i dati anagrafici inserendo almeno la denominazione/nome obbligatorio (DAT.1.1).<br>3. Conferma il salvataggio.<br>*Flusso alternativo:* se uno o più campi obbligatori mancano o hanno formato errato (DAT.5), il sistema segnala l'errore e mantiene i dati inseriti senza salvare. | Il nuovo contatto viene memorizzato con persistenza e compare nell'elenco della rubrica. |
 | **UC3** | 1. L'utente individua il contatto tramite la rubrica (include UC4).<br>2. Dalla scheda contatto seleziona "Modifica".<br>3. Aggiorna i campi anagrafici desiderati e conferma il salvataggio. | La scheda e la rubrica mostrano i dati del contatto aggiornati. |
 | **UC4** | 1. Dalla schermata Home l'utente visualizza l'elenco della rubrica.<br>2. Scorre l'elenco (o ne filtra i nominativi) e clicca sulla riga del contatto desiderato. | Il contatto viene selezionato, rendendo disponibili le sue informazioni per l'apertura della scheda (UC5), la modifica anagrafica (UC3) o la creazione di attività (UC7). |
-| **UC5** | 1. L'utente seleziona un contatto dalla rubrica (include UC4).<br>2. Si apre la scheda contatto: in alto compaiono i dati anagrafici, in basso lo storico degli interventi.<br>3. (Opzionale) L'utente applica il filtro per visualizzare solo la settimana o il mese selezionato (FUN.9.1). | Vengono visualizzate tutte e sole le attività del contatto nel periodo richiesto, ordinate dalla più recente alla più remota. |
-| **UC6** | 1. Dalla Home l'utente seleziona l'opzione "Agenda giornaliera" dal menu a tendina.<br>2. L'applicazione mostra la data odierna con le attività di tutti i contatti ordinate per orario di inizio (e quelle senza orario in cima).<br>3. L'utente preme i pulsanti freccia per scorrere al giorno precedente o successivo. | L'agenda si aggiorna mostrando la lista delle attività pianificate per la data visualizzata. |
+| **UC5** | 1. L'utente seleziona un contatto dalla rubrica (include UC4).<br>2. Si apre la scheda contatto: in alto compaiono i dati anagrafici, sotto lo storico degli interventi, posizionato sulle attività più recenti (in fondo all'elenco).<br>3. L'utente scorre l'elenco verso l'alto per vedere man mano le attività precedenti. | Sono consultabili tutte e sole le attività del contatto, in ordine cronologico dalla più vecchia (in alto) alla più recente (in basso), come i messaggi di una chat. |
+| **UC6** | 1. Dalla Home l'utente seleziona l'opzione "Agenda giornaliera" dal menu a tendina.<br>2. L'applicazione mostra il giorno corrente con le attività di tutti i contatti ordinate per orario di inizio (e quelle senza orario in cima).<br>3. L'utente preme i pulsanti freccia per passare al giorno precedente o successivo.<br>*Flusso alternativo (giorno lontano):* 3a. L'utente indica giorno, mese e anno e conferma; l'agenda mostra quel giorno, da cui l'utente può continuare con le frecce. Se la data non è valida, il sistema segnala l'errore e resta sul giorno visualizzato (DAT.5). | L'agenda si aggiorna mostrando la lista delle attività del giorno visualizzato. |
 | **UC7** | 1. L'utente seleziona il contatto per cui creare l'attività (include UC4).<br>2. Dalla scheda contatto seleziona "Nuova attività".<br>3. Inserisce il titolo obbligatorio dell'intervento; data odierna preimpostata, orario e note facoltativi.<br>4. Conferma il salvataggio. | L'attività nasce con stato *da fare* e viene registrata sia nello storico del contatto sia nell'agenda del giorno corrispondente. |
 | **UC8** | 1. L'utente apre un'attività esistente tramite lo storico (UC5) o tramite l'agenda (UC6).<br>2. Compila o aggiorna il testo della descrizione dei lavori svolti e/o le note sui materiali mancanti.<br>3. Conferma il salvataggio. | Le informazioni descrittive dell'attività vengono memorizzate e rimangono consultabili. |
 | **UC9** | *(Punto di estensione: cambio stato in UC8)*<br>1. In fase di modifica di un'attività con stato *da fare* o *parziale*, l'utente seleziona il nuovo stato operativo (*parziale* o *completata*).<br>2. Salva l'attività. | Lo stato dell'attività viene aggiornato e recepito sia nello storico che nell'agenda del giorno. |
@@ -340,7 +347,7 @@ Coprono la rubrica, le attività, i materiali, lo storico, l'agenda giornaliera,
 | ID | Requisito / Rationale | Pri. | Fonte |
 |---|---|---|---|
 | **FUN.1** | Il sistema deve permettere di creare un contatto (cliente o cantiere) inserendone i dati a mano.<br>*Rationale:* il committente non ha un archivio da importare. | M | D2.2 |
-| FUN.1.1 | Per ogni contatto il sistema deve poter memorizzare gli attributi definiti in DAT.1. | M | D2.1 |
+| FUN.1.1 | Per ogni contatto il sistema deve poter memorizzare nome, cognome, indirizzo, telefoni, codice fiscale, partita IVA e tipo; obbligatorietà e formati sono in DAT.1 (5.2). | M | D2.1 |
 | FUN.1.2 | Codice fiscale e partita IVA devono essere facoltativi.<br>*Rationale:* il committente li vuole "se possibile"; servono per la fatturazione. | M | D2.1 |
 | FUN.1.3 | Un cantiere deve essere trattato come un contatto e salvato nella stessa rubrica dei clienti.<br>*Rationale:* i lavori in uno stesso luogo si registrano con il nome del luogo, senza una struttura separata. | M | D2.4, D2.5, D5.3 |
 | FUN.1.4 | Il sistema potrebbe permettere di indicare con un flag se il contatto è un privato o un'azienda.<br>*Rationale:* distinzione utile ma non fondamentale. | C | D2.3 |
@@ -348,26 +355,27 @@ Coprono la rubrica, le attività, i materiali, lo storico, l'agenda giornaliera,
 | **FUN.3** | Il sistema deve mostrare la rubrica: l'elenco di tutti i contatti salvati (clienti e cantieri). | M | D5.3 |
 | FUN.3.1 | Il sistema potrebbe permettere di cercare un contatto per nome.<br>*Rationale:* la rubrica cresce negli anni; non discusso. | C | Impl. |
 | **FUN.4** | Il sistema deve permettere di creare un'attività associata a un contatto. | M | D3.1, D5.1 |
-| FUN.4.1 | Un'attività deve poter contenere gli attributi definiti in DAT.2. | M | D3.1 |
+| FUN.4.1 | Un'attività deve poter contenere titolo, data, orario indicativo, descrizione, note e il contatto a cui appartiene; obbligatorietà e formati sono in DAT.2 (5.2). | M | D3.1 |
 | FUN.4.2 | Per creare un'attività deve bastare inserire il titolo: la data ha un valore predefinito (DAT.2.2), l'orario è facoltativo (DAT.2.3), il contatto è quello della scheda aperta, e descrizione e note si compilano dopo.<br>*Rationale:* il titolo dice cosa c'è da fare, il resto si scrive a lavoro svolto. | M | D3.3 |
-| FUN.4.3 | L'orario di un'attività deve essere indicativo: orario hh:mm facoltativo.<br>*Rationale:* il committente non chiede precisione oraria; le attività sono mostrate in ordine di orario d'inizio. | M | D3.2, Team |
+| FUN.4.3 | L'orario di un'attività deve essere indicativo e facoltativo, nel formato di DAT.2.3.<br>*Rationale:* il committente non chiede precisione oraria; l'orario serve solo a ordinare le attività (FUN.9, FUN.10.2). | M | D3.2, Team |
 | **FUN.5** | Il sistema deve permettere di modificare i dati di un'attività esistente (vedi FUN.6.2 per le attività annullate). | M | D3.4 |
 | FUN.5.1 | Dopo l'intervento l'utente deve poter compilare e aggiornare descrizione e note, anche più volte. | M | D3.3, D3.4, O1, O2 |
 | **FUN.6** | Ogni attività deve avere uno stato tra: *da fare*, *parziale*, *completata*, *annullata*.<br>*Rationale:* il committente ha citato *completata*, *parziale* e *annullata* e lo considera opzionale; lo stato iniziale *da fare* è stato aggiunto dal team perché ogni attività nasce prima dell'intervento. | M | D3.5, Impl., O1 |
 | FUN.6.1 | L'utente deve poter segnare un'attività come *parziale* o *completata*. | M | D3.5 |
-| FUN.6.2 | Lo stato *annullata* deve essere definitivo: un'attività annullata non può essere modificata né tornare ad altri stati.<br>*Rationale:* semplifica lo storico; da confermare. | M | Impl. |
+| FUN.6.2 | Lo stato *annullata* deve essere definitivo: un'attività annullata non può essere modificata né tornare ad altri stati.<br>*Rationale:* semplifica lo storico, che resta una registrazione fedele di ciò che è avvenuto. | M | Impl. |
 | FUN.6.3 | Il sistema deve ammettere solo queste transizioni di stato: da *da fare* a *parziale*; da *da fare* o *parziale* a *completata*; da *da fare* o *parziale* ad *annullata*. Un'attività *completata* non può essere annullata.<br>*Rationale:* la Figura 8.1 illustra queste transizioni. | M | Impl. |
 | **FUN.7** | Un lavoro che dura più giorni deve essere rappresentato da più attività, una per ogni giorno lavorato, associate allo stesso contatto.<br>*Rationale:* il committente non ha chiesto una funzione di pianificazione di cantiere. | M | D3.6 |
 | **FUN.8** | Il sistema deve permettere di annotare materiali usati, mancanti o necessari come testo libero nelle note dell'attività. | M | D4.1, O1, O3 |
 | FUN.8.1 | La nota su ciò che serve per la visita successiva deve essere scritta nell'attività del giorno stesso, non in quella del giorno dopo. | M | D4.2, O3 |
-| **FUN.9** | Il sistema deve mostrare lo storico di un contatto: l'elenco di tutte le sue attività, a scorrimento verticale, ordinate per data e orario dalla più recente.<br>*Rationale:* il committente vuole vedere cosa è stato fatto per ogni cliente e, a fine mese, ritrovare gli interventi per la fatturazione. La fattura è compilata a mano dall'utente, fuori dal sistema (7.2). Il formato a elenco, al posto di un calendario, è una scelta del team. | M | D5.1, D5.2, O1, O4, Team |
-| FUN.9.1 | Il sistema deve permettere di limitare la visualizzazione del calendario delle attività a un mese o a un giorno specifico | M | D5.2, O4, Team |
-| **FUN.10** | Il sistema deve fornire un'agenda giornaliera che mostra le attività di tutti i contatti relative a un singolo giorno.<br>*Rationale:* il committente vuole vedere le attività svolte di tutti i clienti; la scelta di mostrare un giorno alla volta è del team. | M | D6.2, O2, Team |
-| FUN.10.1 | L'utente deve poter passare al giorno precedente o successivo con apposite frecce. | M | D6.1, Team |
-| FUN.10.2 | Le attività del giorno devono essere mostrate in un elenco a scorrimento verticale, in ordine di orario. | M | D6.1, Team |
-| FUN.10.3 | Le attività senza orario devono essere mostrate all'inizio del giorno, prima di quelle con orario.<br>*Rationale:* l'orario è facoltativo (DAT.2.3), quindi saranno in ordine casuale. | M | Impl. |
-| FUN.10.4 | All'apertura l'agenda dovrebbe mostrare il giorno corrente. | S | Impl. |
-| **FUN.11** | Il sistema potrebbe permettere di andare direttamente a un giorno scelto nell'agenda.<br>*Rationale:* le sole frecce sarebbero lente per raggiungere giorni lontani. | C | Impl. |
+| **FUN.9** | Il sistema deve mostrare lo storico di un contatto: l'elenco di tutte le sue attività (di qualunque stato e data), a scorrimento verticale, in ordine cronologico crescente di data e orario, dalla più vecchia in alto alla più recente in basso, come i messaggi di una chat.<br>*Rationale:* il committente vuole vedere cosa è stato fatto per ogni cliente e, a fine mese, ritrovare gli interventi per la fatturazione scorrendo l'elenco. La fattura è compilata a mano dall'utente, fuori dal sistema (7.2). Il formato a elenco, al posto di un calendario con viste a mese o a giorno, è una scelta del team. | M | D5.1, D5.2, O1, O4, Team |
+| FUN.9.1 | All'apertura della scheda lo storico deve essere posizionato in fondo all'elenco, sulle attività più recenti; scorrendo verso l'alto l'utente deve vedere man mano le attività precedenti, fino alla prima registrata.<br>*Rationale:* come in una chat, la parte più consultata è la più recente. Le attività programmate con data futura sono le ultime dell'elenco. | M | D5.2, O4, Team |
+| FUN.9.2 | Nello storico, tra le attività dello stesso giorno, quelle senza orario devono precedere quelle con orario, come nell'agenda (FUN.10.3). | M | Impl. |
+| **FUN.10** | Il sistema deve fornire un'agenda giornaliera che mostra le attività di tutti i contatti relative a un singolo giorno.<br>*Rationale:* il committente vuole un calendario generale con le attività di tutti i clienti (D6.2); delle viste citate (giornaliera e mensile, D6.1) il team mantiene solo quella giornaliera. | M | D6.2, O2, Team |
+| FUN.10.1 | L'utente deve poter passare al giorno precedente o successivo con apposite frecce, senza limiti né nel passato né nel futuro. | M | D6.1, Team |
+| FUN.10.2 | Le attività del giorno devono essere mostrate in un elenco a scorrimento verticale, in ordine crescente di orario. | M | D6.1, Team |
+| FUN.10.3 | Le attività senza orario devono essere mostrate all'inizio del giorno, prima di quelle con orario. L'ordine tra attività senza orario, o con lo stesso orario, non è vincolato.<br>*Rationale:* l'orario è facoltativo (DAT.2.3): un'attività senza orario non ha una posizione nell'ordine per orario e va collocata in un punto prevedibile. | M | Impl. |
+| FUN.10.4 | A ogni apertura l'agenda deve mostrare il giorno corrente (data del PC); da questo l'utente si sposta con le frecce (FUN.10.1) o con la scelta diretta della data (FUN.11). | M | Team |
+| **FUN.11** | Il sistema deve permettere di andare direttamente a un giorno specifico dell'agenda indicando giorno, mese e anno. Dal giorno raggiunto l'utente deve poter continuare a spostarsi con le frecce (FUN.10.1). Una data non valida è trattata come in DAT.5.<br>*Rationale:* con le sole frecce l'utente dovrebbe premerle molte volte per raggiungere giorni lontani. | M | Team |
 | **FUN.12** | Il sistema deve permettere di annullare un'attività *da fare* o *parziale* indicando un motivo. | M | D7.1 |
 | FUN.12.1 | Un'attività annullata deve restare nello storico e nell'agenda, contrassegnata come annullata e con il motivo registrato. | M | D7.1 |
 | FUN.12.2 | Il sistema non deve permettere di eliminare definitivamente un'attività.<br>*Rationale:* lo storico deve restare completo per ritrovare gli interventi da fatturare e per la consultazione negli anni. | M | D7.1 |
@@ -378,7 +386,7 @@ Coprono la rubrica, le attività, i materiali, lo storico, l'agenda giornaliera,
 
 ### 5.2 Requisiti sui dati (DAT)
 
-Definiscono attributi, formati e valori ammessi, come i requisiti *PER* (valori e intervalli) del documento di riferimento. Dove un campo è indicato come obbligatorio o facoltativo, e per le lunghezze massime e i valori predefiniti, la scelta è un'assunzione del team (`Impl.`) da confermare in fase di design.
+Definiscono attributi, formati e valori ammessi, come i requisiti *PER* (valori e intervalli) del documento di riferimento. Dove un campo è indicato come obbligatorio o facoltativo, e per le lunghezze massime e i valori predefiniti, la scelta è un'assunzione del team (`Impl.`).
 
 | ID | Requisito / Rationale | Valori ammessi / predefinito | Pri. | Fonte |
 |---|---|---|---|---|
@@ -416,9 +424,10 @@ Le schermate e le transizioni sono illustrate nelle Figure 8.2, 8.3 e 8.4. Come 
 | GUI.2.3 | La selezione di un contatto nella rubrica deve aprirne la scheda. | M | D5.1; FUN.9 |
 | **GUI.3** | **Form contatto.** Un modulo deve permettere di inserire o modificare i dati di un contatto. | M | D2.1, D2.2; FUN.1, FUN.2 |
 | GUI.3.1 | I campi facoltativi non devono impedire il salvataggio se vuoti. | M | D2.1; FUN.1.2, DAT.1 |
-| **GUI.4** | **Scheda contatto.** In alto devono comparire il nome e i dati principali del contatto e, subito sotto, il suo storico (FUN.9). | M | D5.1, Team; FUN.9 |
-| GUI.4.1 | La scheda deve offrire l'opzione di creare una nuova attività con i campi di DAT.2 | M | D5.1; FUN.4 |
+| **GUI.4** | **Scheda contatto.** In alto devono comparire il nome e gli altri dati del contatto (DAT.1) che sono stati compilati e, subito sotto, il suo storico (FUN.9). La scheda non deve offrire la selezione di mese o anno. | M | D5.1, Team; FUN.9 |
+| GUI.4.1 | La scheda deve offrire l'opzione di creare una nuova attività con i campi di DAT.2. | M | D5.1; FUN.4 |
 | GUI.4.2 | Dallo storico deve essere possibile aprire un'attività per consultarla o modificarla. | M | Impl.; FUN.5 |
+| GUI.4.3 | Ogni attività nello storico dovrebbe mostrare data, orario (se presente), titolo e stato. | S | Impl.; FUN.9 |
 | **GUI.5** | **Form attività.** Un modulo deve permettere di inserire o modificare titolo, data, orario, descrizione, note e stato. | M | D3.1, D3.2; FUN.4, FUN.5 |
 | GUI.5.1 | Per salvare una nuova attività il form deve applicare le regole di FUN.4.2. | M | D3.3; FUN.4.2 |
 | GUI.5.2 | Dal form deve essere possibile segnare l'attività come *parziale* o *completata*. | M | D3.5; FUN.6.1 |
@@ -426,19 +435,20 @@ Le schermate e le transizioni sono illustrate nelle Figure 8.2, 8.3 e 8.4. Come 
 | **GUI.7** | **Agenda giornaliera.** La schermata deve realizzare l'agenda giornaliera (FUN.10) e mostrare le frecce per cambiare giorno (FUN.10.1). | M | D6.2; FUN.10 |
 | GUI.7.1 | Ogni attività nell'agenda dovrebbe mostrare l'orario, il contatto e il titolo. | S | Impl.; FUN.10 |
 | GUI.7.2 | Dall'agenda deve essere possibile aprire un'attività per consultarla o modificarla. | M | Impl.; FUN.5 |
+| GUI.7.3 | L'agenda deve offrire, accanto alle frecce, un comando per indicare giorno, mese e anno e andare a quel giorno; il comando propone come valore iniziale il giorno visualizzato. | M | Team; FUN.11 |
 | **GUI.8** | Le attività annullate devono essere distinguibili visivamente dalle altre nell'agenda e nello storico. | M | D7.1; FUN.12.1 |
 
 ### 5.4 Requisiti non funzionali (NFR)
 
 | ID | Requisito / Rationale | Pri. | Fonte |
 |---|---|---|---|
-| **NFR.1** | **Usabilità.** L'applicazione deve essere semplice da usare, con poche informazioni da compilare. La verifica è una prova d'uso con il committente (sezione 10).<br>*Rationale:* il committente chiede poche informazioni da scrivere e nessuna complicazione. | M | D9.4 |
-| NFR.1.1 | Il sistema deve permettere di creare un'attività dalla Home in ≤ 6 click. | M | D3.3, D9.4 |
-| NFR.1.2 | La totalità del team dovrebbe completare UC6, UC7 e UC8 in ≤ 2 min senza aiuto. | S | D9.4 |
+| **NFR.1** | **Usabilità.** L'applicazione deve essere semplice da usare, con poche informazioni da compilare. Il requisito è reso misurabile da NFR.1.1 e NFR.1.2 e verificato con una prova d'uso con il committente (sezione 10).<br>*Rationale:* il committente chiede poche informazioni da scrivere e nessuna complicazione. | M | D9.4 |
+| NFR.1.1 | Il sistema deve permettere di creare un'attività dalla Home in ≤ 6 click, esclusa la digitazione del titolo. | M | D3.3, D9.4 |
+| NFR.1.2 | Ogni persona del team dovrebbe completare ciascuno dei casi d'uso UC6, UC7 e UC8 in ≤ 2 minuti senza aiuto. | S | D9.4 |
 | **NFR.2** | **Affidabilità.** Dopo ogni operazione di salvataggio i dati devono essere scritti in modo persistente, così da non perderli in caso di chiusura inattesa.<br>*Rationale:* il lavoro di una giornata non deve andare perso. | M | Team |
 | **NFR.3** | **Efficienza.** L'apertura di una scheda contatto deve richiedere meno di 2 secondi con almeno 5000 attività salvate.<br>*Rationale:* il committente vuole consultare la storia per anni (D9.2). | M | Team |
 | **NFR.4** | **Portabilità.** L'applicazione deve funzionare su Windows 11. | M | D9.1 |
-| **NFR.5** | **Manutenibilità.** Il sistema deve poter evolvere verso l'uso da cellulare e da più dispositivi senza dover riscrivere le funzioni già realizzate. | M | D9.1, Team |
+| **NFR.5** | **Manutenibilità.** Le funzioni su contatti, attività e agenda devono essere eseguibili senza la GUI, così che il sistema possa evolvere verso l'uso da cellulare e da più dispositivi (FUT.1, FUT.2) sostituendo o aggiungendo solo l'interfaccia. Il criterio di verifica è in 10.1. | M | D9.1, Team |
 | **NFR.6** | **Funzionamento offline.** L'applicazione deve funzionare senza connessione a Internet e senza servizi da installare. | M | Reg., D9.2 |
 | **NFR.7** | **Sicurezza.** I dati devono essere salvati solo in locale, senza invio in rete (A1).<br>*Rationale:* il committente ha detto che solo il suo team di lavoro deve accedere tramite pc. | M | D8.2 |
 
@@ -480,13 +490,13 @@ La priorità e l'affidabilità della fonte sono indipendenti. Un requisito Must 
 
 | Tipo | Must | Should | Could | Won't | Totale |
 |---|---|---|---|---|---|
-| FUN – Funzionali | 30 | 2 | 4 | – | 36 |
+| FUN – Funzionali | 33 | 1 | 3 | – | 37 |
 | DAT – Dati | 17 | 1 | 1 | – | 19 |
-| GUI – Interfaccia | 18 | 1 | – | – | 19 |
+| GUI – Interfaccia | 19 | 2 | – | – | 21 |
 | NFR – Non funzionali | 8 | 1 | – | – | 9 |
 | VIN – Vincoli | 8 | – | – | – | 8 |
 | FUT – Futuri | – | – | – | 4 | 4 |
-| **Totale** | **81** | **5** | **5** | **4** | **95** |
+| **Totale** | **85** | **5** | **4** | **4** | **98** |
 
 ---
 
@@ -509,12 +519,13 @@ Le evoluzioni saranno specificate in dettaglio quando verranno pianificate.
 |---|---|
 | Utente master, ruoli e permessi | Decisione del team: la v1 è senza account distinti (D8.1) |
 | Gestione del magazzino: giacenze, soglie minime, riordino, costi dei materiali | Non emersa nell'intervista (D4.3) |
-| Compilazione ed emissione delle fatture | Confermato: la fatturazione non è svolta dal sistema. L'utente compila a mano la fattura mensile a partire dallo storico del contatto (FUN.9, FUN.9.1) |
+| Compilazione ed emissione delle fatture | Confermato: la fatturazione non è svolta dal sistema. L'utente compila a mano la fattura mensile a partire dallo storico del contatto (FUN.9) |
 | Lista dei materiali generata automaticamente | Il committente chiede per ora solo una nota (D4.2) |
 | Gestione dell'accesso del team di lavoro (credenziali, permessi) | Il committente ha detto che solo il suo team di lavoro deve poter accedere tramite pc (D8.2). Non è necessaria in una v1 senza account distinti; vedi NFR.7 e FUT.3 |
-| Calendario con viste a mese e a settimana | Il team ha scelto l'agenda giornaliera (FUN.10); la vista mensile citata dal committente (D6.1) non è ripresa nella v1 |
+| Calendario con viste a mese e a settimana, sia nella scheda contatto sia come calendario generale | Il calendario generale è l'agenda giornaliera (FUN.10) e lo storico è un elenco cronologico (FUN.9); la vista mensile citata dal committente (D6.1) non è ripresa nella v1 |
+| Filtro dello storico per periodo e selezione di mese e anno nella scheda contatto | Lo storico si scorre (FUN.9.1); la scelta di una data è solo nell'agenda (FUN.11). |
 | Mezza giornata e giornata intera come durata di un'attività | Sostituite da un solo orario indicativo (DAT.2.3); modifica rispetto a D3.2 |
-| Orario di fine delle attività | Non previsto (FUN.4.3) |
+| Orario di fine delle attività | Non previsto (DAT.2.3) |
 | Eliminazione definitiva delle attività | Si usa l'annullamento (FUN.12.2) |
 
 ---
@@ -567,24 +578,25 @@ Quando la guardia di un evento è falsa l'evento è scartato, lo stato non cambi
 | [Indietro]   Rossi Mario                          [Modifica] |
 | Via Roma 1 · Tel. 333 0000000 · P.IVA 00000000000            |
 +--------------------------------------------------------------+
-| Storico attività                                             |
-|  09/10/2026  14:00  Cavi garage            parziale          |
-|  07/10/2026  08:30  Cancello               completata        |
+| Storico attività                            (scorri su)  ^   |
 |  05/10/2026  --     Sopralluogo            annullata         |
-|                                                (scorri giù)  |
+|  07/10/2026  08:30  Cancello               completata        |
+|  09/10/2026  --     Verifica quadro        completata        |
+|  09/10/2026  14:00  Cavi garage            parziale          |
+|  14/10/2026  09:00  Cavi garage            da fare           |
 |                                       [ + Nuova attività ]   |
 +--------------------------------------------------------------+
 ```
 
-*Figura 8.3 – Schema indicativo della scheda contatto (GUI.4, FUN.9). Il layout definitivo sarà deciso in fase di design.*
+*Figura 8.3 – Schema indicativo della scheda contatto (GUI.4, GUI.4.3, FUN.9, FUN.9.1, FUN.9.2).* Lo storico è un elenco in stile chat: le attività sono in ordine cronologico, dalla più vecchia (in alto) alla più recente (in basso); la scheda si apre in fondo all'elenco e scorrendo verso l'alto compaiono le attività precedenti. Rispetto alle versioni precedenti non è più possibile selezionare mese e anno. Il layout definitivo sarà deciso in fase di design.
 
-### 8.4 Bozza dell'agenda giornaliera
+### 8.4 Bozza dell'agenda giornaliera (calendario generale)
 
 **[DA COMPLETARE]** Versione definitiva della figura; per ora è presente lo schema indicativo.
 
 ```
 +--------------------------------------------------------------+
-| [Indietro]   [<]   Lunedì 12/10/2026   [>]                   |
+| [Indietro]  [<]  Lunedì 12/10/2026  [>]  [Vai a… gg/mm/aaaa] |
 +--------------------------------------------------------------+
 |  --     Sopralluogo - Bianchi                                |
 |  08:30  Cancello - Rossi Mario                               |
@@ -593,7 +605,7 @@ Quando la guardia di un evento è falsa l'evento è scartato, lo stato non cambi
 +--------------------------------------------------------------+
 ```
 
-*Figura 8.4 – Schema indicativo dell'agenda giornaliera (GUI.7, FUN.10). Le attività senza orario (`--`) compaiono in cima (FUN.10.3).*
+*Figura 8.4 – Schema indicativo dell'agenda giornaliera (GUI.7, GUI.7.3, FUN.10, FUN.10.4, FUN.11).* È la schermata del calendario generale chiesto dal committente (D6.2), aperta dalla Home: mostra un giorno alla volta, le frecce `[<]` e `[>]` portano al giorno precedente o successivo (FUN.10.1) e non ci sono viste a settimana o a mese. Si apre sempre sul giorno corrente (FUN.10.4). Con `[Vai a…]` l'utente indica giorno, mese e anno (`gg/mm/aaaa`) e passa direttamente a quel giorno, da cui può continuare con le frecce (FUN.11, GUI.7.3). Le attività senza orario (`--`) compaiono in cima (FUN.10.3).
 
 ---
 
@@ -622,7 +634,7 @@ Quando la guardia di un evento è falsa l'evento è scartato, lo stato non cambi
 | D5.1 | DAT.2.6, FUN.4, FUN.9, GUI.1, GUI.2.3, GUI.4, GUI.4.1 |
 | D5.2 | FUN.9, FUN.9.1 |
 | D5.3 | FUN.1.3, FUN.3, GUI.1, GUI.2 |
-| D6.1 | FUN.10.1, FUN.10.2 |
+| D6.1 | FUN.10.1, FUN.10.2; viste a mese e a settimana fuori scope (7.2) |
 | D6.2 | FUN.10, GUI.1, GUI.2.2, GUI.7 |
 | D7.1 | DAT.3.1, FUN.12, FUN.12.1, FUN.12.2, GUI.6, GUI.8 |
 | D7.2 | DAT.4, FUN.13, FUT.4 |
@@ -639,8 +651,8 @@ Quando la guardia di un evento è falsa l'evento è scartato, lo stato non cambi
 | Fonte | Requisiti |
 |---|---|
 | Regolamento del progetto (`Reg.`) | VIN.1, VIN.2, VIN.3, VIN.4, VIN.5, VIN.6, VIN.7, VIN.8 |
-| Decisione del team (`Team`) | NFR.2, NFR.3 |
-| Requisito implicito (`Impl.`) | DAT.1.1, DAT.5, FUN.2, FUN.3.1, FUN.6.2, FUN.6.3, FUN.10.3, FUN.10.4, FUN.11, GUI.1.1, GUI.4.2, GUI.7.1, GUI.7.2 |
+| Decisione del team (`Team`) | FUN.10.4, FUN.11, GUI.7.3, NFR.2, NFR.3 |
+| Requisito implicito (`Impl.`) | DAT.1.1, DAT.5, FUN.2, FUN.3.1, FUN.6.2, FUN.6.3, FUN.9.2, FUN.10.3, GUI.1.1, GUI.4.2, GUI.4.3, GUI.7.1, GUI.7.2 |
 
 ### 9.3 Casi d'uso → requisiti
 
@@ -674,7 +686,8 @@ Ogni requisito ha un identificatore di test segnaposto `T-<ID requisito>` e un m
 | FUN.8 | T-FUN.8 | Test di sistema |
 | FUN.8.1 | T-FUN.8.1 | Test di sistema |
 | FUN.9 | T-FUN.9 | Test di sistema |
-| FUN.9.1 | T-FUN.9.1 | Test di sistema |
+| FUN.9.1 | T-FUN.9.1 | Prova d'uso |
+| FUN.9.2 | T-FUN.9.2 | Test di unità |
 | FUN.10 | T-FUN.10 | Test di sistema |
 | FUN.10.1 | T-FUN.10.1 | Test di sistema |
 | FUN.10.2 | T-FUN.10.2 | Test di sistema |
@@ -718,6 +731,7 @@ Ogni requisito ha un identificatore di test segnaposto `T-<ID requisito>` e un m
 | GUI.4 | T-GUI.4 | Prova d'uso |
 | GUI.4.1 | T-GUI.4.1 | Prova d'uso |
 | GUI.4.2 | T-GUI.4.2 | Prova d'uso |
+| GUI.4.3 | T-GUI.4.3 | Prova d'uso |
 | GUI.5 | T-GUI.5 | Prova d'uso |
 | GUI.5.1 | T-GUI.5.1 | Prova d'uso |
 | GUI.5.2 | T-GUI.5.2 | Prova d'uso |
@@ -725,6 +739,7 @@ Ogni requisito ha un identificatore di test segnaposto `T-<ID requisito>` e un m
 | GUI.7 | T-GUI.7 | Prova d'uso |
 | GUI.7.1 | T-GUI.7.1 | Prova d'uso |
 | GUI.7.2 | T-GUI.7.2 | Prova d'uso |
+| GUI.7.3 | T-GUI.7.3 | Prova d'uso |
 | GUI.8 | T-GUI.8 | Prova d'uso |
 | NFR.1 | T-NFR.1 | Prova d'uso |
 | NFR.1.1 | T-NFR.1.1 | Prova d'uso |
@@ -798,8 +813,8 @@ Gli scenari principali della sezione 4.1 sono i criteri di accettazione. Un caso
 
 | Data | Oggetto | Partecipanti | Esito |
 |---|---|---|---|
-| 18/10/2026 | Revisione dei requisiti | Committente e due membri del team | Positivo |
-| 18/10/2026 | Prova su carta | Committente e due membri del team | Positivo |
+| 12/11/2026 | Revisione dei requisiti | Committente e due membri del team | Positivo |
+| 12/11/2026 | Prova su carta | Committente e due membri del team | Positivo |
 | **[DA COMPLETARE]** | Accettazione finale | **[DA COMPLETARE]** | **[DA COMPLETARE]** |
 
-La validazione e la verifica dei requisiti sono state svolte alla versione 0.3.1 (18/10/2026).
+La validazione e la verifica dei requisiti sono state svolte alla versione 0.4.0 (12/11/2026).

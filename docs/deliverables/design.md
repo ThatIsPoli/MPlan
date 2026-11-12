@@ -13,6 +13,7 @@ Corso di Ingegneria del Software, A.A. 2026/27
 | 0.3.1 | 05/11/2026 | Un solo modulo Maven con cinque package: aggiornati D2, vista dei package e verifica delle dipendenze; corretta la risposta di Q4 |
 | 0.3.2 | 06/11/2026 | Sezione 2: ritorno a cinque moduli Maven; database SQLite con accesso ai dati tramite jOOQ al posto di H2 con JDBC |
 | 0.3.3 | 08/11/2026 | Sezione 2: schema SQL unico per generazione jOOQ e creazione al primo avvio; tipo dei componenti per modulo; architettura interna degli strati (2.5.1); corretto refuso in 2.3 |
+| 0.3.4 | 12/11/2026 | Allineamento alla specifica dei requisiti 0.4.0 (storico senza filtro per periodo, agenda con scelta della data); Q5, Q6 e 2.6 corretti da H2 a SQLite; aggiornati gli appunti delle sezioni 1 e 3 |
 
 > **Stato:** bozza. È compilata solo la sezione 2 (architettura). Le sezioni 1 e 3 sono **[DA COMPLETARE]** e contengono solo appunti non definitivi, emersi durante la stesura dell'architettura, come base di partenza.
 
@@ -33,7 +34,7 @@ Corso di Ingegneria del Software, A.A. 2026/27
 > **Appunti per la stesura (non definitivi).** Emersi durante la sezione 2; non sono decisioni approvate.
 
 - **Diagramma delle classi (StarUML).** Entità, oggetti di input e interfacce dei servizi stanno in `api`; le interfacce dei repository in `core` (D2, D3).
-- **Macchina a stati di `Attivita`.** Dall'intervista emergono *da fare*, *parziale*, *completata* e *annullata*. Le transizioni consentite sono da definire e da confrontare con FUN.6.2 e FUN.6.3. Un'attività annullata non si elimina e non si modifica (FUN.12.2).
+- **Macchina a stati di `Attivita`.** Stati *da fare*, *parziale*, *completata* e *annullata*; le transizioni ammesse sono in FUN.6.3 e nella Figura 8.1 della specifica dei requisiti. Un'attività annullata non si elimina (FUN.12.2) e non si modifica (FUN.6.2).
 - **Diagrammi già previsti come segnaposto nella sezione 2:** package (2.4), componenti (2.5) e deployment (2.6).
 - **Da verificare:** se il generatore di codice di StarUML produce i `record` Java (appunto di D3); altrimenti si usano classi con campi `final`.
 
@@ -54,8 +55,8 @@ Le qualità seguono ISO/IEC 9126 e sono elencate in ordine di priorità. Secondo
 | **Q2** | **Manutenibilità** *(Modificabilità)* | NFR.5, VIN.1 | Modifica di un vincolo di validazione (DAT.5), estensione dell'interfaccia utente. | Si modifica un solo modulo `mplan-core`; `mplan-ui-swing` e `mplan-persistence` rimangono invariati. |
 | **Q3** | **Manutenibilità** *(Sostituibilità)* | VIN.3, VIN.4 | Sostituzione del motore di database embedded. | Si scrive un nuovo modulo Maven implementando le interfacce dei repository; `mplan-api`, `mplan-core` e `mplan-ui-swing` rimangono invariati. |
 | **Q4** | **Affidabilità** | NFR.2, FUN.15, DAT.5 | Chiusura forzata del programma subito dopo un salvataggio, oppure errore durante un'operazione di scrittura. | Alla riapertura tutte le attività salvate sono presenti (0 attività perse); un'operazione interrotta da un errore non lascia dati parziali (rollback della transazione). |
-| **Q5** | **Efficienza** | NFR.3 | Apertura di una scheda contatto con uno storico di almeno 5.000 attività. | Tempo di risposta inferiore a 2,0 secondi su macchina di riferimento Windows 11 con DB H2 locale. |
-| **Q6** | **Portabilità** | NFR.4, NFR.6, VIN.3 | Installazione e primo avvio dell'applicazione su un PC Windows 11 con la sola JVM Java 27 installata. | L'applicazione si avvia, crea automaticamente lo schema H2 su file locale ed esegue i casi d'uso UC2–UC10. |
+| **Q5** | **Efficienza** | NFR.3 | Apertura di una scheda contatto con uno storico di almeno 5.000 attività. | Tempo di risposta inferiore a 2,0 secondi su macchina di riferimento Windows 11 con database SQLite locale. |
+| **Q6** | **Portabilità** | NFR.4, NFR.6, VIN.3 | Installazione e primo avvio dell'applicazione su un PC Windows 11 con la sola JVM Java 27 installata. | L'applicazione si avvia, crea automaticamente lo schema SQLite su file locale ed esegue i casi d'uso UC2–UC10. |
 | **Q7** | **Funzionalità** | FUN.12.2, FUN.15.1, DAT.3.1 | Un utente richiede l'annullamento di un'attività già registrata. | L'attività non viene eliminata dal database; resta nello storico con stato `ANNULLATA`, motivo obbligatorio. |
 | **Q8** | **Qualità in uso** | NFR.1, NFR.1.1, NFR.1.2, NFR.7 | L'utente crea una nuova attività (UC7) o gestisce gli errori di digitazione. | Il metodo `valida()` restituisce gli errori per singolo campo; nessun dato esce dalla macchina locale (zero socket di rete aperti). |
 
@@ -178,7 +179,7 @@ Punto di vista: **distribuzione** (Tabella 11.5), con le risorse hardware.
 |---|---|
 | Nodo | Un PC con Windows 11 (A1, A2) |
 | Processo | Una sola JVM (Java 27) che esegue il programma, formato dai package `app`, `api`, `core`, `persistence` e `ui` |
-| Dati | File del database H2 in una cartella dati dell'utente, senza percorsi assoluti nel codice (VIN.2) |
+| Dati | File del database SQLite in una cartella dati dell'utente, senza percorsi assoluti nel codice (VIN.2) |
 | Log | File di log in una cartella dell'applicazione, scritto da log4j2 |
 | Comunicazioni | Nessuna connessione di rete (NFR.6, NFR.7) |
 
@@ -217,12 +218,13 @@ Punto di vista: **distribuzione** (Tabella 11.5), con le risorse hardware.
 **Da decidere**
 - Nomi definitivi delle interfacce dei servizi e dei repository (D2).
 - Pattern interno della GUI (D10).
-- Tipi usati o implicati dalle firme dei servizi ma non ancora descritti: `DatiAttivita`, `Periodo`, `VoceRegistro`, `TipoModifica`. Va deciso quali stanno in `mplan-api` (se compaiono nelle firme dei servizi) e quali restano in `mplan-core`.
+- Tipi usati o implicati dalle firme dei servizi ma non ancora descritti: `VoceRegistro`, `TipoModifica` (registro delle modifiche, FUN.13). Va deciso quali stanno in `mplan-api` (se compaiono nelle firme dei servizi) e quali restano in `mplan-core`.
 - Idea non decisa: un record di sola lettura per l'agenda, con attività e nome del contatto. Va deciso se serve o se basta il caricamento separato.
 
 **Requisiti dell'intervista non ancora coperti dal design**
-- Anagrafica del `Contatto`: flag privato/azienda (non fondamentale), più telefoni, codice fiscale e/o partita IVA.
-- Calendario con viste giornaliera e mensile (nella scheda cliente e come calendario generale); l'agenda prevista finora copre solo il giorno.
-- Trattamento dei lavori "Generale" e dei cantieri come contatti nella stessa lista (D2.4–D2.5 dell'intervista, ancora PARZIALE/PROPOSTA).
+- Anagrafica del `Contatto` (DAT.1): nel diagramma delle classi ci sono solo id e nome; mancano cognome, indirizzo, telefoni, codice fiscale, partita IVA e tipo privato/azienda.
 
-**Ordine di lavoro suggerito:** macchina a stati di `Attivita` → diagramma delle classi → diagrammi di sequenza dei casi d'uso principali (ad esempio annullamento e agenda).
+**Allineamento alla specifica 0.4.0**
+- Il calendario con viste a mese non è più un requisito: il calendario generale è l'agenda giornaliera (FUN.10) e lo storico è un elenco in stile chat senza filtri per periodo (FUN.9, FUN.9.1). Dal diagramma delle classi sono stati tolti il tipo `Periodo` e le operazioni `storico(idContatto, periodo)`; `AttivitaRepository.perContatto` riceve solo l'id del contatto. L'agenda si apre sul giorno corrente letto dal `Clock` (FUN.10.4) e permette di andare a una data indicando giorno, mese e anno (FUN.11, GUI.7.3): basta l'operazione già prevista per le attività di un giorno.
+
+**Ordine di lavoro suggerito:** la macchina a stati di `Attivita` e il diagramma delle classi del core sono in StarUML → diagramma delle classi di `mplan-api` → diagrammi di sequenza dei casi d'uso principali (ad esempio annullamento e agenda).
