@@ -53,6 +53,7 @@ Vuole un'applicazione semplice che gli permetta di riassumere il lavoro della gi
 - **Database embedded locale**, in linea con il regolamento del corso. Il cliente vuole poter consultare la storia per anni.
 - **Fuori scope**: utente master e ruoli, mobile e accesso da più dispositivi nella prima versione.
 - **Evoluzioni future**: mobile e accesso da più dispositivi, con una password unica generale da non condividere con estranei al sistema.
+- **Calendario** (punti 10, 11 e 13): non si realizza un calendario con viste a mese o a settimana. Lo storico del cliente è un elenco di tutte le sue attività in ordine cronologico, come i messaggi di una chat, senza selezione di mese e anno; il calendario generale è un'agenda giornaliera che si apre sul giorno corrente, con frecce per andare avanti e indietro nel tempo e la possibilità di andare direttamente a un giorno indicando giorno, mese e anno (specifica dei requisiti, v0.4.0).
 
 ---
 
