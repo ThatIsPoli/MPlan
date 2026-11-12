@@ -1,6 +1,6 @@
 # MPlan – Progettazione iniziale
 
-Bozza di lavoro: package, classi e interfacce ricavati dalla specifica dei requisiti (versione 0.3.1). Serve da punto di partenza per il diagramma delle classi in StarUML, che la raffinerà. Il livello di dettaglio è volutamente basso: niente classi che la specifica non richieda.
+Bozza di lavoro: package, classi e interfacce ricavati dalla specifica dei requisiti (versione 0.4.0). Serve da punto di partenza per il diagramma delle classi in StarUML, che la raffinerà. Il livello di dettaglio è volutamente basso: niente classi che la specifica non richieda.
 
 I nomi sono in italiano, come la specifica. Il package radice è `mplan` (nome da confermare).
 
@@ -45,7 +45,7 @@ Ogni package ha un compito solo. Per ciascuno: cosa contiene, cosa deve fare e c
 
 ### `model` – il vocabolario del programma
 
-- **Contiene:** le cose di cui parla la specifica (contatto, attività, stato, periodo, voce di registro) e le regole che valgono sempre, come "un'attività annullata non si modifica" o "da *completata* non si torna ad *annullata*".
+- **Contiene:** le cose di cui parla la specifica (contatto, attività, stato, voce di registro) e le regole che valgono sempre, come "un'attività annullata non si modifica" o "da *completata* non si torna ad *annullata*".
 - **Deve fare:** rappresentare i dati e conoscere le regole che non dipendono da nessuna schermata né da nessun database.
 - **Non deve fare:** leggere o scrivere dati, mostrare niente, conoscere gli altri package.
 - **Chi lo usa:** tutti. È l'unico package che non dipende da nessuno, quindi si può provare da solo.
@@ -97,8 +97,7 @@ Ogni package ha un compito solo. Per ciascuno: cosa contiene, cosa deve fare e c
 | `TipoContatto` | enum | `PRIVATO`, `AZIENDA` (facoltativo, Could) | FUN.1.4; DAT.1.7 |
 | `Attivita` | classe | id, contatto, titolo, data, orario (`Optional<LocalTime>`), descrizione, note, stato, motivo di annullamento | FUN.4, FUN.5; DAT.2, DAT.3 |
 | `StatoAttivita` | enum | `DA_FARE`, `PARZIALE`, `COMPLETATA`, `ANNULLATA`. Metodo `puoPassareA(stato)` con le transizioni di FUN.6.3 e `modificabile()` falso per `ANNULLATA` | FUN.6; DAT.3 |
-| `Periodo` | record | inizio e fine. Costruttori statici `settimana(data)` (lunedì–domenica) e `mese(annoMese)` | FUN.9.1 |
-| `OrdinamentoAttivita` | classe finale | due `Comparator<Attivita>`: `PER_STORICO` (dalla più recente) e `PER_AGENDA` (senza orario prima, poi per orario) | FUN.9, FUN.10.2, FUN.10.3 |
+| `OrdinamentoAttivita` | classe finale | due `Comparator<Attivita>`: `PER_STORICO` (ordine cronologico crescente come in una chat: dalla più vecchia alla più recente, nello stesso giorno senza orario prima) e `PER_AGENDA` (senza orario prima, poi per orario) | FUN.9, FUN.9.2, FUN.10.2, FUN.10.3 |
 | `VoceRegistro` | record | data e ora, attività, tipo di modifica, motivo (facoltativo) | FUN.13; DAT.4 |
 | `TipoModifica` | enum | `MODIFICA`, `CAMBIO_STATO`, `ANNULLAMENTO` | FUN.13 |
 
@@ -109,7 +108,7 @@ Associazioni: un `Contatto` ha molte `Attivita`; un'`Attivita` ha molte `VoceReg
 | Nome | Tipo | Operazioni | Requisiti |
 |---|---|---|---|
 | `ContattoRepository` | interfaccia | `salva(Contatto)`, `trova(id)`, `trovaTutti()`, `cercaPerNome(testo)` (Could) | FUN.1, FUN.2, FUN.3, FUN.3.1, FUN.15 |
-| `AttivitaRepository` | interfaccia | `salva(Attivita)`, `trova(id)`, `trovaPerContatto(contatto)`, `trovaPerContatto(contatto, periodo)`, `trovaPerGiorno(data)`. **Nessun metodo per eliminare** | FUN.4, FUN.9, FUN.10, FUN.12.2, FUN.15 |
+| `AttivitaRepository` | interfaccia | `salva(Attivita)`, `trova(id)`, `trovaPerContatto(contatto)`, `trovaPerGiorno(data)`. **Nessun metodo per eliminare** | FUN.4, FUN.9, FUN.10, FUN.12.2, FUN.15 |
 | `RegistroRepository` | interfaccia | `aggiungi(voce)`, `trovaPerAttivita(attivita)` (Should) | FUN.13 |
 | `PersistenzaException` | eccezione | errori del database, non controllata | NFR.2 |
 
@@ -126,7 +125,7 @@ Associazioni: un `Contatto` ha molte `Attivita`; un'`Attivita` ha molte `VoceReg
 | Nome | Tipo | Operazioni | Requisiti |
 |---|---|---|---|
 | `ContattoService` | classe | `crea(contatto)`, `modifica(contatto)`, `dettaglio(id)`, `elenco()`, `cerca(testo)` (Could). Valida e poi salva | FUN.1, FUN.2, FUN.3 |
-| `AttivitaService` | classe | `crea(attivita)`, `modifica(attivita)`, `cambiaStato(id, stato)`, `annulla(id, motivo)`, `storico(contatto)`, `storico(contatto, periodo)`, `agenda(data)`. Applica le regole di stato, ordina i risultati e scrive il registro | FUN.4–FUN.13 |
+| `AttivitaService` | classe | `crea(attivita)`, `modifica(attivita)`, `cambiaStato(id, stato)`, `annulla(id, motivo)`, `storico(contatto)`, `agenda(data)`. Applica le regole di stato, ordina i risultati e scrive il registro | FUN.4–FUN.13 |
 | `ValidatoreContatto`, `ValidatoreAttivita` | classi finali | controllano obbligatorietà, lunghezze e formati; restituiscono la lista degli errori | DAT.1–DAT.3, DAT.5 |
 | `ErroreValidazione` | record | campo e motivo dell'errore | DAT.5 |
 | `ValidazioneException` | eccezione | porta la lista degli errori; usata anche per le transizioni di stato non ammesse | DAT.5, FUN.6.2, FUN.6.3 |
@@ -138,11 +137,11 @@ Associazioni: un `Contatto` ha molte `Attivita`; un'`Attivita` ha molte `VoceReg
 | `Schermata` | interfaccia | contratto comune delle schermate: `titolo()`, `vista()` e `alMostrare()` (ricarica i dati quando la schermata torna visibile) | GUI.1 |
 | `SchermataHome` | classe | rubrica, "nuovo contatto" e menu a tendina per l'agenda | GUI.2 |
 | `SchermataFormContatto` | classe | inserimento e modifica di un contatto, con i messaggi di errore | GUI.3; DAT.5 |
-| `SchermataScheda` | classe | dati del contatto e storico, con filtro per settimana o mese e pulsante "nuova attività" | GUI.4 |
+| `SchermataScheda` | classe | dati del contatto e storico a elenco in stile chat (dalla più vecchia in alto alla più recente in basso), aperto in fondo sulle attività più recenti, senza selezione di mese o anno; pulsante "nuova attività" | GUI.4, FUN.9.1 |
 | `SchermataFormAttivita` | classe | inserimento e modifica di un'attività; cambio di stato | GUI.5 |
-| `SchermataAgenda` | classe | giorno scelto, frecce per cambiare giorno, elenco a scorrimento | GUI.7 |
+| `SchermataAgenda` | classe | si apre sul giorno corrente (letto dal `Clock`); frecce per cambiare giorno, comando "Vai a…" per indicare giorno, mese e anno, elenco a scorrimento | GUI.7, GUI.7.3; FUN.10.4, FUN.11 |
 | `Navigatore` | classe | pila delle schermate: `vaiA(schermata)`, `indietro()`, `tornaAllaHome()` | GUI.1.1 |
-| `ElencoAttivita` | classe | componente usato da storico e agenda: orario, contatto, titolo; mostra le annullate in modo diverso | GUI.4.2, GUI.7.1, GUI.7.2, GUI.8 |
+| `ElencoAttivita` | classe | componente usato da storico e agenda: nello storico data, orario, titolo e stato; nell'agenda orario, contatto e titolo; mostra le annullate in modo diverso | GUI.4.2, GUI.4.3, GUI.7.1, GUI.7.2, GUI.8 |
 | `DialogoAnnullamento` | classe | chiede il motivo e la conferma | GUI.6 |
 
 Il toolkit grafico (Swing o JavaFX) non è ancora scelto: `Schermata` resta generica finché non si decide.
@@ -181,7 +180,6 @@ Chiamata da `AttivitaService`; realizzata da `SQLiteAttivitaRepository`.
 | `salva(attivita)` | Registra un'attività nuova oppure aggiorna una esistente | creare, modificare, cambiare stato e annullare: sono tutti salvataggi di un'attività cambiata (FUN.4, FUN.5, FUN.6, FUN.12) |
 | `trova(id)` | Restituisce l'attività, o niente se non esiste | caricarla prima di modificarla o annullarla |
 | `trovaPerContatto(contatto)` | Restituisce tutte le attività di un contatto | storico completo (FUN.9) |
-| `trovaPerContatto(contatto, periodo)` | Come sopra, ma solo quelle del periodo | storico di una settimana o di un mese (FUN.9.1) |
 | `trovaPerGiorno(data)` | Restituisce le attività di tutti i contatti in quel giorno | agenda giornaliera (FUN.10) |
 
 Il repository restituisce i dati senza ordinarli: l'ordine lo decide il servizio con `OrdinamentoAttivita`, così la regola sta in un posto solo. **Non c'è un metodo per eliminare**: è così che il progetto garantisce che nessuna attività si cancelli (FUN.12.2).
@@ -232,7 +230,7 @@ Grazie a questo contratto il `Navigatore` tiene una pila di schermate senza sape
 - **Transizioni di stato** (FUN.6.3, FUN.6.2): in `StatoAttivita`; `AttivitaService` le applica e rifiuta le altre.
 - **Annullamento** (FUN.12): `AttivitaService.annulla` richiede un motivo non vuoto (DAT.3.1) e non cancella mai (FUN.12.2).
 - **Dati non validi** (DAT.5): i validatori trovano gli errori, il servizio non salva e lancia `ValidazioneException`; la schermata mostra campo e motivo e lascia gli altri dati nel modulo.
-- **Ordinamenti** (FUN.9, FUN.10.2, FUN.10.3): comparatori in `OrdinamentoAttivita`.
+- **Ordinamenti** (FUN.9, FUN.9.2, FUN.10.2, FUN.10.3): comparatori in `OrdinamentoAttivita`.
 - **Registro** (FUN.13): `AttivitaService` aggiunge una `VoceRegistro` a ogni modifica, cambio di stato o annullamento.
 
 ## 8. Design pattern candidati
@@ -271,8 +269,8 @@ Il regolamento chiede di applicarne un paio. Quelli che nascono dal progetto sen
 | FUN.4, FUN.4.1, FUN.4.2, FUN.4.3, FUN.5, FUN.5.1, FUN.7, FUN.8, FUN.8.1; DAT.2, DAT.2.1, DAT.2.2, DAT.2.3, DAT.2.4, DAT.2.5, DAT.2.6; GUI.4.1, GUI.5, GUI.5.1 | `Attivita`, `AttivitaService`, `ValidatoreAttivita`, `SchermataFormAttivita` |
 | FUN.6, FUN.6.1, FUN.6.2, FUN.6.3; DAT.3; GUI.5.2 | `StatoAttivita`, `AttivitaService`, `SchermataFormAttivita` |
 | FUN.12, FUN.12.1, FUN.12.2; DAT.3.1; GUI.6, GUI.8 | `AttivitaService`, `AttivitaRepository` (senza eliminazione), `DialogoAnnullamento`, `ElencoAttivita` |
-| FUN.9, FUN.9.1; GUI.4, GUI.4.2 | `AttivitaService`, `Periodo`, `OrdinamentoAttivita`, `SchermataScheda`, `ElencoAttivita` |
-| FUN.10, FUN.10.1, FUN.10.2, FUN.10.3, FUN.10.4, FUN.11; GUI.7, GUI.7.1, GUI.7.2 | `AttivitaService`, `OrdinamentoAttivita`, `SchermataAgenda`, `ElencoAttivita` |
+| FUN.9, FUN.9.1, FUN.9.2; GUI.4, GUI.4.2, GUI.4.3 | `AttivitaService`, `OrdinamentoAttivita`, `SchermataScheda`, `ElencoAttivita` |
+| FUN.10, FUN.10.1, FUN.10.2, FUN.10.3, FUN.10.4, FUN.11; GUI.7, GUI.7.1, GUI.7.2, GUI.7.3 | `AttivitaService`, `OrdinamentoAttivita`, `SchermataAgenda`, `ElencoAttivita` |
 | FUN.13; DAT.4 | `VoceRegistro`, `TipoModifica`, `RegistroRepository`, `AttivitaService` |
 | FUN.15, FUN.15.1; NFR.2, NFR.6, NFR.7 | `ConnessioneDatabase`, `AbstractSQLiteRepository`, repository SQLite |
 | DAT.5 | `ErroreValidazione`, `ValidazioneException`, i due validatori, le schermate dei moduli |
