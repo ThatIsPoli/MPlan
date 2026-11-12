@@ -10,6 +10,7 @@ Corso di Ingegneria del Software, A.A. 2026/27
 | 0.1.2 | 18/10/2026 | Milestone dettagliate, sprint backlog in tabella, procedura di lavoro sulle issue |
 | 0.1.3 | 18/10/2026 | Piccole correzioni e specificazione di MDA |
 | 0.1.4 | 05/11/2026 | Sprint backlog aggiornato con gli sprint 3, 4, 5 e 6 |
+| 0.1.5 | 12/11/2026 | Sprint backlog: chiuse le macchine a stati dello sprint 5, aggiunta la revisione della specifica allo sprint 6 |
 
 > **Stato:** bozza. I punti segnati **[DA COMPLETARE]** richiedono dati che il team deve ancora inserire.
 
@@ -80,9 +81,10 @@ Lo sprint backlog di ogni sprint è una tabella, compilata all'inizio dello spri
 | Sprint 4 | 29/10/2026 – 05/11/2026 | Qualità del software nella specifica dei requisiti allineate a ISO/IEC 9126 (Documento 3, versione 0.3.2) | Product Owner | Completato |
 | | | Obiettivi di qualità nel Project Plan allineati a ISO/IEC 9126 (Documento 1, versione 0.2.1) | Product Owner | Completato |
 | | | Software Architecture (Documento 4, sezione 2) | Scrum Master | Completato |
-| Sprint 5 | 05/11/2026 – 12/11/2026 | Macchine a stati finiti (Documento 3, sezioni 8.1 e 8.2) e loro realizzazione in StarUML | Product Owner | In corso |
+| Sprint 5 | 05/11/2026 – 12/11/2026 | Macchine a stati finiti (Documento 3, sezioni 8.1 e 8.2) e loro realizzazione in StarUML | Product Owner | Completato |
 | | | Continuazione del Documento 4 (Design) e del diagramma delle classi | Scrum Master | In corso |
-| Sprint 6 | 12/11/2026 – 19/11/2026 | Continuazione del diagramma delle classi **[DA COMPLETARE: da rivedere a inizio sprint]** | Entrambi | Pianificato |
+| Sprint 6 | 12/11/2026 – 19/11/2026 | Revisione della specifica dei requisiti (Documento 3, versione 0.4.0): storico in stile chat, agenda giornaliera con scelta della data, allineamento di design e diagramma delle classi | Product Owner | In corso |
+| | | Continuazione del diagramma delle classi **[DA COMPLETARE: da rivedere a inizio sprint]** | Entrambi | Pianificato |
 | Sprint 7 e successivi | Dal 19/11/2026, ogni giovedì | Da compilare all'inizio di ogni sprint | Assegnato a inizio sprint | – |
 
 ### 2.5 Approccio basato su modelli (MDA)
