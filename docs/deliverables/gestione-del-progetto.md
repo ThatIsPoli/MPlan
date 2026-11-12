@@ -11,6 +11,7 @@ Corso di Ingegneria del Software, A.A. 2026/27
 | 0.1.3 | 18/10/2026 | Piccole correzioni e specificazione di MDA |
 | 0.1.4 | 05/11/2026 | Sprint backlog aggiornato con gli sprint 3, 4, 5 e 6 |
 | 0.1.5 | 12/11/2026 | Sprint backlog dello sprint 6 definito; stato dello sprint 5 aggiornato |
+| 0.1.6 | 12/11/2026 | Sprint 6: controllo incrociato dei documenti completato da entrambi |
 
 > **Stato:** bozza. I punti segnati **[DA COMPLETARE]** richiedono dati che il team deve ancora inserire.
 
@@ -85,7 +86,7 @@ Lo sprint backlog di ogni sprint è una tabella, compilata all'inizio dello spri
 | | | Creazione dello scheletro dei moduli Maven (file `pom.xml` e dipendenze), senza pacchetti né classi | Scrum Master | Completato |
 | Sprint 6 | 12/11/2026 – 19/11/2026 | Diagramma delle classi di `mplan-core` (livelli repository, dominio e servizi) in StarUML, con la sua descrizione | Product Owner | Completato |
 | | | Diagramma delle classi di `mplan-persistence` e dei suoi sotto-pacchetti, e inizializzazione di SQLite | Scrum Master | Completato |
-| | | Controllo incrociato dei documenti prodotti finora, per trovare eventuali contraddizioni | Scrum Master | Pianificato |
+| | | Controllo incrociato dei documenti prodotti finora, per trovare eventuali contraddizioni | Entrambi | Completato |
 | Sprint 7 e successivi | Dal 19/11/2026, ogni giovedì | Da compilare all'inizio di ogni sprint | Assegnato a inizio sprint | – |
 
 ### 2.5 Approccio basato su modelli (MDA)
