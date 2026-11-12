@@ -23,7 +23,7 @@ L'elenco completo dei requisiti è nella specifica (Documento 3, cartella `docs/
 - JUnit 5 per i test, log4j2 per i log
 - StarUML per i diagrammi UML
 
-**[DA COMPLETARE]** versione di Java richiesta.
+**27** versione di Java richiesta.
 
 ## Struttura del progetto
 
