@@ -10188,6 +10188,23 @@
 										},
 										{
 											"_type": "UMLOperationView",
+											"_id": "AAAAAAGh0IMdePLOh5M=",
+											"_parent": {
+												"$ref": "AAAAAAABevsLEnWOJJE="
+											},
+											"model": {
+												"$ref": "AAAAAAGh0IMdaPLLKxQ="
+											},
+											"font": "Arial;13;0",
+											"left": 394,
+											"top": 273,
+											"width": 462,
+											"height": 13,
+											"text": "+perContatto(idContatto: UUID): List<Attivita>",
+											"horizontalAlignment": 0
+										},
+										{
+											"_type": "UMLOperationView",
 											"_id": "AAAAAAGhz32IzPEdg0M=",
 											"_parent": {
 												"$ref": "AAAAAAABevsLEnWOJJE="
@@ -10197,7 +10214,7 @@
 											},
 											"font": "Arial;13;0",
 											"left": 394,
-											"top": 273,
+											"top": 288,
 											"width": 462,
 											"height": 13,
 											"text": "+perGiorno(giorno: LocalDate): List<Attivita>",
@@ -10214,7 +10231,7 @@
 											},
 											"font": "Arial;13;0",
 											"left": 394,
-											"top": 288,
+											"top": 303,
 											"width": 462,
 											"height": 13,
 											"text": "+aggiungi(attivita: Attivita)",
@@ -10231,7 +10248,7 @@
 											},
 											"font": "Arial;13;0",
 											"left": 394,
-											"top": 303,
+											"top": 318,
 											"width": 462,
 											"height": 13,
 											"text": "+aggiorna(attivita: Attivita)",
@@ -10242,7 +10259,7 @@
 									"left": 389,
 									"top": 238,
 									"width": 472,
-									"height": 83
+									"height": 98
 								},
 								{
 									"_type": "UMLReceptionCompartmentView",
@@ -10280,7 +10297,7 @@
 							"left": 389,
 							"top": 200,
 							"width": 472,
-							"height": 121,
+							"height": 136,
 							"nameCompartment": {
 								"$ref": "AAAAAAAB9782CLEyUwY="
 							},
@@ -11404,7 +11421,7 @@
 									},
 									"visible": false,
 									"font": "Arial;13;0",
-									"left": 538,
+									"left": 536,
 									"top": 138,
 									"height": 13,
 									"alpha": 1.5707963267948966,
@@ -11425,7 +11442,7 @@
 									},
 									"visible": null,
 									"font": "Arial;13;0",
-									"left": 525,
+									"left": 523,
 									"top": 146,
 									"height": 13,
 									"alpha": 1.5707963267948966,
@@ -11446,7 +11463,7 @@
 									},
 									"visible": false,
 									"font": "Arial;13;0",
-									"left": 563,
+									"left": 561,
 									"top": 123,
 									"height": 13,
 									"alpha": -1.5707963267948966,
@@ -11465,7 +11482,7 @@
 								"$ref": "AAAAAAAB7WuH5KdlLVI="
 							},
 							"lineStyle": 1,
-							"points": "588:199;514:75",
+							"points": "585:199;513:75",
 							"showVisibility": true,
 							"nameLabel": {
 								"$ref": "AAAAAAABfYbnezh7N84="
@@ -11498,7 +11515,7 @@
 									},
 									"visible": false,
 									"font": "Arial;13;0",
-									"left": 684,
+									"left": 686,
 									"top": 123,
 									"height": 13,
 									"alpha": 1.5707963267948966,
@@ -11519,7 +11536,7 @@
 									},
 									"visible": null,
 									"font": "Arial;13;0",
-									"left": 671,
+									"left": 673,
 									"top": 115,
 									"height": 13,
 									"alpha": 1.5707963267948966,
@@ -11540,7 +11557,7 @@
 									},
 									"visible": false,
 									"font": "Arial;13;0",
-									"left": 709,
+									"left": 711,
 									"top": 138,
 									"height": 13,
 									"alpha": -1.5707963267948966,
@@ -11559,7 +11576,7 @@
 								"$ref": "AAAAAAAB7WuH5KdlLVI="
 							},
 							"lineStyle": 1,
-							"points": "660:199;734:75",
+							"points": "663:199;735:75",
 							"showVisibility": true,
 							"nameLabel": {
 								"$ref": "AAAAAAABviUgk01kDKQ="
@@ -16069,6 +16086,23 @@
 										},
 										{
 											"_type": "UMLOperationView",
+											"_id": "AAAAAAGh0K/kdfLZTXY=",
+											"_parent": {
+												"$ref": "AAAAAAABX2+7yGTNEFs="
+											},
+											"model": {
+												"$ref": "AAAAAAGh0IMdaPLLKxQ="
+											},
+											"font": "Arial;13;0",
+											"left": -355,
+											"top": 502,
+											"width": 366.716796875,
+											"height": 13,
+											"text": "+perContatto(idContatto: UUID): List<Attivita>",
+											"horizontalAlignment": 0
+										},
+										{
+											"_type": "UMLOperationView",
 											"_id": "AAAAAAGhz32I3vHjhuM=",
 											"_parent": {
 												"$ref": "AAAAAAABX2+7yGTNEFs="
@@ -16078,7 +16112,7 @@
 											},
 											"font": "Arial;13;0",
 											"left": -355,
-											"top": 502,
+											"top": 517,
 											"width": 366.716796875,
 											"height": 13,
 											"text": "+perGiorno(giorno: LocalDate): List<Attivita>",
@@ -16095,7 +16129,7 @@
 											},
 											"font": "Arial;13;0",
 											"left": -355,
-											"top": 517,
+											"top": 532,
 											"width": 366.716796875,
 											"height": 13,
 											"text": "+aggiungi(attivita: Attivita)",
@@ -16112,7 +16146,7 @@
 											},
 											"font": "Arial;13;0",
 											"left": -355,
-											"top": 532,
+											"top": 547,
 											"width": 366.716796875,
 											"height": 13,
 											"text": "+aggiorna(attivita: Attivita)",
@@ -16124,7 +16158,7 @@
 									"left": -360,
 									"top": 467,
 									"width": 376.716796875,
-									"height": 83
+									"height": 98
 								},
 								{
 									"_type": "UMLReceptionCompartmentView",
@@ -19725,6 +19759,34 @@
 															"_id": "AAAAAAABLABSTDjcaHI=",
 															"_parent": {
 																"$ref": "AAAAAAABf+ozdUzdDz0="
+															},
+															"type": "List<Attivita>",
+															"direction": "return"
+														}
+													]
+												},
+												{
+													"_type": "UMLOperation",
+													"_id": "AAAAAAGh0IMdaPLLKxQ=",
+													"_parent": {
+														"$ref": "AAAAAAABQuziJSq9ZKk="
+													},
+													"name": "perContatto",
+													"parameters": [
+														{
+															"_type": "UMLParameter",
+															"_id": "AAAAAAGh0IMp+fLSnVA=",
+															"_parent": {
+																"$ref": "AAAAAAGh0IMdaPLLKxQ="
+															},
+															"name": "idContatto",
+															"type": "UUID"
+														},
+														{
+															"_type": "UMLParameter",
+															"_id": "AAAAAAGh0IMp+fLT3AQ=",
+															"_parent": {
+																"$ref": "AAAAAAGh0IMdaPLLKxQ="
 															},
 															"type": "List<Attivita>",
 															"direction": "return"
