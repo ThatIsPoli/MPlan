@@ -22,7 +22,7 @@ Qui ci sono solo tre interfacce. Dicono cosa serve al core dalla persistenza, ma
 
 **ContattoRepository** serve a leggere e scrivere i contatti. Sa trovare un contatto per id, elencarli tutti, aggiungerne uno nuovo e aggiornarne uno esistente.
 
-**AttivitaRepository** serve a leggere e scrivere le attività. Sa trovare un'attività per id, trovare quelle di un contatto in un certo periodo, trovare quelle di un giorno, aggiungerne una e aggiornarne una. Non ha nessuna operazione per cancellare, perché le attività non si cancellano mai (requisito FUN.12.2): si possono solo annullare.
+**AttivitaRepository** serve a leggere e scrivere le attività. Sa trovare un'attività per id, trovare tutte quelle di un contatto, trovare quelle di un giorno, aggiungerne una e aggiornarne una. Non ha nessuna operazione per cancellare, perché le attività non si cancellano mai (requisito FUN.12.2): si possono solo annullare.
 
 **GestoreTransazioni** serve a eseguire più operazioni come un blocco unico. Se una va male, vengono annullate tutte e il database resta com'era. Il core lo usa senza sapere come funziona una transazione SQL.
 
@@ -44,9 +44,9 @@ Qui ci sono tre classi, e ognuna **implementa un'interfaccia che sta in `mplan-a
 
 **ContattoServiceImpl** implementa `ContattoService`. Si occupa della rubrica: elenca i contatti, ne trova uno, ne crea uno nuovo, lo modifica, e controlla i dati prima di salvare. Per farlo usa `ContattoRepository` per leggere e scrivere, `GestoreTransazioni` per salvare in modo sicuro e `ValidatoreContatto` per i controlli.
 
-**AttivitaServiceImpl** implementa `AttivitaService`. Si occupa delle attività di un contatto: le crea, le modifica, le segna come parziali o completate, le annulla indicando il motivo, e mostra lo storico (anche in un certo periodo). Usa `AttivitaRepository`, `GestoreTransazioni`, `ValidatoreAttivita` e anche `Clock`.
+**AttivitaServiceImpl** implementa `AttivitaService`. Si occupa delle attività di un contatto: le crea, le modifica, le segna come parziali o completate, le annulla indicando il motivo, e restituisce lo storico del contatto già ordinato come una chat, dalla più vecchia alla più recente (FUN.9, FUN.9.2). Usa `AttivitaRepository`, `GestoreTransazioni`, `ValidatoreAttivita` e anche `Clock`.
 
-**AgendaServiceImpl** implementa `AgendaService`. Dà le attività di un certo giorno. Usa `AttivitaRepository` e `Clock`.
+**AgendaServiceImpl** implementa `AgendaService`. Dà le attività di un giorno qualsiasi, ordinate per orario con quelle senza orario in cima (FUN.10.2, FUN.10.3): la GUI la chiama sia con le frecce sia quando l'utente sceglie una data (FUN.11). Usa `AttivitaRepository` e `Clock`, che dice qual è il giorno corrente su cui si apre l'agenda (FUN.10.4).
 
 Queste tre classi non creano da sole i loro collaboratori. Li ricevono già pronti quando vengono costruite, e a costruirle è il modulo `mplan-app`. Questo permette di sostituire i pezzi, per esempio con dei finti nei test.
 
@@ -65,7 +65,6 @@ Dal modulo `mplan-api` il core usa:
 - le interfacce dei servizi: `ContattoService`, `AttivitaService`, `AgendaService`
 - le entità: `Contatto`, `Attivita`, `StatoAttivita` (le quattro condizioni: da fare, parziale, completata, annullata)
 - i dati in ingresso: `DatiContatto`, `DatiAttivita`
-- `Periodo`, un intervallo di date
 - `ErroreValidazione`, che dice quale campo è sbagliato e perché
 - `PersistenzaException`, l'errore che i repository lanciano se la persistenza si guasta
 
