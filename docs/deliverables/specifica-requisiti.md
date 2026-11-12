@@ -361,7 +361,7 @@ Coprono la rubrica, le attività, i materiali, lo storico, l'agenda giornaliera,
 | **FUN.8** | Il sistema deve permettere di annotare materiali usati, mancanti o necessari come testo libero nelle note dell'attività. | M | D4.1, O1, O3 |
 | FUN.8.1 | La nota su ciò che serve per la visita successiva deve essere scritta nell'attività del giorno stesso, non in quella del giorno dopo. | M | D4.2, O3 |
 | **FUN.9** | Il sistema deve mostrare lo storico di un contatto: l'elenco di tutte le sue attività, a scorrimento verticale, ordinate per data e orario dalla più recente.<br>*Rationale:* il committente vuole vedere cosa è stato fatto per ogni cliente e, a fine mese, ritrovare gli interventi per la fatturazione. La fattura è compilata a mano dall'utente, fuori dal sistema (7.2). Il formato a elenco, al posto di un calendario, è una scelta del team. | M | D5.1, D5.2, O1, O4, Team |
-| FUN.9.1 | Il sistema deve permettere di limitare lo storico di un contatto a una settimana (lunedì-domenica) o a un mese di calendario scelti dall’utente, anche passati; predefiniti: settimana o mese correnti. | M | D5.2, O4, Team |
+| FUN.9.1 | Il sistema deve permettere di limitare la visualizzazione del calendario delle attività a un mese o a un giorno specifico | M | D5.2, O4, Team |
 | **FUN.10** | Il sistema deve fornire un'agenda giornaliera che mostra le attività di tutti i contatti relative a un singolo giorno.<br>*Rationale:* il committente vuole vedere le attività svolte di tutti i clienti; la scelta di mostrare un giorno alla volta è del team. | M | D6.2, O2, Team |
 | FUN.10.1 | L'utente deve poter passare al giorno precedente o successivo con apposite frecce. | M | D6.1, Team |
 | FUN.10.2 | Le attività del giorno devono essere mostrate in un elenco a scorrimento verticale, in ordine di orario. | M | D6.1, Team |
@@ -567,7 +567,7 @@ Quando la guardia di un evento è falsa l'evento è scartato, lo stato non cambi
 | [Indietro]   Rossi Mario                          [Modifica] |
 | Via Roma 1 · Tel. 333 0000000 · P.IVA 00000000000            |
 +--------------------------------------------------------------+
-| Storico attività                      [Settimana] [Mese]     |
+| Storico attività                                             |
 |  09/10/2026  14:00  Cavi garage            parziale          |
 |  07/10/2026  08:30  Cancello               completata        |
 |  05/10/2026  --     Sopralluogo            annullata         |
