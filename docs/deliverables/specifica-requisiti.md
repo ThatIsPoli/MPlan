@@ -43,7 +43,7 @@ Corso di Ingegneria del Software, A.A. 2026/27
 
 ### 1.1 Scopo del documento
 
-Questo documento specifica i requisiti del software **MPlan**, in forma ispirata allo standard IEEE 830 (distinzione tra requisiti funzionali, di interfaccia, non funzionali e vincoli di progetto) e con il formato dei requisiti del documento di riferimento fornito dal docente (*Mechanical Lung Ventilator – Software Requirements Specification*). Si rivolge al team di sviluppo, al docente e al committente.
+Questo documento specifica i requisiti del software **MPlan**, in forma ispirata allo standard IEEE 830 (distinzione tra requisiti funzionali, di interfaccia, non funzionali e vincoli di progetto). Si rivolge al team di sviluppo, al docente e al committente.
 
 ### 1.2 Ambito del prodotto
 
@@ -92,7 +92,7 @@ Nel documento "committente" indica sempre l'azienda che commissiona il software,
 ### 1.4 Riferimenti
 
 - *Requisiti per il progetto di ingegneria del software, A.A. 2026/27*, v1.0.0 (A. Gargantini, S. Bonfanti).
-- S. Bonfanti, A. Gargantini, *Mechanical Lung Ventilator – Software Requirements Specification for ABZ 2024 case study*, v1.5, dicembre 2023 (documento di riferimento per il formato).
+- S. Bonfanti, A. Gargantini, libro di testo del corso di Ingegneria del Software.
 - IEEE Std 830-1998, *Recommended Practice for Software Requirements Specifications*, IEEE, 1998: <https://ieeexplore.ieee.org/document/720574>. Il testo completo è a pagamento; lo standard è stato sostituito da ISO/IEC/IEEE 29148:2011.
 - ISO/IEC 9126-1:2001, *Software engineering – Product quality – Part 1: Quality model*, e ISO/IEC TR 9126-4:2004, *Part 4: Quality in use metrics*. Sono stati sostituiti da ISO/IEC 25010, ma sono il modello di qualità usato nel corso e nel Project Plan (9.1).
 - Intervista di elicitazione del 08/10/2026: `intervista-01-domande-risposte.md`, `intervista-01-riassunto-esigenze-cliente.md`.
@@ -106,22 +106,9 @@ Nel documento "committente" indica sempre l'azienda che commissiona il software,
 - Le sezioni **6 e 7** riportano le priorità e ciò che è rimandato o escluso.
 - La **sezione 8** presenta i modelli di comportamento, la **9** la tracciabilità, la **10** la qualità, la **11** i punti aperti (tutti risolti) e la **12** la validazione.
 
-Il formato dei requisiti (identificatori, rationale e riferimento di origine, tabelle per tipo) segue il documento di riferimento del docente, mentre l'ordine delle sezioni è adattato al progetto. Le sezioni 2 (elicitazione) e 4 (casi d'uso) sono aggiunte rispetto allo standard IEEE 830, di cui il documento mantiene i contenuti:
+Il formato dei requisiti segue il documento di riferimento del docente. Le sezioni 2 (elicitazione) e 4 (casi d'uso) sono aggiunte rispetto allo standard IEEE 830, di cui il documento mantiene i contenuti.
 
-| Parte di IEEE 830 | Dove in questo documento |
-|---|---|
-| Introduzione (scopo, ambito, definizioni, riferimenti, panoramica) | 1.1–1.5 |
-| Descrizione generale (prospettiva, funzioni, utenti, vincoli, assunzioni, ripartizione dei requisiti) | 3.1–3.6 |
-| Requisiti specifici – interfacce esterne | 5.3 (GUI); nessuna interfaccia hardware, software o di comunicazione verso altri sistemi nella v1 (NFR.6) |
-| Requisiti specifici – funzioni | 5.1 (FUN) e sezione 4 |
-| Requisiti specifici – prestazioni (efficienza) | 5.4 (NFR.3) |
-| Requisiti specifici – dati | 5.2 (DAT) |
-| Requisiti specifici – vincoli di progetto | 5.5 (VIN) |
-| Requisiti specifici – attributi del sistema (affidabilità, sicurezza, manutenibilità, portabilità) | 5.4 (NFR) e sezione 10 |
-| Organizzazione dei requisiti e priorità | sezione 5 (per tipo) e sezione 6 (MoSCoW) |
-| Tracciabilità e punti aperti | sezioni 9 e 11 |
-
-Come richiesto dallo standard, i requisiti sono identificati in modo univoco, classificati per importanza (sezione 6) e per stabilità (simboli † e ‡), tracciabili (sezione 9) e, dove possibile, verificabili (sezioni 10 e 12).
+Come richiesto dallo standard, i requisiti sono identificati in modo univoco, classificati per importanza (sezione 6) e per stabilità (simboli ! e @), tracciabili (sezione 9) e, dove possibile, verificabili (sezioni 10 e 12).
 
 ### 1.6 Convenzioni
 
@@ -140,7 +127,6 @@ Come richiesto dallo standard, i requisiti sono identificati in modo univoco, cl
 | VIN | Vincoli di progetto e di processo |
 | FUT | Requisiti futuri, non nella v1 |
 
-I codici sono una convenzione di questo progetto. FUN e GUI derivano da quelli del documento di riferimento; DAT corrisponde ai suoi requisiti su valori e intervalli (PER); NFR, VIN e FUT sono propri di questo progetto. Non servono i codici per allarmi, controller e sicurezza (AL, CONT, SAV) né per le interfacce tra componenti (INT), che sono scelte di design.
 
 **Colonne delle tabelle.** Ogni riga ha: ID, requisito con eventuale *rationale*, priorità MoSCoW (**M**ust, **S**hould, **C**ould, **W**on't) e fonte. La tabella dei dati (5.2) ha in più la colonna *Valori ammessi / predefinito*. Il rationale è indicato solo dove la motivazione non è ovvia, come nel documento di riferimento.
 
@@ -157,8 +143,8 @@ I codici sono una convenzione di questo progetto. FUN e GUI derivano da quelli d
 
 **Affidabilità della fonte.**
 
-- † = la risposta dell'intervista è segnata *PARZIALE* (da confermare).
-- ‡ = proposta o scelta del team non ancora confermata dal committente: può essere una risposta segnata *PROPOSTA* (esempio: `D8.3‡`) oppure una scelta senza domanda d'origine (esempio: `Team‡`, `Impl.‡`).
+- ! = la risposta dell'intervista è segnata *PARZIALE* (da confermare).
+- @ = proposta o scelta del team non ancora confermata dal committente: può essere una risposta segnata *PROPOSTA* (esempio: `D8.3@`) oppure una scelta senza domanda d'origine (esempio: `Team@`, `Impl.@`).
 - Nessun simbolo = risposta chiara del committente, vincolo del regolamento o decisione del team che non richiede conferma.
 
 I simboli indicano anche i requisiti meno stabili, cioè quelli che hanno più probabilità di cambiare.
@@ -166,8 +152,6 @@ I simboli indicano anche i requisiti meno stabili, cioè quelli che hanno più p
 **Rimandi in avanti.** Le sezioni 1–4 citano requisiti, assunzioni e figure definiti più avanti. Questi identificatori sono solo rimandi: il testo che li cita usa i termini del glossario (1.3) e dice in parole ciò che serve, così che si possa leggere senza conoscere il requisito citato. Quando un rimando porta a un'altra sezione ne riporta il numero.
 
 ### 1.7 Gestione dei requisiti
-
-Ogni requisito attraversa quattro stati: *proposto*, *validato* (confermato dal committente, sezione 12), *implementato* e *verificato* (test superato, sezione 9.4). Lo stato non è scritto in questo documento ma è tracciato nelle issue di GitHub, ad esempio con un'etichetta per stato.
 
 Regole di modifica:
 
@@ -194,7 +178,7 @@ I requisiti sono stati raccolti con un'**intervista strutturata** al committente
 ### 2.3 Limiti e come sono stati gestiti
 
 - Per alcune parti dell'intervista le informazioni disponibili sono incomplete; sono state integrate con gli appunti del team.
-- Ogni risposta ha uno stato: **EMERSO**, **PARZIALE**, **PROPOSTA** o **NON EMERSO**. Nei requisiti i simboli † e ‡ ne segnalano le conseguenze (vedi 1.6).
+- Ogni risposta ha uno stato: **EMERSO**, **PARZIALE**, **PROPOSTA** o **NON EMERSO**. Nei requisiti i simboli ! e @ ne segnalano le conseguenze (vedi 1.6).
 - Durante l'intervista alcune richieste sono **cambiate**: il calendario è stato chiesto, poi giudicato non indispensabile, poi di nuovo richiesto. Nella specifica vale l'ultima versione, con le scelte del team descritte in 2.4.
 - Alcuni temi **non sono emersi** (costi, magazzino, giacenze, soglie): non diventano requisiti. Sono elencati nella sezione 7.
 
@@ -338,7 +322,7 @@ Gli scenari descrivono il flusso nominale di interazione per ciascun caso d'uso 
 
 ## 5. Requisiti specifici
 
-Legenda: priorità **M**/**S**/**C**/**W** = Must/Should/Could/Won't; † fonte parziale, ‡ proposta o scelta del team non confermata (vedi 1.6).
+Legenda: priorità **M**/**S**/**C**/**W** = Must/Should/Could/Won't; ! fonte parziale, @ proposta o scelta del team non confermata (vedi 1.6).
 
 ### 5.1 Requisiti funzionali (FUN)
 
@@ -386,7 +370,7 @@ Coprono la rubrica, le attività, i materiali, lo storico, l'agenda giornaliera,
 
 ### 5.2 Requisiti sui dati (DAT)
 
-Definiscono attributi, formati e valori ammessi, come i requisiti *PER* (valori e intervalli) del documento di riferimento. Dove un campo è indicato come obbligatorio o facoltativo, e per le lunghezze massime e i valori predefiniti, la scelta è un'assunzione del team (`Impl.`).
+Definiscono attributi, formati e valori ammessi. Dove un campo è indicato come obbligatorio o facoltativo e per le lunghezze massime e i valori predefiniti, la scelta è un'assunzione del team (`Impl.`).
 
 | ID | Requisito / Rationale | Valori ammessi / predefinito | Pri. | Fonte |
 |---|---|---|---|---|
@@ -484,7 +468,7 @@ Per classificare i requisiti si usa **MoSCoW** (Must, Should, Could, Won't). Il 
 | **C** – Could | Utile ma non fondamentale, oppure idea la cui utilità per il committente è ancora incerta |
 | **W** – Won't | Non nella v1: rimandato (sezione 7.1) o escluso (sezione 7.2) |
 
-La priorità e l'affidabilità della fonte sono indipendenti. Un requisito Must può avere un dettaglio ancora da confermare: in quel caso la fonte porta † o ‡ (vedi 1.6). Nel testo dei requisiti il verbo segue la priorità: *deve* per i Must, *dovrebbe* per i Should, *potrebbe* per i Could.
+La priorità e l'affidabilità della fonte sono indipendenti. Un requisito Must può avere un dettaglio ancora da confermare: in quel caso la fonte porta ! o @ (vedi 1.6). Nel testo dei requisiti il verbo segue la priorità: *deve* per i Must, *dovrebbe* per i Should, *potrebbe* per i Could.
 
 ### 6.3 Riepilogo
 
