@@ -219,7 +219,7 @@ Le Pull Request vengono sottoposte a revisione da parte dell'altro componente de
 
 **Impatto:** progettazione e sviluppo basati su assunzioni errate, con conseguente necessità di modifiche pesanti del codice e del design.
 
-**Mitigazione:** risoluzione e chiarimento dei punti aperti entro l'apertura della milestone M3 – Sviluppo del codice.
+**Mitigazione:** risoluzione e chiarimento dei punti aperti entro l'apertura della milestone M3 – Sviluppo del codice. **Esito:** rischio mitigato; tutti i punti aperti sono stati risolti (sezione 11 del Documento 3) e la revisione dei requisiti con il committente ha avuto esito positivo il 12/11/2026 (registro della validazione, 12.3 del Documento 3).
 
 ### 6.4 Mancanza di familiarità con i framework
 

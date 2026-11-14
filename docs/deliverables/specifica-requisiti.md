@@ -14,6 +14,7 @@ Corso di Ingegneria del Software, A.A. 2026/27
 | 0.3.2 | 24/10/2026 | Qualità del software allineate a ISO/IEC 9126 |
 | 0.3.3 | 05/11/2026 | Macchine a stati complete (8.1 e 8.2) |
 | 0.4.0 | 12/11/2026 | Storico del contatto come elenco cronologico in stile chat (FUN.9, FUN.9.1, FUN.9.2, GUI.4.3); eliminato il requisito sul filtro dello storico per mese o giorno, con rinumerazione dei figli di FUN.9; calendario generale realizzato come agenda giornaliera che si apre sul giorno corrente (FUN.10.4) e permette di andare a una data indicando giorno, mese e anno (FUN.11, GUI.7.3); correzioni di ambiguità, contraddizioni e rimandi in avanti |
+| 0.4.1 | 14/11/2026 | Rimossi i simboli di affidabilità della fonte (! e @), non più usati: tutti i punti aperti sono stati confermati dal committente |
 
 ---
 
@@ -108,7 +109,7 @@ Nel documento "committente" indica sempre l'azienda che commissiona il software,
 
 Il formato dei requisiti segue il documento di riferimento del docente. Le sezioni 2 (elicitazione) e 4 (casi d'uso) sono aggiunte rispetto allo standard IEEE 830, di cui il documento mantiene i contenuti.
 
-Come richiesto dallo standard, i requisiti sono identificati in modo univoco, classificati per importanza (sezione 6) e per stabilità (simboli ! e @), tracciabili (sezione 9) e, dove possibile, verificabili (sezioni 10 e 12).
+Come richiesto dallo standard, i requisiti sono identificati in modo univoco, classificati per importanza (sezione 6), tracciabili (sezione 9) e, dove possibile, verificabili (sezioni 10 e 12).
 
 ### 1.6 Convenzioni
 
@@ -141,14 +142,6 @@ Come richiesto dallo standard, i requisiti sono identificati in modo univoco, cl
 | `Impl.` | Requisito implicito, necessario per rendere coerenti quelli emersi |
 | `FUN.x`, … | Requisito che la riga realizza (nelle tabelle GUI, dopo il punto e virgola) |
 
-**Affidabilità della fonte.**
-
-- ! = la risposta dell'intervista è segnata *PARZIALE* (da confermare).
-- @ = proposta o scelta del team non ancora confermata dal committente: può essere una risposta segnata *PROPOSTA* (esempio: `D8.3@`) oppure una scelta senza domanda d'origine (esempio: `Team@`, `Impl.@`).
-- Nessun simbolo = risposta chiara del committente, vincolo del regolamento o decisione del team che non richiede conferma.
-
-I simboli indicano anche i requisiti meno stabili, cioè quelli che hanno più probabilità di cambiare.
-
 **Rimandi in avanti.** Le sezioni 1–4 citano requisiti, assunzioni e figure definiti più avanti. Questi identificatori sono solo rimandi: il testo che li cita usa i termini del glossario (1.3) e dice in parole ciò che serve, così che si possa leggere senza conoscere il requisito citato. Quando un rimando porta a un'altra sezione ne riporta il numero.
 
 ### 1.7 Gestione dei requisiti
@@ -178,7 +171,7 @@ I requisiti sono stati raccolti con un'**intervista strutturata** al committente
 ### 2.3 Limiti e come sono stati gestiti
 
 - Per alcune parti dell'intervista le informazioni disponibili sono incomplete; sono state integrate con gli appunti del team.
-- Ogni risposta ha uno stato: **EMERSO**, **PARZIALE**, **PROPOSTA** o **NON EMERSO**. Nei requisiti i simboli ! e @ ne segnalano le conseguenze (vedi 1.6).
+- Ogni risposta ha uno stato: **EMERSO**, **PARZIALE**, **PROPOSTA** o **NON EMERSO**. Le risposte inizialmente parziali o proposte dal team sono state poi confermate con il committente (sezione 11).
 - Durante l'intervista alcune richieste sono **cambiate**: il calendario è stato chiesto, poi giudicato non indispensabile, poi di nuovo richiesto. Nella specifica vale l'ultima versione, con le scelte del team descritte in 2.4.
 - Alcuni temi **non sono emersi** (costi, magazzino, giacenze, soglie): non diventano requisiti. Sono elencati nella sezione 7.
 
@@ -322,7 +315,7 @@ Gli scenari descrivono il flusso nominale di interazione per ciascun caso d'uso 
 
 ## 5. Requisiti specifici
 
-Legenda: priorità **M**/**S**/**C**/**W** = Must/Should/Could/Won't; ! fonte parziale, @ proposta o scelta del team non confermata (vedi 1.6).
+Legenda: priorità **M**/**S**/**C**/**W** = Must/Should/Could/Won't.
 
 ### 5.1 Requisiti funzionali (FUN)
 
@@ -468,7 +461,7 @@ Per classificare i requisiti si usa **MoSCoW** (Must, Should, Could, Won't). Il 
 | **C** – Could | Utile ma non fondamentale, oppure idea la cui utilità per il committente è ancora incerta |
 | **W** – Won't | Non nella v1: rimandato (sezione 7.1) o escluso (sezione 7.2) |
 
-La priorità e l'affidabilità della fonte sono indipendenti. Un requisito Must può avere un dettaglio ancora da confermare: in quel caso la fonte porta ! o @ (vedi 1.6). Nel testo dei requisiti il verbo segue la priorità: *deve* per i Must, *dovrebbe* per i Should, *potrebbe* per i Could.
+Nel testo dei requisiti il verbo segue la priorità: *deve* per i Must, *dovrebbe* per i Should, *potrebbe* per i Could.
 
 ### 6.3 Riepilogo
 

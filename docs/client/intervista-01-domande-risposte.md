@@ -3,7 +3,7 @@
 **Progetto:** MPlan
 **Registrazione dell'intervista:** 08/10/2026 (audio di circa 45 minuti)
 **Partecipanti:** il cliente (C) e due sviluppatori (S1, S2)
-**Stato del documento:** bozza da validare con il cliente e con il team
+**Stato del documento:** validato con il cliente e con il team (12/11/2026)
 
 ---
 

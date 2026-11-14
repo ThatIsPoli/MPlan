@@ -247,21 +247,9 @@ Il regolamento chiede di applicarne un paio. Quelli che nascono dal progetto sen
 - **Eliminazione di contatti e attività**: non prevista dalla specifica.
 - **Evoluzioni** (cellulare, più dispositivi): nessuna classe; basta che `service` resti indipendente da `ui` (NFR.5).
 
-## 10. Da decidere nel diagramma delle classi
+## 10. Requisiti → classi
 
-1. Nome del package radice e del progetto Eclipse.
-2. Toolkit grafico.
-3. Se i servizi diventano interfacce.
-4. `Attivita` con riferimento al `Contatto` oppure con il solo id.
-5. Se la validazione resta in classi a parte o entra nei servizi.
-6. Schema delle tabelle e indici (NFR.3).
-7. Quali pattern dichiarare nel Documento 4.
-
----
-
-## 11. Requisiti → classi
-
-| Requisiti | Classi |s
+| Requisiti | Classi |
 |---|---|
 | FUN.1, FUN.1.1, FUN.1.2, FUN.1.3, FUN.2; DAT.1, DAT.1.1, DAT.1.2, DAT.1.3, DAT.1.4, DAT.1.5, DAT.1.6; GUI.3, GUI.3.1 | `Contatto`, `ContattoService`, `ValidatoreContatto`, `SchermataFormContatto` |
 | FUN.1.4, DAT.1.7 | `TipoContatto` |
