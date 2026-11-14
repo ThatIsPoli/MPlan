@@ -14,6 +14,7 @@ Corso di Ingegneria del Software, A.A. 2026/27
 | 0.3.2 | 06/11/2026 | Sezione 2: ritorno a cinque moduli Maven; database SQLite con accesso ai dati tramite jOOQ al posto di H2 con JDBC |
 | 0.3.3 | 08/11/2026 | Sezione 2: schema SQL unico per generazione jOOQ e creazione al primo avvio; tipo dei componenti per modulo; architettura interna degli strati (2.5.1); corretto refuso in 2.3 |
 | 0.3.4 | 12/11/2026 | Allineamento alla specifica dei requisiti 0.4.0 (storico senza filtro per periodo, agenda con scelta della data); Q5, Q6 e 2.6 corretti da H2 a SQLite; aggiornati gli appunti delle sezioni 1 e 3 |
+| 0.3.5 | 14/11/2026 | Sezione 2: generazione degli identificativi e record `VoceAgenda` per l'agenda (D3); validatore come interfaccia, controllo del contatto di un'attività ed eccezioni per le operazioni non ammesse (D4); aggiornate la vista a moduli e la tracciabilità |
 
 > **Stato:** bozza. È compilata solo la sezione 2 (architettura). Le sezioni 1 e 3 sono **[DA COMPLETARE]** e contengono solo appunti non definitivi, emersi durante la stesura dell'architettura, come base di partenza.
 
@@ -91,19 +92,19 @@ Le qualità seguono ISO/IEC 9126 e sono elencate in ordine di priorità. Secondo
 | Elemento | Descrizione |
 |---|---|
 | Problema | Impedire che la GUI modifichi lo stato di contatti e attività aggirando le regole (FUN.6.2, FUN.6.3, FUN.12.2) |
-| Decisione | Il core restituisce alla GUI entità di dominio **immutabili** (`Contatto`, `Attivita`), definite in `mplan-api`. Ogni cambiamento passa da un metodo del servizio. La GUI invia ciò che l'utente ha scritto in oggetti di input separati (`DatiContatto`, `DatiAttivita`), che possono contenere valori non validi. Come salvaguardia estrema, il costruttore di un'entità lancia una `ValidazioneException` (non controllata) se i dati violano le regole |
+| Decisione | Il core restituisce alla GUI entità di dominio **immutabili** (`Contatto`, `Attivita`), definite in `mplan-api`. Ogni cambiamento passa da un metodo del servizio. La GUI invia ciò che l'utente ha scritto in oggetti di input separati (`DatiContatto`, `DatiAttivita`), che possono contenere valori non validi. Come salvaguardia estrema, il costruttore di un'entità lancia una `ValidazioneException` (non controllata) se i dati violano le regole. Per l'agenda il core restituisce un record immutabile `VoceAgenda`, con l'attività e il nome del contatto (GUI.7.1): la GUI non deve cercare il contatto di ogni attività |
 | Stato | Approvato |
 | Presupposti | Gli oggetti sono piccoli e la loro copia non pesa su NFR.3 |
 | Alternative | Entità modificabili con setter; DTO che duplicano le entità |
 | Motivazione | Un'entità non può esistere in uno stato non valido, mentre un modulo compilato male sì: per questo l'input è separato. Nel flusso normale la GUI chiama prima il metodo `valida()` del servizio (D4), quindi l'eccezione del costruttore non viene mai scatenata e protegge solo da errori di programmazione. Le transizioni di stato sono nel dominio (`StatoAttivita`), quindi nessun altro punto può aggirarle |
-| Implicazioni | Due o tre classi in più; gli identificativi sono assegnati dal core, quindi un'entità non esiste mai senza id |
+| Implicazioni | Due o tre classi in più; gli identificativi sono assegnati dal core, quindi un'entità non esiste mai senza id. Il servizio li genera con `UUID.randomUUID()` nel metodo `crea`: non serve un generatore iniettabile come il `Clock` (D9), perché nessuna regola dipende dal valore dell'id e nei test l'id si legge dall'entità restituita. L'unicità è garantita dalla chiave primaria della tabella, senza un controllo dei doppioni nel codice |
 
 **D4 – Validazione e gestione degli errori**
 
 | Elemento | Descrizione |
 |---|---|
 | Problema | Applicare DAT.5 in un solo punto e gestire i guasti della persistenza senza coinvolgere il core in JDBC (Q2, Q4) |
-| Decisione | La validazione vive solo nel core. L'interfaccia del servizio (in `mplan-api`) offre un metodo `valida()` che valida senza salvare e restituisce gli errori **per campo** (`ErroreValidazione`: campo e motivo); il salvataggio usa lo stesso validatore. I guasti della persistenza sono una eccezione non controllata (`PersistenzaException`) che incapsula ogni errore di accesso ai dati (ad esempio `SQLException`). `ErroreValidazione`, `ValidazioneException` e `PersistenzaException` sono definiti in `mplan-api`, perché la GUI deve poterli leggere e intercettare |
+| Decisione | La validazione vive solo nel core. L'interfaccia del servizio (in `mplan-api`) offre un metodo `valida()` che valida senza salvare e restituisce gli errori **per campo** (`ErroreValidazione`: campo e motivo); il salvataggio usa lo stesso validatore, che i servizi ricevono come interfaccia (`Validatore<T>`) e non come classe concreta. Il core controlla anche che il contatto di una nuova attività esista (DAT.2.6): la regola si verifica con i test di unità sui repository in memoria (D8), quindi non può affidarsi alla chiave esterna del database. Le operazioni che la GUI non offre (attività su un contatto inesistente, modifica o transizione non ammessa di un'attività, FUN.6.2, FUN.6.3) sono errori di programmazione: il servizio lancia `IllegalArgumentException` o `IllegalStateException`, eccezioni standard di Java. I guasti della persistenza sono una eccezione non controllata (`PersistenzaException`) che incapsula ogni errore di accesso ai dati (ad esempio `SQLException`). `ErroreValidazione`, `ValidazioneException` e `PersistenzaException` sono definiti in `mplan-api`, perché la GUI deve poterli leggere e intercettare |
 | Stato | Approvato |
 | Presupposti | I dati sono piccoli e la validazione è veloce |
 | Alternative | Validazione anche nella GUI; eccezioni controllate; codici di errore |
@@ -138,7 +139,7 @@ Le versioni sono fissate nei `pom.xml`.
 Punto di vista: **scomposizione e strati** (Tabella 11.3). Interessa a sviluppatori e manutentori.
 | Modulo Maven | Package radice | Contenuto | Tipo | Dipende da |
 |---|---|---|---|---|
-| `mplan-api` | `mplan.api` | Contratto pubblico: interfacce dei servizi, entità di dominio immutabili, oggetti di input, `ErroreValidazione`, `ValidazioneException`, `PersistenzaException` | gestore | nessun modulo |
+| `mplan-api` | `mplan.api` | Contratto pubblico: interfacce dei servizi, entità di dominio immutabili, `VoceAgenda`, oggetti di input, `ErroreValidazione`, `ValidazioneException`, `PersistenzaException` | gestore | nessun modulo |
 | `mplan-core` | `mplan.core` | Implementazione dei servizi, regole di dominio e validatore, interfacce dei repository e delle transazioni | computazionale | `mplan-api` |
 | `mplan-persistence` | `mplan.persistence` | Implementazione dei repository e delle transazioni con jOOQ e SQLite, `schema.sql` e creazione dello schema | memoria | `mplan-core`, `mplan-api` |
 | `mplan-ui-swing` | `mplan.ui` | Schermate Swing (GUI.1) e loro logica di presentazione | controllore | `mplan-api` |
@@ -193,8 +194,9 @@ Punto di vista: **distribuzione** (Tabella 11.5), con le risorse hardware.
 | NFR.2, FUN.15 | D4, D5, D6; Q4 |
 | NFR.3 | D6; Q5 |
 | NFR.4, NFR.6, NFR.7, VIN.3 | Vista di allocazione; SQLite |
-| DAT.5 | D4 |
+| DAT.5, DAT.2.6 | D4 |
 | FUN.6.2, FUN.6.3, FUN.12.2 | D3 |
+| GUI.7.1 | D3 |
 | VIN.1, VIN.2 | D2; vista a moduli |
 | VIN.4 | Librerie esterne |
 
