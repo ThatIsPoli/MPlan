@@ -212,3 +212,60 @@ Degli altri pattern visti a lezione:
 - `Contatto` e `DatiContatto` in api hanno solo `id` e `nome`: vanno aggiunti gli altri campi di DAT.1 nel diagramma di api.
 - Il diagramma `mplan-persistence` va affiancato a `mplan-core`, con le classi nel package `it` > `mpelettrica` > `mplan` > `persistence`. Le interfacce del package `repository` vanno trascinate dal Model Explorer e non ricreate.
 - Il modo in cui si generano gli id (nel diagramma sono `UUID`) non è ancora stato scelto.
+
+---
+
+## 13. Analisi critica e punti di miglioramento (review architetturale e di design)
+
+Questa sezione raccoglie una verifica dei principi di design (van Vliet, Cap. 11–12) e dei pattern applicati sul diagramma attuale di `mplan-core` (`docs/uml/mplan.mdj`), insieme ai problemi emersi e alle possibili soluzioni.
+
+### 13.1 Aspetti positivi già ben impostati
+
+- **Dipendenze acicliche tra package e stabilità (Cap. 12):** i tre package di `mplan-core` formano un grafo rigorosamente aciclico (`servizi` → `repository`, `dominio`, `api`; `repository` → `dominio`, `api`; `dominio` → `api`). Nessun package inferiore dipende da `servizi` e non ci sono *Factory* interne ai sottopackage che invertano le dipendenze: l'assemblaggio delle istanze concrete resta correttamente fuori dal core, in `mplan-app`.
+- **Alta coesione, basso accoppiamento e testabilità (Q1, D8, D9):** l'uso di costruttori espliciti con iniezione delle dipendenze (`Repository`, `GestoreTransazioni`, `Clock`) permette di provare il core con JUnit senza GUI e senza database su disco.
+- **Composizione/Delegazione e Legge di Demetra:** nessuna gerarchia di ereditarietà forzata; i servizi coordinano i casi d'uso delegando regole di stato, ordinamenti e persistenza ai rispettivi collaboratori diretti.
+- **Pattern Observer (`AttivitaServiceImpl` → `OsservatoreAttivita` ← `RegistroModifiche`):** scelta molto pulita per il principio di singola responsabilità (SRP). `AttivitaServiceImpl` non conosce `RegistroRepository` né `VoceRegistro`, e rimane aperto a future estensioni (es. notifica serale `FUN.14`) senza modificare il servizio.
+- **Assenza di antipattern gravi:** *Blob / God Class* evitato (anche grazie alla separazione dei tre servizi e di `RegistroModifiche`), *Swiss Army Knife* evitato (interfacce mirate per ruolo), *Singleton* giustamente non usato nel core (avrebbe impedito l'isolamento nei test).
+
+---
+
+### 13.2 Problemi individuati e soluzioni proposte
+
+#### 1. Servizi accoppiati alle classi concrete di validazione invece che a `Validatore<T>`
+- **Cosa succede oggi (`mplan.mdj`):** in `core.dominio` è definita l'interfaccia generica `Validatore<T>`, ma in `core.servizi`:
+  - `ContattoServiceImpl` dichiara l'associazione `-validatore` e il parametro del costruttore con tipo concreto `ValidatoreContatto`;
+  - `AttivitaServiceImpl` dichiara l'associazione `-validatore` e il parametro del costruttore con tipo concreto `ValidatoreAttivita`.
+- **Perché è un problema:** nessun chiamante usa l'interfaccia `Validatore<T>`. Dal punto di vista del design (Cap. 12 e slide sui pattern), un'interfaccia che non viene referenziata da nessun cliente perde la sua utilità polimorfica e rischia di apparire aggiunta solo per soddisfare formalmente il vincolo `VIN.1` (lieve rischio di *Golden Hammer* / astrazione superflua). Inoltre, impedisce di sostituire facilmente il validatore con uno stub nei test unitari dei servizi.
+- **Soluzione proposta:**
+  - Far puntare le associazioni `-validatore` e i parametri dei costruttori di `ContattoServiceImpl` e `AttivitaServiceImpl` alle interfacce **`Validatore<DatiContatto>`** e **`Validatore<DatiAttivita>`** invece che alle classi concrete.
+  - In questo modo `mplan-app` continua a passare `new ValidatoreContatto()` e `new ValidatoreAttivita()`, ma i servizi dipendono solo dall'astrazione (*Dependency Inversion* e *Information Hiding* rispettati).
+
+#### 2. Manca il controllo sull'esistenza del contatto in `AttivitaServiceImpl.crea` (`DAT.2.6`)
+- **Cosa succede oggi (`mplan.mdj`):** `AttivitaServiceImpl` ha un'associazione verso `AttivitaRepository`, `GestoreTransazioni`, `ValidatoreAttivita`, `Clock` e `OsservatoreAttivita`, ma **non ha alcun riferimento a `ContattoRepository`**.
+- **Perché è un problema:** il requisito **`DAT.2.6`** stabilisce che il contatto di un'attività deve essere un *"riferimento obbligatorio a un contatto esistente"*. Senza `ContattoRepository`:
+  - nei test unitari con repository finti in memoria (`D8`), `crea(idContatto, dati)` accetterebbe anche un `UUID` inesistente senza accorgersene;
+  - in produzione su SQLite, il controllo ricadrebbe sul vincolo di chiave esterna (`FOREIGN KEY`) del database, trasformando un errore di dominio/input in una `PersistenzaException` (errore tecnico di sistema invece di una violazione di regola applicativa).
+- **Soluzione proposta:**
+  - Aggiungere `ContattoRepository` tra i collaboratori (associazione navigabile + parametro nel costruttore) di `AttivitaServiceImpl`.
+  - All'interno di `crea(idContatto, dati)` (e dentro la transazione), verificare prima `contatti.trova(idContatto)`: se il contatto non esiste, interrompere con un errore di dominio/validazione esplicito prima di chiamare `attivita.aggiungi(...)`.
+
+#### 3. Nome del contatto nell'Agenda giornaliera (`GUI.7.1`)
+- **Cosa succede oggi (`mplan.mdj`):** `AgendaServiceImpl` dipende solo da `AttivitaRepository` e `Clock`, e il metodo `attivitaDelGiorno(giorno: LocalDate)` restituisce `List<Attivita>`. L'entità `Attivita` contiene `idContatto: UUID`, non il nome del contatto.
+- **Perché è un problema:** il requisito **`GUI.7.1`** (e la Figura 8.4 della specifica) richiede che ogni riga dell'agenda mostri **orario, contatto e titolo** (es. `08:30 Cancello - Rossi Mario`). Con la firma attuale, la GUI dovrebbe fare una chiamata separata a `ContattoService.trova(id)` per ciascuna attività del giorno (oppure caricare l'intera rubrica ogni volta), spostando logica di composizione nella presentazione e peggiorando le prestazioni. Il punto è già annotato come dubbio aperto anche in `design.md` (§3, riga 222).
+- **Soluzione proposta:**
+  - Introdurre in `mplan-api` un piccolo tipo di sola lettura per la vista agenda (es. `VoceAgenda` con `Attivita` + nome/denominazione del contatto, applicando il pattern *Read-Only Interface / Immutable* delle slide), oppure restituire direttamente un DTO dedicato da `AgendaService.attivitaDelGiorno`.
+  - Aggiungere `ContattoRepository` ad `AgendaServiceImpl`, così è il core (in un'unica operazione lato servizio) a risolvere i nomi dei contatti associati alle attività del giorno senza gravare sulla GUI.
+
+#### 4. Strategia di generazione degli `UUID` non ancora definita (testabilità `Q1`)
+- **Cosa succede oggi (`mplan.mdj`):** `Contatto` e `Attivita` richiedono un `id: UUID` già alla creazione (D3: *"un'entità non esiste mai senza id"*), mentre `DatiContatto` e `DatiAttivita` non contengono l'id e i costruttori di `ContattoServiceImpl` e `AttivitaServiceImpl` non ricevono alcun generatore di id.
+- **Perché è un problema:** se i servizi chiamassero direttamente `UUID.randomUUID()` al loro interno, gli identificativi generati non sarebbero deterministici durante i test di unità (`Q1`), rendendo più scomode le asserzioni sui risultati e sulle voci di registro salvate (problema analogo a quello risolto brillantemente con l'iniezione di `Clock` per le date in `D9`).
+- **Soluzione proposta:**
+  - Iniettare nel costruttore di `ContattoServiceImpl` e `AttivitaServiceImpl` un fornitore di identificativi (es. `Supplier<UUID>` o una piccola interfaccia funzionale `GeneratoreId`), esattamente come fatto con `Clock`.
+  - In produzione (`mplan-app`) si passa `UUID::randomUUID`; nei test JUnit si passa una sequenza deterministica e controllabile.
+
+#### 5. Completamento degli elementi pendenti in `mplan-api` collegati al core e alla persistenza
+- **Cosa manca oggi in `mplan.mdj` (sezione `api`):**
+  - `Contatto` e `DatiContatto` espongono solo `id` e `nome` (mancano `cognome`, `indirizzo`, lista di telefoni `DAT.1.4`, `codiceFiscale`, `partitaIva`, `tipo` privato/azienda di `DAT.1`).
+  - Manca la classe `PersistenzaException` in `mplan-api` (prevista da `design.md` D2 e D4 come eccezione non controllata che attraversa il core per essere intercettata nella GUI).
+  - Non sono ancora esplicitate le eccezioni di dominio/stato lanciate dai servizi quando un'operazione viola le guardie (es. `modifica` o `annulla` su attività già `ANNULLATA` secondo `FUN.6.2`/`FUN.6.3`, o contatto non trovato): conviene chiarire nel contratto di `mplan-api` quali eccezioni usa il core (`ValidazioneException`, `IllegalStateException` o un'eccezione dedicata di `api`) affinché la GUI possa gestirle in modo uniforme.
+- **Nota minore su `AgendaServiceImpl`:** la classe è molto sottile (delega a `AttivitaRepository.perGiorno` + `OrdinamentoAttivita.PER_AGENDA` e `LocalDate.now(clock)`). Non è un *Poltergeist* perché risponde a una chiara separazione di responsabilità rispetto ad `AttivitaService` (`UC6` vs `UC7`–`UC10`); adottando la soluzione 3 (risoluzione dei nomi contatto per l'agenda), acquisisce inoltre un ruolo di coordinamento ancora più netto.
