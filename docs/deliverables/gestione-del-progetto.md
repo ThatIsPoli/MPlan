@@ -12,6 +12,7 @@ Corso di Ingegneria del Software, A.A. 2026/27
 | 0.1.4 | 05/11/2026 | Sprint backlog aggiornato con gli sprint 3, 4, 5 e 6 |
 | 0.1.5 | 12/11/2026 | Sprint backlog dello sprint 6 definito; stato dello sprint 5 aggiornato |
 | 0.1.6 | 12/11/2026 | Sprint 6: controllo incrociato dei documenti completato da entrambi |
+| 0.1.7 | 14/11/2026 | Etichette delle issue allineate a quelle usate su GitHub; tolto il rimando agli stati dei requisiti |
 
 > **Stato:** bozza. I punti segnati **[DA COMPLETARE]** richiedono dati che il team deve ancora inserire.
 
@@ -116,7 +117,7 @@ Il repository è condiviso con il docente e con l'esercitatrice.
 
 ### 3.2 Flusso di lavoro
 
-1. **Issue.** Per ogni compito, o richiesta di modifica, si crea una issue con un'etichetta di tipo (`documento`, `codice` o `test`), collegata a una milestone. Una delle due persone ne è la responsabile; l'altra può lavorarci e dare consigli.
+1. **Issue.** Per ogni compito, o richiesta di modifica, si crea una issue con un'etichetta di tipo, collegata a una milestone. Le etichette usate su GitHub sono `documentation`, per documenti e diagrammi UML, e `implementation`, per il codice. Una delle due persone ne è la responsabile; l'altra può lavorarci e dare consigli.
 2. **Branch.** Si lavora sul branch della issue, il cui nome inizia con il numero della issue seguito da un nome breve (ad esempio `12-nome-del-branch`). Una persona può avere più issue, quindi più branch attivi contemporaneamente.
 3. **Commit.** Il lavoro è salvato con commit sul branch. Anche l'altro membro può aggiungerne, per piccole correzioni.
 4. **Pull request.** Quando il lavoro è finito si apre una pull request verso il ramo principale e si indica l'altro membro come reviewer.
@@ -137,9 +138,6 @@ sequenceDiagram
     R->>GH: merge su main
     GH-->>A: issue chiusa
 ```
-
-
-Lo stato di ciascun requisito (proposto, validato, implementato, verificato) è tracciato nelle issue, come previsto dalla specifica dei requisiti (sezione 1.7).
 
 Il ramo principale `main` è protetto: non si fa push diretto e ogni modifica entra con una pull request approvata dall'altro membro su un branch separato.
 
