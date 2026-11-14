@@ -1,108 +1,214 @@
 # Il modulo core di MPlan, spiegato semplice
 
-Questo documento spiega cosa c'è dentro `mplan-core`: quali classi e interfacce ci sono, chi implementa cosa e quali pezzi arrivano da altri moduli. Corrisponde ai tre class diagram della sezione `Mplan-class-diagram` del file StarUML.
+Questo documento spiega il class diagram `mplan-core` del file StarUML (`docs/uml/mplan.mdj`): cosa c'è dentro il core, come si legge il diagramma, perché ogni classe è fatta così e come il core si collega agli altri moduli. Le scelte sono quelle concordate nella PR #58 e nella issue #54.
 
-Le firme dei metodi di `mplan-api` sono provvisorie: vanno completate nel class diagram di api.
+Le firme dei metodi di `mplan-api` sono ancora provvisorie: vanno completate nel class diagram di api.
 
-## A cosa serve il core
+## 1. Dove sta il core
 
-Il core è la "testa" dell'applicazione. Non disegna schermate e non sa nulla di SQL o di SQLite. Decide solo cosa succede quando l'utente fa qualcosa, per esempio "crea un'attività per questo contatto".
+Il programma è diviso in cinque moduli Maven. Questa è l'unica architettura del progetto (design, sezione 2, D1 e D2).
 
-Il core è diviso in tre livelli. Ogni livello usa quello sotto, mai il contrario:
+```
+   mplan-ui-swing        schermate
+         │ usa solo
+         ▼
+     mplan-api           contratto: interfacce dei servizi, dati, errori
+         ▲
+         │ implementa
+     mplan-core          logica: servizi, regole, interfacce dei repository
+         ▲
+         │ implementa le interfacce dei repository
+   mplan-persistence     database SQLite con jOOQ
 
-- livello 3, `servizi`: i servizi che la GUI chiama
-- livello 2, `dominio`: i controlli sui dati inseriti
-- livello 1, `repository`: le richieste alla persistenza
+   mplan-app             crea tutti gli oggetti e li collega
+```
 
-Un po' di terminologia: una **interfaccia** è un contratto, cioè un elenco di operazioni senza codice. Una **classe** è il codice vero. Quando una classe "implementa" un'interfaccia, promette di avere tutte le operazioni dell'elenco e le scrive per davvero.
+| Modulo | Cosa fa |
+|---|---|
+| `mplan-api` | Dice cosa si può chiedere al programma: `ContattoService`, `AttivitaService`, `AgendaService`, i dati (`Contatto`, `Attivita`, `DatiAttivita`, ...) e gli errori |
+| `mplan-core` | Fa il lavoro: controlla i dati, applica le regole, decide cosa salvare |
+| `mplan-persistence` | Salva e legge dal database, implementando le interfacce del package `repository` del core |
+| `mplan-ui-swing` | Mostra le schermate e parla solo con le interfacce di api |
+| `mplan-app` | Avvia il programma: crea database, repository e servizi, li collega e apre la Home |
 
-## Livello 1: repository (`mplan.core.repository`)
+Il core non conosce né Swing né il database. Questo permette di provarlo con JUnit usando repository finti in memoria (D8).
 
-Qui ci sono solo tre interfacce. Dicono cosa serve al core dalla persistenza, ma non come lo si fa.
+## 2. Nomi dei package
 
-**ContattoRepository** serve a leggere e scrivere i contatti. Sa trovare un contatto per id, elencarli tutti, aggiungerne uno nuovo e aggiornarne uno esistente.
+Tutto il codice sta sotto `it.mpelettrica.mplan`. In Java i package iniziano con il dominio internet al contrario di chi possiede il software, per non scontrarsi con le librerie di altri. Il dominio è `mpelettrica.it`, il sito del committente. Lo stesso nome è già usato come `groupId` nei `pom.xml` e nel package di `MPlanApplication`, ed è stato confermato nella PR #58.
 
-**AttivitaRepository** serve a leggere e scrivere le attività. Sa trovare un'attività per id, trovare tutte quelle di un contatto, trovare quelle di un giorno, aggiungerne una e aggiornarne una. Non ha nessuna operazione per cancellare, perché le attività non si cancellano mai (requisito FUN.12.2): si possono solo annullare.
+Nel file StarUML questo si vede come una catena di package `it` > `mpelettrica` > `mplan`, con dentro `api` e `core`. Rebel genera le cartelle Java seguendo la stessa catena.
 
-**GestoreTransazioni** serve a eseguire più operazioni come un blocco unico. Se una va male, vengono annullate tutte e il database resta com'era. Il core lo usa senza sapere come funziona una transazione SQL.
+## 3. Tre package, non tre livelli
 
-Queste tre interfacce **non sono implementate nel core**. Le implementa il modulo `mplan-persistence`, usando jOOQ e SQLite. È la parte del tuo collega.
+Dentro `mplan-core` le classi sono divise in tre package:
 
-## Livello 2: dominio (`mplan.core.dominio`)
+| Package | Contiene | Può usare |
+|---|---|---|
+| `core.servizi` | le classi che la GUI chiama attraverso api | `dominio`, `repository`, api |
+| `core.dominio` | regole e controlli, senza database e senza GUI | solo api |
+| `core.repository` | le interfacce di cui il core ha bisogno per salvare e leggere | api e i tipi del registro |
 
-Qui ci sono due classi vere, non interfacce.
+Nessuno usa `servizi`, quindi non ci sono giri di dipendenze.
 
-**ValidatoreContatto** controlla i dati inseriti per un contatto. Riceve un `DatiContatto` e restituisce la lista degli errori trovati, uno per campo sbagliato. Se la lista è vuota i dati vanno bene.
+All'inizio questi pacchetti erano chiamati "livello 1, 2 e 3" e avevano un diagramma ciascuno. Nella review della PR #58 Michele ha fatto notare che così sembravano una seconda architettura, mentre sono solo un modo di ordinare le classi dentro un modulo: il compilatore controlla i confini tra moduli, non quelli tra package dello stesso modulo. Per questo adesso:
 
-**ValidatoreAttivita** fa lo stesso per le attività: riceve un `DatiAttivita` e restituisce la lista degli errori.
+- c'è un solo diagramma per modulo Maven (`mplan-core`, e poi `mplan-persistence`, ecc.);
+- i tre package sono disegnati come blocchi dentro lo stesso diagramma;
+- la descrizione dei package va nel design alla sezione 3 (Software Design), non tra le decisioni architetturali.
 
-I due validatori non salvano niente e non hanno campi propri. Sono solo un insieme di controlli. Per le regole si guardano DAT.5 e FUN.4.2 della specifica.
+## 4. Come leggere il diagramma
 
-## Livello 3: servizi (`mplan.core.servizi`)
+Il diagramma è a fasce, dall'alto verso il basso:
 
-Qui ci sono tre classi, e ognuna **implementa un'interfaccia che sta in `mplan-api`**. Sono le classi che la GUI usa, anche se la GUI le vede solo attraverso l'interfaccia.
+```
+api (grigio)       ContattoService  AttivitaService  AgendaService
+servizi            ContattoServiceImpl  AttivitaServiceImpl  AgendaServiceImpl     Clock (java.time)
+                   OsservatoreAttivita  RegistroModifiche
+repository         ContattoRepository  GestoreTransazioni  AttivitaRepository  RegistroRepository
+dominio            ValidatoreContatto  Validatore  ValidatoreAttivita  RegoleStatoAttivita
+                   OrdinamentoAttivita  VoceRegistro  TipoModifica
+api (grigio)       Contatto  DatiContatto  ErroreValidazione  DatiAttivita  StatoAttivita  Attivita
+```
 
-**ContattoServiceImpl** implementa `ContattoService`. Si occupa della rubrica: elenca i contatti, ne trova uno, ne crea uno nuovo, lo modifica, e controlla i dati prima di salvare. Per farlo usa `ContattoRepository` per leggere e scrivere, `GestoreTransazioni` per salvare in modo sicuro e `ValidatoreContatto` per i controlli.
+Gli elementi grigi non fanno parte del core: sono riferimenti ad altri moduli (api) o a Java (`Clock`). Mostrano solo il nome perché la loro descrizione completa sta nel diagramma del loro modulo.
 
-**AttivitaServiceImpl** implementa `AttivitaService`. Si occupa delle attività di un contatto: le crea, le modifica, le segna come parziali o completate, le annulla indicando il motivo, e restituisce lo storico del contatto già ordinato come una chat, dalla più vecchia alla più recente (FUN.9, FUN.9.2). Usa `AttivitaRepository`, `GestoreTransazioni`, `ValidatoreAttivita` e anche `Clock`.
+Il package `api` è disegnato due volte. Sopra ci sono le interfacce dei servizi, ognuna sopra la classe che la implementa. Sotto ci sono i tipi usati da repository e dominio, ognuno sotto la classe che lo usa. In questo modo le frecce restano corte e non attraversano tutto il diagramma. UML permette di mostrare lo stesso package più volte nello stesso diagramma.
 
-**AgendaServiceImpl** implementa `AgendaService`. Dà le attività di un giorno qualsiasi, ordinate per orario con quelle senza orario in cima (FUN.10.2, FUN.10.3): la GUI la chiama sia con le frecce sia quando l'utente sceglie una data (FUN.11). Usa `AttivitaRepository` e `Clock`, che dice qual è il giorno corrente su cui si apre l'agenda (FUN.10.4).
+## 5. Le frecce
 
-Queste tre classi non creano da sole i loro collaboratori. Li ricevono già pronti quando vengono costruite, e a costruirle è il modulo `mplan-app`. Questo permette di sostituire i pezzi, per esempio con dei finti nei test.
+| Disegno | Nome | Significato | Esempio | In Java |
+|---|---|---|---|---|
+| tratteggiata con triangolo vuoto | realizzazione | implementa un'interfaccia | `AttivitaServiceImpl` verso `AttivitaService` | `implements` |
+| tratteggiata con punta aperta | dipendenza | usa quel tipo in un metodo (parametro, risultato o variabile locale), ma non lo tiene come campo | `AttivitaRepository` verso `Attivita` | un `import` e l'uso dentro i metodi |
+| continua con punta aperta da un lato e X dall'altro | associazione navigabile | ha un campo di quel tipo | `ContattoServiceImpl` verso `ContattoRepository` | `private final ContattoRepository contatti;` |
+| continua con triangolo vuoto | generalizzazione | estende una classe | non c'è nel core | `extends` |
 
-## Chi implementa cosa, in breve
+Come si legge un'associazione, per esempio `ContattoServiceImpl  X──── -contatti 1 ───>  ContattoRepository`:
 
-Le interfacce di api sono implementate dal core: `ContattoService` da `ContattoServiceImpl`, `AttivitaService` da `AttivitaServiceImpl`, `AgendaService` da `AgendaServiceImpl`.
+- la punta della freccia vuol dire che `ContattoServiceImpl` può usare `ContattoRepository`;
+- la X dal lato di `ContattoServiceImpl` vuol dire che il repository non sa chi lo usa;
+- `-contatti` è il nome del campo (il meno vuol dire privato). Il nome del ruolo si scrive vicino alla classe che quel ruolo indica, cioè dal lato della punta, come nelle slide del corso (esempio `Student` e `Professor` con il ruolo `+lecturer`): il campo però appartiene alla classe dal lato della X;
+- `1` dal lato del repository: il servizio ne ha esattamente uno;
+- `*` dal lato del servizio: lo stesso repository può essere usato da più servizi;
+- `osservatori *` dal lato di `OsservatoreAttivita`: il servizio ha una lista di osservatori.
 
-Le interfacce del core (`ContattoRepository`, `AttivitaRepository`, `GestoreTransazioni`) sono implementate da `mplan-persistence`.
+Per questo molte classi non hanno attributi nel riquadro. Quando il tipo di un campo è una classe disegnata nel diagramma, il campo si mostra come associazione e non si ripete nel riquadro: è la forma che le slide indicano come preferibile. Rebel genera i campi proprio dalle associazioni. Le interfacce invece non possono avere campi, e i validatori e `RegoleStatoAttivita` non ne hanno bisogno.
 
-I validatori non implementano niente: sono classi normali.
+## 6. Notazioni particolari
 
-## Cosa il core prende da fuori
+**Sottolineato.** Un attributo o un'operazione sottolineati sono statici (slide "Variabile di classe e operazione di classe"): appartengono alla classe e si usano senza creare un oggetto, per esempio `RegoleStatoAttivita.puoPassareA(da, a)`. Nel core sono statici solo `puoPassareA`, `modificabile`, `PER_STORICO` e `PER_AGENDA`, perché sono regole fisse senza stato.
 
-Dal modulo `mplan-api` il core usa:
+**{readOnly}.** Il valore non si può cambiare. `PER_STORICO` e `PER_AGENDA` diventano costanti `public static final`.
 
-- le interfacce dei servizi: `ContattoService`, `AttivitaService`, `AgendaService`
-- le entità: `Contatto`, `Attivita`, `StatoAttivita` (le quattro condizioni: da fare, parziale, completata, annullata)
-- i dati in ingresso: `DatiContatto`, `DatiAttivita`
-- `ErroreValidazione`, che dice quale campo è sbagliato e perché
-- `PersistenzaException`, l'errore che i repository lanciano se la persistenza si guasta
+**Il rettangolino tratteggiato con la T.** È il parametro di tipo di una classe generica, come in `List<T>`. `Validatore<T>` vuol dire "valida dati di un tipo che sceglie chi lo implementa":
 
-Da Java il core usa `Clock` (pacchetto `java.time`), per sapere che giorno e che ora sono. Lo si riceve dall'esterno e non lo si chiede direttamente al sistema, così nei test si può "fermare l'orologio".
+```java
+interface Validatore<T> {
+    List<ErroreValidazione> valida(T dati);
+}
+class ValidatoreContatto implements Validatore<DatiContatto> { ... }   // T = DatiContatto
+class ValidatoreAttivita implements Validatore<DatiAttivita> { ... }   // T = DatiAttivita
+```
 
-Il core **non usa mai** `mplan-persistence`, `mplan-ui-swing` o `mplan-app`. Non sa nemmeno che esistono.
+Lo stesso vale per `inTransazione(operazione: Supplier<T>): T`, dove `T` è il tipo del risultato. In StarUML `T` è dichiarato come parametro template dell'operazione, altrimenti Rebel genererebbe una classe `T.java` inesistente.
 
-## Chi usa il core
+**Optional.** `trova(id)` restituisce `Optional<...>` perché l'id potrebbe non esistere: chi lo chiama deve gestire il caso "non trovato".
 
-`mplan-persistence` usa le tre interfacce del livello 1 per implementarle, e le entità di api per restituire i dati. È un caso particolare: la persistenza dipende sia dal core sia da api.
+## 7. Package `repository`
 
-`mplan-app` costruisce tutto: crea i repository di persistence, li passa ai servizi del core e poi passa i servizi alla GUI.
+Contiene solo interfacce. Dicono cosa serve al core per salvare e leggere, senza dire come. Le implementa `mplan-persistence` con SQLite e jOOQ (D6). Nel diagramma del core non si vedono le implementazioni perché stanno in un altro modulo.
 
-`mplan-ui-swing` non usa il core direttamente. Parla solo con le interfacce di api.
+**ContattoRepository**: `trova(id)`, `tutti()`, `aggiungi(contatto)`, `aggiorna(contatto)`. `aggiungi` serve per i contatti nuovi e `aggiorna` per quelli già salvati.
 
-## Cosa significano le frecce nei diagrammi
+**AttivitaRepository**: `trova(id)`, `perContatto(idContatto)` per lo storico, `perGiorno(giorno)` per l'agenda, `aggiungi(attivita)`, `aggiorna(attivita)`. Non c'è un metodo per cancellare: è così che il progetto garantisce che le attività non si eliminano mai (FUN.12.2). `perContatto` riceve solo l'id del contatto, perché con la specifica 0.4.0 lo storico non ha più il filtro per periodo. Un overload `trova(idContatto)` accanto a `trova(id)` non è possibile: tutti e due riceverebbero un solo `UUID` e avrebbero la stessa firma.
 
-Una **freccia tratteggiata con triangolo vuoto** vuol dire "implementa". Si trova nel livello 3, per esempio da `ContattoServiceImpl` a `ContattoService`.
+**RegistroRepository**: `aggiungi(voce)` aggiunge una voce al registro delle modifiche (FUN.13), che si scrive solo in coda. `trovaPerAttivita(idAttivita)` rilegge le voci di un'attività: nessuna schermata la usa, ma serve ai test per controllare che il registro venga davvero scritto.
 
-Una **freccia tratteggiata con punta aperta** si chiama dipendenza e vuol dire "usa questo tipo nei suoi metodi, come parametro o come risultato". Non è un campo della classe. Si trova nei livelli 1 e 2, per esempio da `ContattoRepository` a `Contatto`.
+**GestoreTransazioni**: esegue più operazioni come un blocco unico. Se una fallisce, si annullano tutte (D5). La versione con `Runnable` serve quando non c'è niente da restituire, quella con `Supplier<T>` quando serve un risultato:
 
-Una **freccia continua con una croce all'inizio e la punta aperta alla fine** si chiama associazione unidirezionale e vuol dire "ha questo oggetto come campo e lo può usare". La croce dice che l'altro oggetto non conosce chi lo usa. Si trova nel livello 3, per esempio da `AttivitaServiceImpl` a `AttivitaRepository`.
+```java
+Attivita a = transazioni.inTransazione(() -> {
+    attivita.aggiorna(nuova);
+    return nuova;
+});
+```
 
-I numeri sulle frecce continue sono le molteplicità. Il `1` dal lato del componente usato vuol dire che ogni servizio ne ha uno solo. L'asterisco dal lato del servizio vuol dire che lo stesso repository, la stessa `GestoreTransazioni` o lo stesso `Clock` possono essere condivisi da più servizi.
+## 8. Package `dominio`
 
-Gli elementi disegnati in grigio nei diagrammi non appartengono al core: sono riferimenti ad altri moduli (api e `java.time`).
+Qui stanno le regole che valgono sempre, senza database e senza GUI.
 
-## Esempio: l'utente crea un'attività
+**Validatore<T>** è l'interfaccia comune dei due validatori. È stata aggiunta perché i due controlli hanno la stessa forma e perché il regolamento chiede di usare interfacce e generics (VIN.1).
 
-1. La GUI chiama `AttivitaService.crea(idContatto, dati)`. Non sa che dietro c'è `AttivitaServiceImpl`.
-2. `AttivitaServiceImpl` chiede a `ValidatoreAttivita` di controllare i dati. Se ci sono errori, li restituisce alla GUI e si ferma.
-3. Se i dati vanno bene, apre una transazione con `GestoreTransazioni`.
-4. Dentro la transazione chiama `AttivitaRepository.aggiungi(...)`.
-5. Il repository vero, in `mplan-persistence`, scrive nel database SQLite. Il core non sa come.
-6. L'attività creata torna indietro fino alla GUI.
+**ValidatoreContatto** e **ValidatoreAttivita** controllano obbligatorietà, lunghezze e formati (DAT.1, DAT.2, DAT.5). Ricevono i dati scritti dall'utente e restituiscono la lista degli errori, uno per campo. Se la lista è vuota i dati vanno bene.
 
-## Cose ancora da decidere
+**RegoleStatoAttivita** contiene la macchina a stati delle attività (FUN.6.2, FUN.6.3, Figura 8.1 della specifica). `puoPassareA(COMPLETATA, ANNULLATA)` restituisce `false`, `modificabile(ANNULLATA)` restituisce `false`. Sta nel core e non in `StatoAttivita` di api: così api resta un contratto senza logica.
 
-- Le firme di `mplan-api` sono provvisorie e vanno completate nel suo class diagram.
-- I campi anagrafici di `Contatto` e `DatiContatto` sono da completare (DAT.1).
-- Come si generano gli id (nel diagramma sono `UUID`) non è ancora stato scelto.
+**OrdinamentoAttivita** contiene i due modi di ordinare le attività:
+
+- `PER_STORICO`: dalla più vecchia alla più recente come in una chat, e nello stesso giorno prima quelle senza orario (FUN.9, FUN.9.2);
+- `PER_AGENDA`: prima quelle senza orario, poi per orario (FUN.10.2, FUN.10.3).
+
+Si usano così: `lista.sort(OrdinamentoAttivita.PER_AGENDA)`. Il repository restituisce i dati senza ordinarli, così la regola sta in un posto solo.
+
+**VoceRegistro** è una riga del registro delle modifiche: quando, quale attività, che tipo di modifica, motivo. **TipoModifica** dice il tipo: `MODIFICA`, `CAMBIO_STATO`, `ANNULLAMENTO` (DAT.4). Stanno nel core perché la GUI non li usa.
+
+## 9. Package `servizi`
+
+Le tre classi `...ServiceImpl` implementano le interfacce di api. Non contengono regole: le chiedono a `dominio` e salvano tramite `repository`.
+
+Hanno un costruttore esplicito che riceve tutti i pezzi di cui hanno bisogno, per esempio `AttivitaServiceImpl(attivita, transazioni, validatore, clock)`. Il servizio non crea da solo i suoi collaboratori: glieli passa `mplan-app`. Nei test invece si passano un repository finto e un `Clock` fermo su una data, così il risultato è sempre lo stesso (D8, D9). Il costruttore esplicito serve anche a Rebel per generare i campi `private final`.
+
+**ContattoServiceImpl**: `elenca()`, `trova(id)`, `crea(dati)`, `modifica(id, dati)`, `valida(dati)`. Usa `ContattoRepository`, `GestoreTransazioni` e `ValidatoreContatto`.
+
+**AttivitaServiceImpl**:
+
+| Metodo | Parametri e scopo |
+|---|---|
+| `crea(idContatto, dati)` | `idContatto` è il contatto della scheda aperta, `dati` è ciò che l'utente ha scritto. Restituisce l'attività creata, con stato *da fare* |
+| `modifica(id, dati)` | Aggiorna i testi, per esempio la descrizione scritta dopo il lavoro |
+| `segnaParziale(id)`, `segnaCompletata(id)` | Basta l'id: lo stato di arrivo è già nel nome |
+| `annulla(id, motivo)` | Il motivo è obbligatorio (DAT.3.1). L'attività resta nello storico |
+| `storico(idContatto)` | Tutte le attività del contatto, già ordinate con `PER_STORICO` |
+| `valida(dati)` | La GUI la chiama prima di salvare per mostrare gli errori campo per campo (D4) |
+| `aggiungiOsservatore(osservatore)` | Registra chi deve essere avvisato dei cambiamenti (vedi il punto 10) |
+
+Usa `AttivitaRepository`, `GestoreTransazioni`, `ValidatoreAttivita`, `Clock` (per la data proposta, che è oggi), e chiede a `RegoleStatoAttivita` e `OrdinamentoAttivita`.
+
+**AgendaServiceImpl**: `attivitaDelGiorno(giorno)` restituisce le attività di tutti i contatti in quel giorno, ordinate con `PER_AGENDA`. La GUI la chiama con le frecce e con "Vai a...". `oggi()` dice qual è il giorno corrente, perché l'agenda si apre su oggi (FUN.10.4). Così la GUI non legge l'orologio del PC e tutto resta provabile con un `Clock` fermo.
+
+## 10. Il pattern Observer
+
+Il registro delle modifiche (FUN.13) è fatto con il pattern Observer:
+
+| Ruolo | Classe |
+|---|---|
+| soggetto | `AttivitaServiceImpl`: tiene la lista `osservatori` e li avvisa a ogni modifica, cambio di stato o annullamento |
+| osservatore (interfaccia) | `OsservatoreAttivita`: `attivitaModificata(attivita)`, `statoCambiato(attivita, precedente)`, `attivitaAnnullata(attivita, motivo)` |
+| osservatore concreto | `RegistroModifiche`: crea la `VoceRegistro` con l'ora presa dal `Clock` e la salva con `RegistroRepository.aggiungi` |
+
+`mplan-app` crea `RegistroModifiche` e lo registra con `aggiungiOsservatore`. La notifica avviene dentro la stessa transazione del salvataggio, quindi l'attività e la voce del registro si salvano insieme o non si salvano affatto.
+
+Perché questa scelta: il servizio non deve sapere come si scrive il registro, deve solo avvisare. È anche la risposta alla domanda di Michele sulla singola responsabilità: `AttivitaServiceImpl` coordina i passi di un caso d'uso, le regole stanno in `dominio`, il salvataggio nei repository e il registro in `RegistroModifiche`. Se in futuro servisse un altro effetto, per esempio la notifica serale di FUN.14, basterebbe aggiungere un altro osservatore senza toccare il servizio.
+
+Degli altri pattern visti a lezione:
+
+- **Singleton**: non serve nel core, perché i servizi ricevono i collaboratori dal costruttore per poterli sostituire nei test. Ha senso invece per il `Navigatore` della GUI, che è uno solo; comparirà nel diagramma di `mplan-ui-swing`;
+- **Abstraction-Occurrence**: servirebbe un'entità "lavoro" che raggruppa le attività di più giorni, ma la specifica sceglie apposta un'attività per giorno (FUN.7);
+- **General Hierarchy**: nel progetto non c'è nessuna struttura ad albero;
+- **Player-Role**: servirebbero ruoli separati per privato, azienda e cantiere, mentre la specifica vuole un solo contatto con un tipo facoltativo (FUN.1.3, DAT.1.7).
+
+## 11. Esempio completo: l'utente annulla un'attività
+
+1. La GUI chiama `attivitaService.annulla(id, "cliente assente")`. Vede solo l'interfaccia di api.
+2. `AttivitaServiceImpl` carica l'attività con `attivita.trova(id)`.
+3. Controlla `RegoleStatoAttivita.puoPassareA(statoAttuale, ANNULLATA)`. Se la risposta è no, si ferma con un errore.
+4. Dentro `transazioni.inTransazione(...)` salva l'attività con `attivita.aggiorna(...)` e avvisa gli osservatori con `attivitaAnnullata(attivita, motivo)`.
+5. `RegistroModifiche` crea una `VoceRegistro` di tipo `ANNULLAMENTO` e la salva con `registro.aggiungi(voce)`.
+6. Il repository vero, in `mplan-persistence`, scrive nel database. Il core non sa come.
+
+## 12. Cosa resta da fare
+
+- `Contatto` e `DatiContatto` in api hanno solo `id` e `nome`: vanno aggiunti gli altri campi di DAT.1 nel diagramma di api.
+- Il diagramma `mplan-persistence` va affiancato a `mplan-core`, con le classi nel package `it` > `mpelettrica` > `mplan` > `persistence`. Le interfacce del package `repository` vanno trascinate dal Model Explorer e non ricreate.
+- Il modo in cui si generano gli id (nel diagramma sono `UUID`) non è ancora stato scelto.

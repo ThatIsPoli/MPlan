@@ -57,7 +57,7 @@ Vuole un'applicazione semplice che gli permetta di riassumere il lavoro della gi
 
 ---
 
-## 5. Punti confermati o opzionali emersi dalle ripsoste iindicate con PARZIALE/PROPOSTO
+## 5. Punti confermati o opzionali emersi dalle risposte indicate con PARZIALE/PROPOSTA
 
 1. La gestione definitiva dei lavori "generali" (condomini, luoghi ricorrenti): il cliente propone la voce "Generale", mentre il team osserva che il luogo/cantiere può essere trattato come una voce della stessa lista.
 2. La gestione dello stato dell'attività (completata, parziale, annullata) è stata indicata dal cliente come **opzionale**.
