@@ -23355,7 +23355,9 @@
 																		"$ref": "AAAAAAGh09+MLt5P+Co="
 																	},
 																	"name": "quando",
-																	"type": "LocalDateTime"
+																	"visibility": "private",
+																	"type": "LocalDateTime",
+																	"isReadOnly": true
 																},
 																{
 																	"_type": "UMLAttribute",
@@ -23364,7 +23366,9 @@
 																		"$ref": "AAAAAAGh09+MLt5P+Co="
 																	},
 																	"name": "idAttivita",
-																	"type": "UUID"
+																	"visibility": "private",
+																	"type": "UUID",
+																	"isReadOnly": true
 																},
 																{
 																	"_type": "UMLAttribute",
@@ -23373,7 +23377,9 @@
 																		"$ref": "AAAAAAGh09+MLt5P+Co="
 																	},
 																	"name": "tipo",
-																	"type": "TipoModifica"
+																	"visibility": "private",
+																	"type": "TipoModifica",
+																	"isReadOnly": true
 																},
 																{
 																	"_type": "UMLAttribute",
@@ -23382,7 +23388,9 @@
 																		"$ref": "AAAAAAGh09+MLt5P+Co="
 																	},
 																	"name": "motivo",
-																	"type": "String"
+																	"visibility": "private",
+																	"type": "String",
+																	"isReadOnly": true
 																}
 															]
 														}

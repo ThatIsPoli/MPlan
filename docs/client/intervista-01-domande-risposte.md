@@ -44,7 +44,7 @@ Per non introdurre requisiti inventati ogni risposta ha uno stato:
 - **Stato:** EMERSO 
 
 **D2.3 – Serve distinguere i privati dalle aziende?**
-- **Risposta:** magari utilizzare un flag ma non è fondamentale
+- **Risposta:** magari utilizzare un flag ma non è fondamentale.
 - **Stato:** EMERSO 
 
 **D2.4 – Come gestire i lavori non legati a un singolo cliente (condomini, "generale")?**
@@ -76,7 +76,7 @@ Per non introdurre requisiti inventati ogni risposta ha uno stato:
 - **Stato:** EMERSO
 
 **D3.5 – Come si indica lo stato di avanzamento?**
-- **Risposta:** sono emersi i casi "fatto" e "fatto in parte", oltre ad "annullato" (vedi D7.1). Il cliente ha citato completata, parziale e annullata.Il cliente però l reputa come opzionale.
+- **Risposta:** sono emersi i casi "fatto" e "fatto in parte", oltre ad "annullato" (vedi D7.1). Il cliente ha citato completata, parziale e annullata. Il cliente però lo reputa come opzionale.
 - **Stato:** EMERSO
 
 **D3.6 – Come si gestiscono i lavori lunghi su più giorni?**
@@ -168,7 +168,7 @@ Per non introdurre requisiti inventati ogni risposta ha uno stato:
 - **Stato:** EMERSO (scelta del team)
 
 **D9.3 – Servono notifiche?**
-- **Risposta:** gli sviluppatori propongono una notifica a fine giornata per ricordare di compilare le note. Per il cliente è un'aspetto opzionale.
+- **Risposta:** gli sviluppatori propongono una notifica a fine giornata per ricordare di compilare le note. Per il cliente è un aspetto opzionale.
 - **Stato:** EMERSO 
 
 **D9.4 – Quali sono i requisiti di usabilità?**

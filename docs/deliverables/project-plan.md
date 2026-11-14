@@ -12,6 +12,7 @@
 | **0.2.1** | 24/10/2026 | Aggiunte le caratteristiche ISO/IEC 9126 mancanti negli obiettivi di qualità (9.1). |
 | **0.2.2** | 05/11/2026 | Allineamento con la specifica dei requisiti (9.1), rimosso il riferimento alle consegne in 1.2, correzione di refusi. |
 | **0.3.0** | 05/11/2026 | Aggiunta di log4j |
+| **0.3.1** | 14/11/2026 | Moduli Maven precisati nei risultati attesi (1.3); etichette delle issue rimandate al Documento 2 (2.3). |
 
 ---
 
@@ -47,7 +48,7 @@ MPlan nasce nel corso di Ingegneria del Software (A.A. 2026/27). Il committente,
 
 I principali risultati attesi sono:
 
-- Codice sorgente Java organizzato in un progetto Maven.
+- Codice sorgente Java organizzato in cinque moduli Maven, raccolti da un POM padre.
 - Database relazionale SQLite.
 - Interfaccia grafica locale per la dimostrazione delle funzionalità principali.
 - Release finale identificata dal tag Git `v1.0.0`.
@@ -81,7 +82,7 @@ Per la gestione operativa delle attività viene utilizzata una board Kanban su G
  
 ### 2.3 Milestone di progetto
 
-Le milestone sono su GitHub con relativa scadenza. Le consegne settimanali sono **issue** assegnate alla milestone, con le etichette `documento`, `codice`, `test` (tipo).
+Le milestone sono su GitHub con relativa scadenza. Le consegne settimanali sono **issue** assegnate alla milestone e classificate con un'etichetta di tipo (Documento 2, sezione 3.2).
 
 | Milestone | Inizio | Scadenza | Si considera raggiunta quando |
 | :--- | :--- | :--- | :--- |

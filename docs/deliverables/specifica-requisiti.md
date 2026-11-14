@@ -15,6 +15,7 @@ Corso di Ingegneria del Software, A.A. 2026/27
 | 0.3.3 | 05/11/2026 | Macchine a stati complete (8.1 e 8.2) |
 | 0.4.0 | 12/11/2026 | Storico del contatto come elenco cronologico in stile chat (FUN.9, FUN.9.1, FUN.9.2, GUI.4.3); eliminato il requisito sul filtro dello storico per mese o giorno, con rinumerazione dei figli di FUN.9; calendario generale realizzato come agenda giornaliera che si apre sul giorno corrente (FUN.10.4) e permette di andare a una data indicando giorno, mese e anno (FUN.11, GUI.7.3); correzioni di ambiguità, contraddizioni e rimandi in avanti |
 | 0.4.1 | 14/11/2026 | Rimossi i simboli di affidabilità della fonte (! e @), non più usati: tutti i punti aperti sono stati confermati dal committente |
+| 0.4.2 | 14/11/2026 | Corretto il riferimento al libro di testo (1.4); tolti i rimandi a un riferimento eliminato (1.5, 1.6, 5.3); spiegazione degli identificatori completata (1.6); sostituibilità aggiunta alla portabilità (10.1) |
 
 ---
 
@@ -93,7 +94,7 @@ Nel documento "committente" indica sempre l'azienda che commissiona il software,
 ### 1.4 Riferimenti
 
 - *Requisiti per il progetto di ingegneria del software, A.A. 2026/27*, v1.0.0 (A. Gargantini, S. Bonfanti).
-- S. Bonfanti, A. Gargantini, libro di testo del corso di Ingegneria del Software.
+- H. van Vliet, *Software Engineering: Principles and Practice*, 3ª ed., Wiley, 2008 (libro di testo del corso).
 - IEEE Std 830-1998, *Recommended Practice for Software Requirements Specifications*, IEEE, 1998: <https://ieeexplore.ieee.org/document/720574>. Il testo completo è a pagamento; lo standard è stato sostituito da ISO/IEC/IEEE 29148:2011.
 - ISO/IEC 9126-1:2001, *Software engineering – Product quality – Part 1: Quality model*, e ISO/IEC TR 9126-4:2004, *Part 4: Quality in use metrics*. Sono stati sostituiti da ISO/IEC 25010, ma sono il modello di qualità usato nel corso e nel Project Plan (9.1).
 - Intervista di elicitazione del 08/10/2026: `intervista-01-domande-risposte.md`, `intervista-01-riassunto-esigenze-cliente.md`.
@@ -107,13 +108,13 @@ Nel documento "committente" indica sempre l'azienda che commissiona il software,
 - Le sezioni **6 e 7** riportano le priorità e ciò che è rimandato o escluso.
 - La **sezione 8** presenta i modelli di comportamento, la **9** la tracciabilità, la **10** la qualità, la **11** i punti aperti (tutti risolti) e la **12** la validazione.
 
-Il formato dei requisiti segue il documento di riferimento del docente. Le sezioni 2 (elicitazione) e 4 (casi d'uso) sono aggiunte rispetto allo standard IEEE 830, di cui il documento mantiene i contenuti.
+Le sezioni 2 (elicitazione) e 4 (casi d'uso) sono aggiunte rispetto allo standard IEEE 830, di cui il documento mantiene i contenuti.
 
 Come richiesto dallo standard, i requisiti sono identificati in modo univoco, classificati per importanza (sezione 6), tracciabili (sezione 9) e, dove possibile, verificabili (sezioni 10 e 12).
 
 ### 1.6 Convenzioni
 
-**Numerazione dei requisiti.** Come nel documento di riferimento, l'ID ha la forma `XXX.n.y`:
+**Numerazione dei requisiti.** L'ID ha la forma `XXX.n.y`:
 
 - `XXX` è un codice di tre lettere che indica il tipo di requisito;
 - `n` è il numero del requisito;
@@ -128,8 +129,17 @@ Come richiesto dallo standard, i requisiti sono identificati in modo univoco, cl
 | VIN | Vincoli di progetto e di processo |
 | FUT | Requisiti futuri, non nella v1 |
 
+I codici sono una convenzione di questo progetto. Nel documento compaiono anche altri identificatori:
 
-**Colonne delle tabelle.** Ogni riga ha: ID, requisito con eventuale *rationale*, priorità MoSCoW (**M**ust, **S**hould, **C**ould, **W**on't) e fonte. La tabella dei dati (5.2) ha in più la colonna *Valori ammessi / predefinito*. Il rationale è indicato solo dove la motivazione non è ovvia, come nel documento di riferimento.
+| Identificatore | Indica | Dove è definito |
+|---|---|---|
+| `On` | Obiettivo del committente | 2.5 |
+| `An` | Assunzione | 3.5 |
+| `UCn` | Caso d'uso | 4 |
+| `Dx.y` | Domanda `y` della sezione `x` dell'intervista | `intervista-01-domande-risposte.md` |
+| `T-<ID>` | Test previsto per il requisito `<ID>` | 9.4 |
+
+**Colonne delle tabelle.** Ogni riga ha: ID, requisito con eventuale *rationale*, priorità MoSCoW (**M**ust, **S**hould, **C**ould, **W**on't) e fonte. La tabella dei dati (5.2) ha in più la colonna *Valori ammessi / predefinito*. Il rationale è indicato solo dove la motivazione non è ovvia.
 
 **Fonte.**
 
@@ -389,7 +399,7 @@ Definiscono attributi, formati e valori ammessi. Dove un campo è indicato come 
 
 ### 5.3 Requisiti della GUI (GUI)
 
-Le schermate e le transizioni sono illustrate nelle Figure 8.2, 8.3 e 8.4. Come nel documento di riferimento, la colonna *Fonte* indica anche i requisiti funzionali che la GUI realizza.
+Le schermate e le transizioni sono illustrate nelle Figure 8.2, 8.3 e 8.4. La colonna *Fonte* indica anche i requisiti funzionali che la GUI realizza.
 
 | ID | Requisito / Rationale | Pri. | Fonte |
 |---|---|---|---|
@@ -751,7 +761,7 @@ Le qualità seguono lo standard ISO/IEC 9126, come il Project Plan (9.1): le sei
 | **Usabilità** | Il committente vuole poche informazioni da compilare e nessuna complicazione (D9.4): il software deve essere facile da capire e da usare | NFR.1, FUN.4.2, GUI.5.1 | Prova d'uso: una persona del team crea un'attività (UC7), la aggiorna (UC8) e consulta l'agenda (UC6) senza assistenza |
 | **Efficienza** | Lo storico cresce per anni (comportamento nel tempo) | NFR.3 | Test: l'apertura di una scheda contatto richiede meno di 2 secondi con almeno 5000 attività salvate |
 | **Manutenibilità** | È prevista l'evoluzione a cellulare e più dispositivi (modificabilità) e il regolamento richiede test JUnit (testabilità) | NFR.5, VIN.5 | Ispezione: le funzioni su contatti, attività e agenda si eseguono da test automatici senza avviare la GUI; per ogni requisito Must funzionale esiste almeno un test JUnit e la copertura è riportata nel Documento 5 |
-| **Portabilità** | Funzionamento su Windows senza installare servizi esterni (installabilità) | NFR.4, NFR.6, VIN.3 | Prova: su un PC Windows con la sola Java installata l'applicazione si avvia e si eseguono UC2–UC10 senza connessione a Internet |
+| **Portabilità** | Funzionamento su Windows senza installare servizi esterni (installabilità) e possibilità di sostituire un componente, ad esempio il database, senza modificare il resto (sostituibilità) | NFR.4, NFR.5, NFR.6, VIN.3 | Prova: su un PC Windows con la sola Java installata l'applicazione si avvia e si eseguono UC2–UC10 senza connessione a Internet. Ispezione: la logica usa l'archivio dei dati solo tramite interfacce, quindi un'altra implementazione si collega senza cambiare la logica né la GUI |
 
 ### 10.2 Qualità in uso (ISO/IEC 9126-4)
 
