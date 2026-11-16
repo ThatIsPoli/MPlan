@@ -16,6 +16,7 @@ Corso di Ingegneria del Software, A.A. 2026/27
 | 0.4.0 | 12/11/2026 | Storico del contatto come elenco cronologico in stile chat (FUN.9, FUN.9.1, FUN.9.2, GUI.4.3); eliminato il requisito sul filtro dello storico per mese o giorno, con rinumerazione dei figli di FUN.9; calendario generale realizzato come agenda giornaliera che si apre sul giorno corrente (FUN.10.4) e permette di andare a una data indicando giorno, mese e anno (FUN.11, GUI.7.3); correzioni di ambiguità, contraddizioni e rimandi in avanti |
 | 0.4.1 | 14/11/2026 | Rimossi i simboli di affidabilità della fonte (! e @), non più usati: tutti i punti aperti sono stati confermati dal committente |
 | 0.4.2 | 14/11/2026 | Corretto il riferimento al libro di testo (1.4); tolti i rimandi a un riferimento eliminato (1.5, 1.6, 5.3); spiegazione degli identificatori completata (1.6); sostituibilità aggiunta alla portabilità (10.1) |
+| 0.4.3 | 16/11/2026 | Commit collegati all'ID tramite issue e branch (1.7); evento `modifica(dati)` al posto di `aggiorna(dati)` nella macchina a stati dell'attività, come il metodo del servizio (8.1) |
 
 ---
 
@@ -159,7 +160,7 @@ I codici sono una convenzione di questo progetto. Nel documento compaiono anche 
 Regole di modifica:
 
 1. una modifica a un requisito parte da una issue che ne cita l'ID;
-2. il messaggio di commit riporta lo stesso ID;
+2. i commit si fanno sul branch di quella issue, così su GitHub restano collegati al suo ID;
 3. un requisito eliminato viene tolto dal documento e i requisiti successivi dello stesso livello vengono rinumerati; i nuovi ID sono riportati in tutti i documenti che li citano;
 4. ogni modifica del documento è annotata nella tabella delle versioni.
 
@@ -532,11 +533,11 @@ I diagrammi di stato (8.1 e 8.2) sono realizzati con StarUML, salvati in `docs/u
 | Stato di origine | Evento [guardia] | Effetto | Stato di arrivo |
 |---|---|---|---|
 | (iniziale) | crea(dati) [titolo valido] | salva l'attività con stato *da fare* | Aperta (*da fare*) |
-| Aperta (*da fare*, *parziale*) | aggiorna(dati) [dati validi] | salva; registra la modifica | stato invariato |
+| Aperta (*da fare*, *parziale*) | modifica(dati) [dati validi] | salva; registra la modifica | stato invariato |
 | *Da fare* | segnaParziale | salva lo stato *parziale*; registra il cambio di stato | *Parziale* |
 | Aperta (*da fare*, *parziale*) | segnaCompletata | salva lo stato *completata*; registra il cambio di stato | *Completata* |
 | Aperta (*da fare*, *parziale*) | annulla(motivo) [motivo non vuoto e conferma] | salva lo stato *annullata* e il motivo; registra l'annullamento | *Annullata* |
-| *Completata* | aggiorna(dati) [dati validi] | salva; registra la modifica | *Completata* |
+| *Completata* | modifica(dati) [dati validi] | salva; registra la modifica | *Completata* |
 | *Annullata* | qualunque evento | nessuno: il servizio lo rifiuta (FUN.6.2) | *Annullata* (finale) |
 
 Quando la guardia di un evento è falsa l'evento è scartato, lo stato non cambia e l'interfaccia mostra l'errore: dati non validi (DAT.5) oppure motivo vuoto o annullamento non confermato (DAT.3.1). Le parole "registra" valgono solo se si realizza il registro delle modifiche (FUN.13, Should). Gli eventi non elencati non fanno cambiare stato e il servizio li rifiuta: un annullamento su un'attività *completata* o `segnaParziale` su una *parziale* (FUN.6.3). Le transizioni ammesse sono scritte nel testo di FUN.6.3.

@@ -6146,7 +6146,7 @@
 												"$ref": "AAAAAAGh096cwd3MVKM="
 											},
 											"edgePosition": 1,
-											"text": "aggiorna(dati) [validi] / salva"
+											"text": "modifica(dati) [validi] / salva"
 										},
 										{
 											"_type": "EdgeLabelView",
@@ -6562,7 +6562,7 @@
 											"_parent": {
 												"$ref": "AAAAAAGh099dMd424SU="
 											},
-											"name": "aggiorna(dati)",
+											"name": "modifica(dati)",
 											"kind": "signal"
 										}
 									],
