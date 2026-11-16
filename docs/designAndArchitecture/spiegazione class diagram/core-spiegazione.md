@@ -29,7 +29,7 @@ Il programma è diviso in cinque moduli Maven. Questa è l'unica architettura de
 | `mplan-core` | Fa il lavoro: controlla i dati, applica le regole, decide cosa salvare |
 | `mplan-persistence` | Salva e legge dal database, implementando le interfacce del package `repository` del core |
 | `mplan-ui-swing` | Mostra le schermate e parla solo con le interfacce di api |
-| `mplan-app` | Avvia il programma: crea database, repository e servizi, li collega e apre la Home |
+| `mplan-app` | Avvia il programma: ottiene repository e transazioni da `PersistenzaFactory` di `mplan-persistence`, crea i servizi, li collega e apre la Home |
 
 Il core non conosce né Swing né il database. Questo permette di provarlo con JUnit usando repository finti in memoria (D8).
 
@@ -175,7 +175,7 @@ Hanno un costruttore esplicito che riceve tutti i pezzi di cui hanno bisogno, pe
 | `crea(idContatto, dati)` | `idContatto` è il contatto della scheda aperta, `dati` è ciò che l'utente ha scritto. Prima controlla con `contatti.trova(idContatto)` che il contatto esista (DAT.2.6). Restituisce l'attività creata, con stato *da fare* |
 | `modifica(id, dati)` | Aggiorna i testi, per esempio la descrizione scritta dopo il lavoro |
 | `segnaParziale(id)`, `segnaCompletata(id)` | Basta l'id: lo stato di arrivo è già nel nome |
-| `annulla(id, motivo)` | Il motivo è obbligatorio (DAT.3.1). L'attività resta nello storico |
+| `annulla(id, motivo)` | Il motivo è obbligatorio (DAT.3.1): se è vuoto o supera i 1000 caratteri il servizio lancia `ValidazioneException`, che la GUI mostra. L'attività resta nello storico |
 | `storico(idContatto)` | Tutte le attività del contatto, già ordinate con `PER_STORICO` |
 | `valida(dati)` | La GUI la chiama prima di salvare per mostrare gli errori campo per campo (D4) |
 | `aggiungiOsservatore(osservatore)` | Registra chi deve essere avvisato dei cambiamenti (vedi il punto 10) |
@@ -188,7 +188,7 @@ Il controllo del contatto sta nel core e non nel database perché DAT.2.6 si ver
 
 **Gli id.** `ContattoServiceImpl` e `AttivitaServiceImpl` creano l'id del nuovo oggetto con `UUID.randomUUID()` dentro `crea`. Non serve un generatore passato nel costruttore come il `Clock`: nessuna regola dipende dal valore dell'id e nei test l'id si legge dall'oggetto restituito. Non c'è nemmeno un controllo dei doppioni, perché la chiave primaria della tabella rifiuta già un id ripetuto (design, D3).
 
-**Gli errori.** Gli errori di digitazione si vedono con `valida()`, campo per campo (D4). Le operazioni che la GUI non offre, come un'attività su un contatto inesistente o un cambio di stato non ammesso, sono errori di programmazione: il servizio lancia `IllegalArgumentException` o `IllegalStateException`. Se il costruttore di un'entità riceve dati non validi lancia `ValidazioneException`, e i guasti del database arrivano dalla persistenza come `PersistenzaException`. Queste due eccezioni stanno in api ed estendono `RuntimeException`, quindi non vanno dichiarate nelle firme (D4).
+**Gli errori.** Gli errori di digitazione si vedono con `valida()`, campo per campo (D4). Le operazioni che la GUI non offre, come un'attività su un contatto inesistente o un cambio di stato non ammesso, sono errori di programmazione: il servizio lancia `IllegalArgumentException` o `IllegalStateException`. Se `crea` o `modifica` ricevono dati che il validatore rifiuta, o `annulla` un motivo vuoto o troppo lungo, il servizio lancia `ValidazioneException`; i guasti del database arrivano dalla persistenza come `PersistenzaException`. Queste due eccezioni stanno in api ed estendono `RuntimeException`, quindi non vanno dichiarate nelle firme (D4). I costruttori di `Contatto` e `Attivita` non applicano regole: controllano solo che i campi obbligatori non siano `null` e, se ne manca uno, lanciano `NullPointerException`, perché è un errore di programmazione (D3).
 
 ## 10. Il pattern Observer
 
