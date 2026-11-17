@@ -17,7 +17,6 @@ CREATE TABLE IF NOT EXISTS TELEFONO_CONTATTO (
     CONSTRAINT fk_telefono_contatto
         FOREIGN KEY (id_contatto) REFERENCES CONTATTO (id)
 );
-
 CREATE TABLE IF NOT EXISTS ATTIVITA (
     id                  VARCHAR(36)   NOT NULL PRIMARY KEY,
     id_contatto         VARCHAR(36)   NOT NULL,
@@ -30,6 +29,8 @@ CREATE TABLE IF NOT EXISTS ATTIVITA (
     motivo_annullamento VARCHAR(1000),
     CONSTRAINT chk_attivita_stato
         CHECK (stato IN ('DA_FARE', 'PARZIALE', 'COMPLETATA', 'ANNULLATA')),
+    CONSTRAINT chk_attivita_motivo_annullamento
+        CHECK (stato <> 'ANNULLATA' OR (motivo_annullamento IS NOT NULL AND trim(motivo_annullamento) <> '')),
     CONSTRAINT fk_attivita_contatto
         FOREIGN KEY (id_contatto) REFERENCES CONTATTO (id)
 );
