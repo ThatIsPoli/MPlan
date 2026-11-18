@@ -13,6 +13,7 @@
 | **0.2.2** | 05/11/2026 | Allineamento con la specifica dei requisiti (9.1), rimosso il riferimento alle consegne in 1.2, correzione di refusi. |
 | **0.3.0** | 05/11/2026 | Aggiunta di log4j |
 | **0.3.1** | 14/11/2026 | Moduli Maven precisati nei risultati attesi (1.3); etichette delle issue rimandate al Documento 2 (2.3). |
+| **0.3.2** | 16/11/2026 | Aggiunto jOOQ per l'accesso ai dati (8.3, 10.1). |
 
 ---
 
@@ -250,7 +251,7 @@ La progettazione viene realizzata utilizzando StarUML v5 (use case, class, state
 
 ### 8.3 Implementazione
 
-Il sistema viene implementato in Java, utilizzando Eclipse come ambiente di sviluppo, Apache Maven per la compilazione e la gestione delle dipendenze, SQLite per la gestione del database e Swing per la GUI.
+Il sistema viene implementato in Java, utilizzando Eclipse come ambiente di sviluppo, Apache Maven per la compilazione e la gestione delle dipendenze, SQLite per la gestione del database, jOOQ per l'accesso ai dati e Swing per la GUI.
 
 Le funzionalità vengono integrate in modo incrementale, verificando la compilazione e il comportamento del sistema a ogni passaggio significativo.
 
@@ -324,6 +325,7 @@ La persona che sviluppa una modifica non può essere l'unico revisore della rela
 | Build automation | Apache Maven | Compilazione e gestione delle dipendenze |
 | Modellazione | StarUML v5 | Creazione dei diagrammi UML |
 | Database | SQLite Database Engine | Persistenza relazionale embedded |
+| Accesso ai dati | jOOQ | Query SQL scritte in Java, con classi generate dallo schema del database |
 | Testing | JUnit 5 | Test unitari e di integrazione |
 | Analisi statica | SonarLint | Individuazione di problemi nel codice |
 | Versionamento | Git | Gestione delle versioni |

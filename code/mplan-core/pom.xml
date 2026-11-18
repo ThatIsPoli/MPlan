@@ -28,6 +28,11 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <!-- JUnit 5 per i test unitari con repository in memoria (Design D8, VIN.5) -->
         <dependency>

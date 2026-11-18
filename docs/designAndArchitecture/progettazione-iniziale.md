@@ -1,5 +1,7 @@
 # MPlan – Progettazione iniziale
 
+> **Superato.** Questa bozza è stata sostituita dal diagramma delle classi in StarUML (`docs/uml/mplan.mdj`), spiegato in `core-spiegazione.md`, e dalla sezione 2 del design. Dove non coincidono valgono questi ultimi.
+
 Bozza di lavoro: package, classi e interfacce ricavati dalla specifica dei requisiti (versione 0.4.0). Serve da punto di partenza per il diagramma delle classi in StarUML, che la raffinerà. Il livello di dettaglio è volutamente basso: niente classi che la specifica non richieda.
 
 I nomi sono in italiano, come la specifica. Il package radice è `mplan` (nome da confermare).

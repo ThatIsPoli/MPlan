@@ -8,7 +8,7 @@ Il progetto è sviluppato per il corso di Ingegneria del Software (Università d
 
 ## Cosa fa
 
-- gestisce la rubrica dei contatti (clienti), che è la schermata iniziale
+- gestisce la rubrica dei contatti (clienti e cantieri), che è la schermata iniziale
 - registra le attività di intervento di ogni contatto
 - permette di segnare un'attività come parziale, completata o annullata, senza mai cancellarla
 - mostra lo storico delle attività di un contatto e l'agenda di un giorno
@@ -61,7 +61,7 @@ I diagrammi UML sono in `docs/uml/` (file StarUML) e le immagini esportate in `d
 - si lavora su un branch separato, con nome `<numero-issue>-<nome-breve>`
 - il lavoro entra in `main` con una pull request approvata dall'altro membro
 - il ramo `main` è protetto: niente push diretti
-- i commit hanno la forma `tipo: testo (ID del requisito)`, ad esempio `docs: chiarisce le transizioni di stato (FUN.6.3)`
+- i commit hanno la forma `tipo: testo`, ad esempio `docs: chiarisce le transizioni di stato`; l'ID del requisito sta nella issue, a cui il commit è collegato tramite il branch
 
 ## Team
 
