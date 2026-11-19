@@ -18,12 +18,13 @@ L'elenco completo dei requisiti è nella specifica (Documento 3, cartella `docs/
 ## Tecnologie
 
 - Java con Maven (progetto multi-modulo)
-- interfaccia grafica Swing
+- interfaccia grafica web con Vaadin, usata dal browser del PC
+- Spring Boot per avviare l'applicazione
 - database SQLite, usato tramite jOOQ
 - JUnit 5 per i test, log4j2 per i log
 - StarUML per i diagrammi UML
 
-**27** versione di Java richiesta.
+**27** versione di Java richiesta; l'interfaccia si apre nel browser del PC.
 
 ## Struttura del progetto
 
@@ -37,8 +38,8 @@ I moduli Maven sono cinque, in un'architettura a strati:
 - `mplan-api`: le interfacce dei servizi e i tipi condivisi
 - `mplan-core`: la logica dell'applicazione (servizi, validazioni, interfacce dei repository)
 - `mplan-persistence`: l'accesso al database SQLite
-- `mplan-ui-swing`: l'interfaccia grafica
-- `mplan-app`: avvia l'applicazione e collega tra loro gli altri moduli
+- `mplan-ui-vaadin`: l'interfaccia grafica (schermate Vaadin)
+- `mplan-app`: avvia l'applicazione con Spring Boot e collega tra loro gli altri moduli
 
 L'interfaccia grafica parla solo con `mplan-api`. Il core non conosce né la grafica né il database.
 

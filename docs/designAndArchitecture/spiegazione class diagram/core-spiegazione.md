@@ -9,7 +9,7 @@ Le firme dei metodi di `mplan-api` sono ancora provvisorie: vanno completate nel
 Il programma è diviso in cinque moduli Maven. Questa è l'unica architettura del progetto (design, sezione 2, D1 e D2).
 
 ```
-   mplan-ui-swing        schermate
+   mplan-ui-vaadin       schermate
          │ usa solo
          ▼
      mplan-api           contratto: interfacce dei servizi, dati, errori
@@ -28,10 +28,10 @@ Il programma è diviso in cinque moduli Maven. Questa è l'unica architettura de
 | `mplan-api` | Dice cosa si può chiedere al programma: `ContattoService`, `AttivitaService`, `AgendaService`, i dati (`Contatto`, `Attivita`, `DatiAttivita`, ...) e gli errori |
 | `mplan-core` | Fa il lavoro: controlla i dati, applica le regole, decide cosa salvare |
 | `mplan-persistence` | Salva e legge dal database, implementando le interfacce del package `repository` del core |
-| `mplan-ui-swing` | Mostra le schermate e parla solo con le interfacce di api |
-| `mplan-app` | Avvia il programma: ottiene repository e transazioni da `PersistenzaFactory` di `mplan-persistence`, crea i servizi, li collega e apre la Home |
+| `mplan-ui-vaadin` | Mostra le schermate nel browser e parla solo con le interfacce di api |
+| `mplan-app` | Avvia il programma con Spring Boot: ottiene repository e transazioni da `PersistenzaFactory` di `mplan-persistence`, crea i servizi, li collega e apre la Home nel browser |
 
-Il core non conosce né Swing né il database. Questo permette di provarlo con JUnit usando repository finti in memoria (D8).
+Il core non conosce né Vaadin né il database. Questo permette di provarlo con JUnit usando repository finti in memoria (D8).
 
 ## 2. Nomi dei package
 
@@ -64,7 +64,7 @@ Il diagramma è a fasce, dall'alto verso il basso:
 ```
 api (grigio)       ContattoService  AttivitaService  AgendaService  VoceAgenda
 servizi            ContattoServiceImpl  AttivitaServiceImpl  AgendaServiceImpl     Clock (java.time)
-                   OsservatoreAttivita  RegistroModifiche
+                   OsservabileAttivita  OsservatoreAttivita  RegistroModifiche
 repository         GestoreTransazioni  ContattoRepository  AttivitaRepository  RegistroRepository
 dominio            ValidatoreContatto  Validatore  ValidatoreAttivita  RegoleStatoAttivita
                    OrdinamentoAttivita  VoceRegistro  TipoModifica
@@ -82,7 +82,7 @@ Il package `api` è disegnato due volte. Sopra ci sono le interfacce dei servizi
 | tratteggiata con triangolo vuoto | realizzazione | implementa un'interfaccia | `AttivitaServiceImpl` verso `AttivitaService` | `implements` |
 | tratteggiata con punta aperta | dipendenza | usa quel tipo in un metodo (parametro, risultato o variabile locale), ma non lo tiene come campo | `AttivitaRepository` verso `Attivita` | un `import` e l'uso dentro i metodi |
 | continua con punta aperta da un lato e X dall'altro | associazione navigabile | ha un campo di quel tipo | `ContattoServiceImpl` verso `ContattoRepository` | `private final ContattoRepository contatti;` |
-| continua con triangolo vuoto | generalizzazione | estende una classe | non c'è nel core | `extends` |
+| continua con triangolo vuoto | generalizzazione | estende una classe | `AttivitaServiceImpl` verso `OsservabileAttivita` | `extends` |
 
 Come si legge un'associazione, per esempio `ContattoServiceImpl  X──── -contatti 1 ───>  ContattoRepository`:
 
@@ -91,13 +91,15 @@ Come si legge un'associazione, per esempio `ContattoServiceImpl  X──── -
 - `-contatti` è il nome del campo (il meno vuol dire privato). Il nome del ruolo si scrive vicino alla classe che quel ruolo indica, cioè dal lato della punta, come nelle slide del corso (esempio `Student` e `Professor` con il ruolo `+lecturer`): il campo però appartiene alla classe dal lato della X;
 - `1` dal lato del repository: il servizio ne ha esattamente uno;
 - `*` dal lato del servizio: lo stesso repository può essere usato da più servizi;
-- `osservatori *` dal lato di `OsservatoreAttivita`: il servizio ha una lista di osservatori.
+- `osservatori *` dal lato di `OsservatoreAttivita`: `OsservabileAttivita` ha una lista di osservatori, che `AttivitaServiceImpl` eredita.
 
 Per questo molte classi non hanno attributi nel riquadro. Quando il tipo di un campo è una classe disegnata nel diagramma, il campo si mostra come associazione e non si ripete nel riquadro: è la forma che le slide indicano come preferibile. Rebel genera i campi proprio dalle associazioni. Le interfacce invece non possono avere campi, e i validatori e `RegoleStatoAttivita` non ne hanno bisogno.
 
 ## 6. Notazioni particolari
 
 **Sottolineato.** Un attributo o un'operazione sottolineati sono statici (slide "Variabile di classe e operazione di classe"): appartengono alla classe e si usano senza creare un oggetto, per esempio `RegoleStatoAttivita.puoPassareA(da, a)`. Nel core sono statici solo `puoPassareA`, `modificabile`, `PER_STORICO` e `PER_AGENDA`, perché sono regole fisse senza stato.
+
+**Corsivo e `#`.** Un nome in corsivo indica una classe astratta: non si possono creare oggetti di quella classe, serve solo da superclasse. Nel core è astratta solo `OsservabileAttivita`. Il `#` davanti a un'operazione vuol dire protetta: la possono usare solo la classe stessa e le sue sottoclassi, come i tre metodi `notifica...` che `AttivitaServiceImpl` eredita.
 
 **{readOnly}.** Il valore non si può cambiare. `PER_STORICO` e `PER_AGENDA` diventano costanti `public static final`.
 
@@ -178,7 +180,7 @@ Hanno un costruttore esplicito che riceve tutti i pezzi di cui hanno bisogno, pe
 | `annulla(id, motivo)` | Il motivo è obbligatorio (DAT.3.1): se è vuoto o supera i 1000 caratteri il servizio lancia `ValidazioneException`, che la GUI mostra. L'attività resta nello storico |
 | `storico(idContatto)` | Tutte le attività del contatto, già ordinate con `PER_STORICO` |
 | `valida(dati)` | La GUI la chiama prima di salvare per mostrare gli errori campo per campo (D4) |
-| `aggiungiOsservatore(osservatore)` | Registra chi deve essere avvisato dei cambiamenti (vedi il punto 10) |
+| `aggiungiOsservatore(osservatore)` | Ereditato da `OsservabileAttivita`: registra chi deve essere avvisato dei cambiamenti (vedi il punto 10) |
 
 Usa `AttivitaRepository`, `ContattoRepository`, `GestoreTransazioni`, un `Validatore<DatiAttivita>`, `Clock` (per la data proposta, che è oggi), e chiede a `RegoleStatoAttivita` e `OrdinamentoAttivita`.
 
@@ -196,17 +198,20 @@ Il registro delle modifiche (FUN.13) è fatto con il pattern Observer:
 
 | Ruolo | Classe |
 |---|---|
-| soggetto | `AttivitaServiceImpl`: tiene la lista `osservatori` e li avvisa a ogni modifica, cambio di stato o annullamento |
+| soggetto (classe astratta) | `OsservabileAttivita`: tiene la lista `osservatori`, li registra con `aggiungiOsservatore(osservatore)` e li avvisa con i metodi protetti `notificaModifica(attivita)`, `notificaCambioStato(attivita, precedente)`, `notificaAnnullamento(attivita, motivo)` |
+| soggetto concreto | `AttivitaServiceImpl`: estende `OsservabileAttivita` e chiama il metodo `notifica...` giusto a ogni modifica, cambio di stato o annullamento |
 | osservatore (interfaccia) | `OsservatoreAttivita`: `attivitaModificata(attivita)`, `statoCambiato(attivita, precedente)`, `attivitaAnnullata(attivita, motivo)` |
 | osservatore concreto | `RegistroModifiche`: crea la `VoceRegistro` con l'ora presa dal `Clock` e la salva con `RegistroRepository.aggiungi` |
 
 `mplan-app` crea `RegistroModifiche` e lo registra con `aggiungiOsservatore`. La notifica avviene dentro la stessa transazione del salvataggio, quindi l'attività e la voce del registro si salvano insieme o non si salvano affatto.
 
-Perché questa scelta: il servizio non deve sapere come si scrive il registro, deve solo avvisare. È anche la risposta alla domanda di Michele sulla singola responsabilità: `AttivitaServiceImpl` coordina i passi di un caso d'uso, le regole stanno in `dominio`, il salvataggio nei repository e il registro in `RegistroModifiche`. Se in futuro servisse un altro effetto, per esempio la notifica serale di FUN.14, basterebbe aggiungere un altro osservatore senza toccare il servizio.
+Il soggetto è una superclasse astratta, come nella forma del pattern vista a lezione. Non usiamo `java.util.Observable`, che ha la stessa forma, perché è deprecata da Java 9 e passa i dati come `Object`, senza controllo dei tipi: `OsservabileAttivita` fa la stessa cosa con i tipi del progetto.
+
+Perché questa scelta: il servizio non deve sapere come si scrive il registro, deve solo avvisare. È anche la risposta alla domanda di Michele sulla singola responsabilità: `AttivitaServiceImpl` coordina i passi di un caso d'uso, le regole stanno in `dominio`, il salvataggio nei repository, la gestione degli osservatori in `OsservabileAttivita` e il registro in `RegistroModifiche`. Se in futuro servisse un altro effetto, per esempio la notifica serale di FUN.14, basterebbe aggiungere un altro osservatore senza toccare il servizio.
 
 Degli altri pattern visti a lezione:
 
-- **Singleton**: non serve nel core, perché i servizi ricevono i collaboratori dal costruttore per poterli sostituire nei test. Ha senso invece per il `Navigatore` della GUI, che è uno solo; comparirà nel diagramma di `mplan-ui-swing`;
+- **Singleton**: non serve nel core, perché i servizi ricevono i collaboratori dal costruttore per poterli sostituire nei test. Non serve neanche nella GUI: il passaggio tra le schermate lo gestiscono le rotte di Vaadin (design, D7), quindi non c'è un `Navigatore` da tenere in una sola istanza;
 - **Abstraction-Occurrence**: servirebbe un'entità "lavoro" che raggruppa le attività di più giorni, ma la specifica sceglie apposta un'attività per giorno (FUN.7);
 - **General Hierarchy**: nel progetto non c'è nessuna struttura ad albero;
 - **Player-Role**: servirebbero ruoli separati per privato, azienda e cantiere, mentre la specifica vuole un solo contatto con un tipo facoltativo (FUN.1.3, DAT.1.7).
@@ -216,7 +221,7 @@ Degli altri pattern visti a lezione:
 1. La GUI chiama `attivitaService.annulla(id, "cliente assente")`. Vede solo l'interfaccia di api.
 2. `AttivitaServiceImpl` carica l'attività con `attivita.trova(id)`.
 3. Controlla `RegoleStatoAttivita.puoPassareA(statoAttuale, ANNULLATA)`. Se la risposta è no, lancia `IllegalStateException`, perché la GUI non offre l'annullamento di un'attività completata o già annullata.
-4. Dentro `transazioni.inTransazione(...)` salva l'attività con `attivita.aggiorna(...)` e avvisa gli osservatori con `attivitaAnnullata(attivita, motivo)`.
+4. Dentro `transazioni.inTransazione(...)` salva l'attività con `attivita.aggiorna(...)` e avvisa gli osservatori con `notificaAnnullamento(attivita, motivo)`, che chiama `attivitaAnnullata(attivita, motivo)` su ognuno.
 5. `RegistroModifiche` crea una `VoceRegistro` di tipo `ANNULLAMENTO` e la salva con `registro.aggiungi(voce)`.
 6. Il repository vero, in `mplan-persistence`, scrive nel database. Il core non sa come.
 

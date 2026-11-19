@@ -17,6 +17,7 @@ Corso di Ingegneria del Software, A.A. 2026/27
 | 0.4.1 | 14/11/2026 | Rimossi i simboli di affidabilità della fonte (! e @), non più usati: tutti i punti aperti sono stati confermati dal committente |
 | 0.4.2 | 14/11/2026 | Corretto il riferimento al libro di testo (1.4); tolti i rimandi a un riferimento eliminato (1.5, 1.6, 5.3); spiegazione degli identificatori completata (1.6); sostituibilità aggiunta alla portabilità (10.1) |
 | 0.4.3 | 16/11/2026 | Commit collegati all'ID tramite issue e branch (1.7); evento `modifica(dati)` al posto di `aggiorna(dati)` nella macchina a stati dell'attività, come il metodo del servizio (8.1) |
+| 0.4.4 | 19/11/2026 | Interfaccia grafica usata dal browser dello stesso PC (1.3, 3.1, A2); sicurezza riformulata: i dati non escono dal PC e l'applicazione accetta connessioni solo dallo stesso PC (NFR.7, 9.4, 10.2); criterio di portabilità con il browser già incluso in Windows 11 (10.1) |
 
 ---
 
@@ -86,7 +87,7 @@ MPlan è un'applicazione per tenere traccia dei **clienti e dei cantieri** di un
 | Home | Schermata iniziale: contiene la rubrica e il menu per aprire l'agenda giornaliera |
 | Registro delle modifiche | Elenco delle modifiche e degli annullamenti delle attività, con data, tipo e motivo |
 | CF / P.IVA | Codice fiscale / Partita IVA |
-| GUI | Interfaccia grafica dell'applicazione |
+| GUI | Interfaccia grafica dell'applicazione, che si usa dal browser del PC |
 | v1 | Prima versione, oggetto di questa specifica |
 | MoSCoW | Tecnica di priorità: Must, Should, Could, Won't |
 
@@ -217,7 +218,7 @@ La fattura mensile non è prodotta dal sistema: l'utente la compila a mano scorr
 
 ### 3.1 Prospettiva del prodotto
 
-MPlan è un'applicazione autonoma per PC. Non dipende da servizi esterni e conserva i dati sul computer su cui è installata. È composta da un'interfaccia grafica, dalla logica dell'applicazione e da un archivio dati locale.
+MPlan è un'applicazione autonoma per PC. Non dipende da servizi esterni e conserva i dati sul computer su cui è installata. È composta da un'interfaccia grafica, dalla logica dell'applicazione e da un archivio dati locale. L'interfaccia grafica si usa dal browser dello stesso PC: l'applicazione la rende disponibile solo a quel PC e non ad altri computer.
 
 ```mermaid
 flowchart LR
@@ -266,7 +267,7 @@ Il progetto deve rispettare il regolamento del corso: Java, progetti Eclipse con
 | ID | Assunzione |
 |---|---|
 | A1 | L'applicazione è installata su un solo PC, che il team di lavoro del committente usa a turno per registrare il proprio lavoro; non ci sono account distinti né accessi contemporanei e i dati stanno solo su quel PC (D8.1, D8.2; assunzione del team) |
-| A2 | Il PC ha Windows 11 e una versione di Java 27 |
+| A2 | Il PC ha Windows 11, con il browser già incluso nel sistema (Microsoft Edge) o un altro browser aggiornato, e una versione di Java 27 |
 | A3 | Il committente scrive i dati a mano: non esiste un archivio da importare (D2.2) |
 | A4 | Il lavoro su un cantiere lungo si registra con un'attività per ogni giorno lavorato (D3.6) |
 | A5 | Le note di ciò che serve per la visita successiva si scrivono nell'attività del giorno stesso (D4.2) |
@@ -438,7 +439,7 @@ Le schermate e le transizioni sono illustrate nelle Figure 8.2, 8.3 e 8.4. La co
 | **NFR.4** | **Portabilità.** L'applicazione deve funzionare su Windows 11. | M | D9.1 |
 | **NFR.5** | **Manutenibilità.** Le funzioni su contatti, attività e agenda devono essere eseguibili senza la GUI, così che il sistema possa evolvere verso l'uso da cellulare e da più dispositivi (FUT.1, FUT.2) sostituendo o aggiungendo solo l'interfaccia. Il criterio di verifica è in 10.1. | M | D9.1, Team |
 | **NFR.6** | **Funzionamento offline.** L'applicazione deve funzionare senza connessione a Internet e senza servizi da installare. | M | Reg., D9.2 |
-| **NFR.7** | **Sicurezza.** I dati devono essere salvati solo in locale, senza invio in rete (A1).<br>*Rationale:* il committente ha detto che solo il suo team di lavoro deve accedere tramite pc. | M | D8.2 |
+| **NFR.7** | **Sicurezza.** I dati devono essere salvati solo in locale e non devono essere inviati ad altri computer; l'applicazione deve accettare connessioni solo dallo stesso PC (A1).<br>*Rationale:* il committente ha detto che solo il suo team di lavoro deve accedere tramite pc. | M | D8.2 |
 
 ### 5.5 Vincoli (VIN)
 
@@ -737,7 +738,7 @@ Ogni requisito ha un identificatore di test segnaposto `T-<ID requisito>` e un m
 | NFR.4 | T-NFR.4 | Prova su PC Windows |
 | NFR.5 | T-NFR.5 | Ispezione |
 | NFR.6 | T-NFR.6 | Prova su PC Windows |
-| NFR.7 | T-NFR.7 | Ispezione |
+| NFR.7 | T-NFR.7 | Ispezione e prova su PC Windows |
 | VIN.1 | T-VIN.1 | Ispezione |
 | VIN.2 | T-VIN.2 | Ispezione |
 | VIN.3 | T-VIN.3 | Ispezione |
@@ -762,7 +763,7 @@ Le qualità seguono lo standard ISO/IEC 9126, come il Project Plan (9.1): le sei
 | **Usabilità** | Il committente vuole poche informazioni da compilare e nessuna complicazione (D9.4): il software deve essere facile da capire e da usare | NFR.1, FUN.4.2, GUI.5.1 | Prova d'uso: una persona del team crea un'attività (UC7), la aggiorna (UC8) e consulta l'agenda (UC6) senza assistenza |
 | **Efficienza** | Lo storico cresce per anni (comportamento nel tempo) | NFR.3 | Test: l'apertura di una scheda contatto richiede meno di 2 secondi con almeno 5000 attività salvate |
 | **Manutenibilità** | È prevista l'evoluzione a cellulare e più dispositivi (modificabilità) e il regolamento richiede test JUnit (testabilità) | NFR.5, VIN.5 | Ispezione: le funzioni su contatti, attività e agenda si eseguono da test automatici senza avviare la GUI; per ogni requisito Must funzionale esiste almeno un test JUnit e la copertura è riportata nel Documento 5 |
-| **Portabilità** | Funzionamento su Windows senza installare servizi esterni (installabilità) e possibilità di sostituire un componente, ad esempio il database, senza modificare il resto (sostituibilità) | NFR.4, NFR.5, NFR.6, VIN.3 | Prova: su un PC Windows con la sola Java installata l'applicazione si avvia e si eseguono UC2–UC10 senza connessione a Internet. Ispezione: la logica usa l'archivio dei dati solo tramite interfacce, quindi un'altra implementazione si collega senza cambiare la logica né la GUI |
+| **Portabilità** | Funzionamento su Windows senza installare servizi esterni (installabilità) e possibilità di sostituire un componente, ad esempio il database, senza modificare il resto (sostituibilità) | NFR.4, NFR.5, NFR.6, VIN.3 | Prova: su un PC Windows 11 con la sola Java installata l'applicazione si avvia, l'interfaccia si apre nel browser già incluso nel sistema e si eseguono UC2–UC10 senza connessione a Internet. Ispezione: la logica usa l'archivio dei dati solo tramite interfacce, quindi un'altra implementazione si collega senza cambiare la logica né la GUI |
 
 ### 10.2 Qualità in uso (ISO/IEC 9126-4)
 
@@ -770,7 +771,7 @@ Le qualità seguono lo standard ISO/IEC 9126, come il Project Plan (9.1): le sei
 |---|---|---|---|
 | **Efficacia** | L'utente deve riuscire a registrare e a ritrovare ciò che ha fatto | UC2–UC10; FUN.4, FUN.9, FUN.10 | Accettazione: il committente esegue senza assistenza gli scenari principali della sezione 4.1 e il risultato atteso si verifica (12.2) |
 | **Produttività** | Registrare il lavoro deve costare poco tempo | NFR.1.1, NFR.1.2 | Prova d'uso: creare un'attività dalla Home richiede al massimo 6 click e UC6, UC7 e UC8 si completano in al massimo 2 minuti (NFR.1.1, NFR.1.2) |
-| **Sicurezza** | Solo il team di lavoro del committente deve accedere ai dati (D8.2): riservatezza | NFR.7 | Ispezione: nella v1 i dati risiedono solo sul PC e l'applicazione non apre connessioni di rete |
+| **Sicurezza** | Solo il team di lavoro del committente deve accedere ai dati (D8.2): riservatezza | NFR.7 | Ispezione: nella v1 i dati risiedono solo sul PC, l'applicazione accetta connessioni solo dallo stesso PC (indirizzo locale) e non invia dati ad altri computer. Prova: da un altro computer della stessa rete l'interfaccia non si apre |
 | **Soddisfazione** | Il committente deve ritenere il software adatto al proprio lavoro | NFR.1 | Accettazione finale: il committente conferma che l'applicazione è adatta all'uso e l'esito è scritto nel registro della validazione (12.3) |
 
 ---
