@@ -11,7 +11,7 @@ Questo documento spiega il class diagram `mplan-api` del file StarUML (`docs/uml
 | `mplan-ui-vaadin` | Chiama i servizi e mostra i dati. Del progetto vede solo api |
 | `mplan-core` | Implementa `ContattoService`, `AttivitaService` e `AgendaService` e crea `Contatto`, `Attivita` e `VoceAgenda` |
 | `mplan-persistence` | Rilegge `Contatto` e `Attivita` dal database e lancia `PersistenzaException` |
-| `mplan-app` | Implementa `ChiusuraApplicazione` e passa i servizi alla GUI |
+| `mplan-app` | Implementa `ChiusuraApplicazione` con `ChiusuraApplicazioneImpl` e passa i servizi alla GUI (`app-spiegazione.md`) |
 
 Tutto sta in un solo package, `it.mpelettrica.mplan.api`: gli elementi sono quattordici e dividerli in sotto-package non li renderebbe più facili da leggere.
 
@@ -53,7 +53,7 @@ I tipi di Java usati nelle firme (`UUID`, `LocalDate`, `LocalTime`, `List`, `Opt
 
 **AgendaService**: `attivitaDelGiorno(giorno)` restituisce le righe dell'agenda (FUN.10) e `oggi()` il giorno su cui aprirla (FUN.10.4).
 
-**ChiusuraApplicazione** ha un solo metodo, `chiudi()`. Dalla Home il comando `chiudi` chiude l'applicazione (Tabella 8.2 della specifica), ma con Vaadin chiudere la scheda del browser non basta: va fermato il server interno (design, D7). Può farlo solo `mplan-app`, che avvia Spring Boot, mentre la GUI vede solo api. Per questo l'interfaccia sta in api e la implementa `mplan-app`. Non si chiama `...Service` perché non lavora sui dati.
+**ChiusuraApplicazione** ha un solo metodo, `chiudi()`. Dalla Home il comando `chiudi` chiude l'applicazione (Tabella 8.2 della specifica), ma con Vaadin chiudere la scheda del browser non basta: va fermato il server interno (design, D7). Può farlo solo `mplan-app`, che avvia Spring Boot, mentre la GUI vede solo api. Per questo l'interfaccia sta in api e la implementa `ChiusuraApplicazioneImpl` di `mplan-app`. Non si chiama `...Service` perché non lavora sui dati.
 
 I servizi restituiscono dati che la GUI può solo leggere: ogni cambiamento passa da un metodo del servizio (D3).
 
@@ -122,6 +122,5 @@ Tutte e due estendono `RuntimeException` (grigia, da `java.lang`): sono eccezion
 
 ## 9. Cosa resta da fare
 
-- Il diagramma di `mplan-app`, con la classe che implementa `ChiusuraApplicazione` e la configurazione che collega i servizi.
 - Dopo la generazione con Rebel: trasformare i quattro record, aggiungere getter e setter a `DatiContatto` e `DatiAttivita` e scrivere i controlli dei `null`.
 - Esportare l'immagine del diagramma per il Documento 4.

@@ -18,6 +18,7 @@ Corso di Ingegneria del Software, A.A. 2026/27
 | 0.3.6 | 16/11/2026 | Sezione 2 allineata ai diagrammi di core e persistence: scenari Q2 e Q3, sostituibilità e installabilità sotto la portabilità come nella specifica (Q3, Q6), `PersistenzaFactory` (D2, 2.4), regole di stato (D3), regole di validazione solo nel core e costruttori delle entità limitati ai campi obbligatori, motivo dell'annullamento (D3, D4), `Clock` (D9), package radice e verifica delle dipendenze (2.4); tolti gli appunti delle sezioni 1 e 3 |
 | 0.3.7 | 19/11/2026 | GUI web con Vaadin al posto di Swing: scheda D7, scenari Q2, Q3, Q6 e Q8, D2, D4 e D8; librerie (2.3), vista a moduli con `mplan-ui-vaadin` (2.4), componenti e connettori (2.5), deployment (2.6) e tracciabilità (2.7) aggiornati |
 | 0.3.8 | 19/11/2026 | Contratto di `mplan-api` completato con il suo class diagram: entità come record di Java (D3), errori per campo dentro `ValidazioneException` (D4), interfaccia `ChiusuraApplicazione` per il comando `chiudi` della Home (D2, D7, 2.4) |
+| 0.3.9 | 19/11/2026 | Class diagram di `mplan-app`: classi per l'avvio, la configurazione, la chiusura e l'apertura del browser (D2, D7, 2.4); percorso del database in `application.properties` (2.6) |
 
 > **Stato:** bozza. È compilata solo la sezione 2 (architettura). Le sezioni 1 e 3 sono **[DA COMPLETARE]**.
 
@@ -81,7 +82,7 @@ Le qualità seguono ISO/IEC 9126 e sono elencate in ordine di priorità. Secondo
 | Presupposti | Il team sa usare Maven con più moduli |
 | Alternative | Un solo modulo Maven con cinque package, con le dipendenze verificate da un controllo automatico; quattro moduli, con la GUI che dipende da `mplan-core` |
 | Motivazione | Con `mplan-api` il compilatore impedisce alla GUI sia di accedere al database (jOOQ, driver SQLite) sia di usare i repository: può usare solo i servizi. Le interfacce dei servizi permettono inoltre di testare la GUI con servizi finti |
-| Implicazioni | Maggiore configurazione Maven. Tutto ciò che la GUI deve vedere, chiamare o intercettare (entità, input, `ChiusuraApplicazione`, `ErroreValidazione`, `ValidazioneException`, `PersistenzaException`) deve stare in `mplan-api`. La creazione e il collegamento degli oggetti (servizi, repository, transazioni) sono affidati a una classe di configurazione di Spring Boot nel modulo `mplan-app` (D7), che ottiene repository e transazioni da `PersistenzaFactory` di `mplan-persistence` senza usare jOOQ; `mplan-api`, `mplan-core` e `mplan-persistence` non usano Spring |
+| Implicazioni | Maggiore configurazione Maven. Tutto ciò che la GUI deve vedere, chiamare o intercettare (entità, input, `ChiusuraApplicazione`, `ErroreValidazione`, `ValidazioneException`, `PersistenzaException`) deve stare in `mplan-api`. La creazione e il collegamento degli oggetti (servizi, repository, transazioni) sono affidati alla classe di configurazione di Spring Boot `ConfigurazioneMPlan` nel modulo `mplan-app` (D7), che ottiene repository e transazioni da `PersistenzaFactory` di `mplan-persistence` senza usare jOOQ; `mplan-api`, `mplan-core` e `mplan-persistence` non usano Spring |
 
 **D3 – Entità immutabili e dati di input separati**
 
@@ -128,7 +129,7 @@ Le qualità seguono ISO/IEC 9126 e sono elencate in ordine di priorità. Secondo
 | Presupposti | Sul PC c'è un browser aggiornato (A2); un solo utente alla volta (A1) |
 | Alternative | Swing (scelta iniziale: GUI desktop senza server, da rifare per FUT.1 e FUT.2); JSP o servlet di Jakarta EE (pagine in HTML, con JavaScript per le parti dinamiche come gli errori mostrati durante la digitazione) |
 | Motivazione | Schermate e logica di presentazione si scrivono solo in Java (VIN.1) e Vaadin è tra le tecnologie web indicate dal corso. Un'interfaccia web si usa anche da cellulare e da altri dispositivi: per FUT.1 e FUT.2 basterà aprire il server alla rete e aggiungere l'accesso (FUT.3), senza riscrivere la GUI. Il server è dentro il programma, quindi non c'è alcun servizio da installare (NFR.6, VIN.3). La GUI continua a dipendere solo da `mplan-api` (D2, NFR.5) |
-| Implicazioni | Il server accetta connessioni solo dallo stesso PC (NFR.7, Q8). `mplan-app` diventa un'applicazione Spring Boot: `MPlanApplication` avvia il server e una classe di configurazione crea e collega gli oggetti (D2). Vaadin è una dipendenza di `mplan-ui-vaadin` e Spring Boot di `mplan-app`; Spring Boot registra i log con Logback, quindi si usa `spring-boot-starter-log4j2` per tenere log4j2. La build usa Node.js, che il plugin Maven di Vaadin scarica da solo: le schermate sono preparate durante la build e sul PC del committente basta Java (Q6). All'avvio il browser si apre sull'indirizzo locale dell'applicazione; il comando `chiudi` della Home (Tabella 8.2 della specifica) arresta il server e quindi l'applicazione, tramite l'interfaccia `ChiusuraApplicazione` di `mplan-api` implementata in `mplan-app`. La navigazione tra le schermate (GUI.1.1) usa le rotte di Vaadin; il pattern interno alla GUI resta rimandato (D10) |
+| Implicazioni | Il server accetta connessioni solo dallo stesso PC (NFR.7, Q8). `mplan-app` diventa un'applicazione Spring Boot: `MPlanApplication` avvia il server e `ConfigurazioneMPlan` crea e collega gli oggetti (D2), con le impostazioni in `application.properties`. Vaadin è una dipendenza di `mplan-ui-vaadin` e Spring Boot di `mplan-app`; Spring Boot registra i log con Logback, quindi si usa `spring-boot-starter-log4j2` per tenere log4j2. La build usa Node.js, che il plugin Maven di Vaadin scarica da solo: le schermate sono preparate durante la build e sul PC del committente basta Java (Q6). All'avvio `AperturaBrowser` apre il browser sull'indirizzo locale dell'applicazione; il comando `chiudi` della Home (Tabella 8.2 della specifica) arresta il server e quindi l'applicazione, tramite l'interfaccia `ChiusuraApplicazione` di `mplan-api`, implementata da `ChiusuraApplicazioneImpl` in `mplan-app`. La navigazione tra le schermate (GUI.1.1) usa le rotte di Vaadin; il pattern interno alla GUI resta rimandato (D10) |
 
 ### 2.3 Librerie esterne (VIN.4)
 
@@ -154,7 +155,7 @@ Punto di vista: **scomposizione e strati** (Tabella 11.3). Interessa a sviluppat
 | `mplan-core` | `it.mpelettrica.mplan.core` | Implementazione dei servizi, regole di dominio e validatore, interfacce dei repository e delle transazioni | computazionale | `mplan-api` |
 | `mplan-persistence` | `it.mpelettrica.mplan.persistence` | Implementazione dei repository e delle transazioni con jOOQ e SQLite, `schema.sql`, creazione dello schema e `PersistenzaFactory` | memoria | `mplan-core`, `mplan-api` |
 | `mplan-ui-vaadin` | `it.mpelettrica.mplan.ui` | Schermate Vaadin con le loro rotte (GUI.1) e loro logica di presentazione | controllore | `mplan-api` |
-| `mplan-app` | `it.mpelettrica.mplan.app` | `MPlanApplication` (avvio con Spring Boot e server web interno), configurazione, creazione e collegamento degli oggetti | controllore | tutti i moduli |
+| `mplan-app` | `it.mpelettrica.mplan.app` | `MPlanApplication` (avvio con Spring Boot e server web interno), `ConfigurazioneMPlan` (creazione e collegamento degli oggetti), `ChiusuraApplicazioneImpl` (comando `chiudi`), `AperturaBrowser` e impostazioni in `application.properties` | controllore | tutti i moduli |
 
 **Progetti Eclipse e struttura del repository:** ogni modulo è un progetto Maven e un progetto Eclipse (con il proprio `.project`), sotto la cartella `code/`; un POM padre li aggrega. I test di ogni modulo stanno in una cartella separata dai sorgenti (`src/test/java`), nella radice del repository non c'è alcun `.project` e i documenti stanno in `docs/` (VIN.2, VIN.8).
 
@@ -192,7 +193,7 @@ Punto di vista: **distribuzione** (Tabella 11.5), con le risorse hardware.
 | Nodo | Un PC con Windows 11 e un browser (A1, A2) |
 | Processo | Una sola JVM (Java 27) che esegue il programma, formato dai package `app`, `api`, `core`, `persistence` e `ui`, con il server web interno di Spring Boot (D7) |
 | Browser | Il browser del PC mostra le schermate e comunica con la JVM all'indirizzo locale |
-| Dati | File del database SQLite in una cartella dati dell'utente, senza percorsi assoluti nel codice (VIN.2) |
+| Dati | File del database SQLite nella cartella `MPlan` dell'utente, con il percorso in `application.properties` di `mplan-app` e senza percorsi assoluti nel codice (VIN.2) |
 | Log | File di log in una cartella dell'applicazione, scritto da log4j2 |
 | Comunicazioni | Solo tra il browser e la JVM sullo stesso PC, all'indirizzo `127.0.0.1`; nessuna connessione verso altri computer o verso Internet (NFR.6, NFR.7) |
 
