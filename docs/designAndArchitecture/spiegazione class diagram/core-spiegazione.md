@@ -9,7 +9,7 @@ Le firme dei metodi di `mplan-api` sono ancora provvisorie: vanno completate nel
 Il programma è diviso in cinque moduli Maven. Questa è l'unica architettura del progetto (design, sezione 2, D1 e D2).
 
 ```
-   mplan-ui-swing        schermate
+   mplan-ui-vaadin       schermate
          │ usa solo
          ▼
      mplan-api           contratto: interfacce dei servizi, dati, errori
@@ -28,10 +28,10 @@ Il programma è diviso in cinque moduli Maven. Questa è l'unica architettura de
 | `mplan-api` | Dice cosa si può chiedere al programma: `ContattoService`, `AttivitaService`, `AgendaService`, i dati (`Contatto`, `Attivita`, `DatiAttivita`, ...) e gli errori |
 | `mplan-core` | Fa il lavoro: controlla i dati, applica le regole, decide cosa salvare |
 | `mplan-persistence` | Salva e legge dal database, implementando le interfacce del package `repository` del core |
-| `mplan-ui-swing` | Mostra le schermate e parla solo con le interfacce di api |
-| `mplan-app` | Avvia il programma: ottiene repository e transazioni da `PersistenzaFactory` di `mplan-persistence`, crea i servizi, li collega e apre la Home |
+| `mplan-ui-vaadin` | Mostra le schermate nel browser e parla solo con le interfacce di api |
+| `mplan-app` | Avvia il programma con Spring Boot: ottiene repository e transazioni da `PersistenzaFactory` di `mplan-persistence`, crea i servizi, li collega e apre la Home nel browser |
 
-Il core non conosce né Swing né il database. Questo permette di provarlo con JUnit usando repository finti in memoria (D8).
+Il core non conosce né Vaadin né il database. Questo permette di provarlo con JUnit usando repository finti in memoria (D8).
 
 ## 2. Nomi dei package
 
@@ -211,7 +211,7 @@ Perché questa scelta: il servizio non deve sapere come si scrive il registro, d
 
 Degli altri pattern visti a lezione:
 
-- **Singleton**: non serve nel core, perché i servizi ricevono i collaboratori dal costruttore per poterli sostituire nei test. Ha senso invece per il `Navigatore` della GUI, che è uno solo; comparirà nel diagramma di `mplan-ui-swing`;
+- **Singleton**: non serve nel core, perché i servizi ricevono i collaboratori dal costruttore per poterli sostituire nei test. Non serve neanche nella GUI: il passaggio tra le schermate lo gestiscono le rotte di Vaadin (design, D7), quindi non c'è un `Navigatore` da tenere in una sola istanza;
 - **Abstraction-Occurrence**: servirebbe un'entità "lavoro" che raggruppa le attività di più giorni, ma la specifica sceglie apposta un'attività per giorno (FUN.7);
 - **General Hierarchy**: nel progetto non c'è nessuna struttura ad albero;
 - **Player-Role**: servirebbero ruoli separati per privato, azienda e cantiere, mentre la specifica vuole un solo contatto con un tipo facoltativo (FUN.1.3, DAT.1.7).

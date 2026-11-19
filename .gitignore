@@ -56,6 +56,11 @@ buildNumber.properties
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
 
+# File generati dal plugin Maven di Vaadin dentro i moduli (D7)
+node_modules/
+**/src/main/frontend/generated/
+vite.generated.ts
+
 # Crash logs JVM
 hs_err_pid*
 replay_pid*

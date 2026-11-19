@@ -15,6 +15,7 @@ Corso di Ingegneria del Software, A.A. 2026/27
 | 0.1.7 | 14/11/2026 | Etichette delle issue allineate a quelle usate su GitHub; tolto il rimando agli stati dei requisiti |
 | 0.1.8 | 16/11/2026 | Sprint 6: package del core al posto di livelli; ID dei requisiti collegati ai commit tramite issue e branch (3.3, 3.4); attività svolte dai membri aggiornate (4.1); rimandi alla tabella dello sprint backlog corretti (2.2, 4.3) |
 | 0.1.9 | 19/11/2026 | Chiusura dello sprint 6 e sprint backlog dello sprint 7; attività svolte dai membri aggiornate (4.1); piccole correzioni (2.4, 2.5, 3.1, 3.3) |
+| 0.1.10 | 19/11/2026 | Sprint 7: GUI con Vaadin al posto di Swing (2.4) |
 
 > **Stato:** bozza. I punti segnati **[DA COMPLETARE]** richiedono dati che il team deve ancora inserire.
 
@@ -90,7 +91,8 @@ Lo sprint backlog di ogni sprint è una tabella, compilata all'inizio dello spri
 | | | Diagramma delle classi di `mplan-persistence` e dei suoi package, e inizializzazione di SQLite | Scrum Master | Completato |
 | | | Controllo incrociato dei documenti prodotti finora, per trovare eventuali contraddizioni | Entrambi | Completato |
 | Sprint 7 | 19/11/2026 – 26/11/2026 | Diagrammi delle classi di `mplan-api` e `mplan-app` in StarUML | Product Owner | In corso |
-| | | Diagramma delle classi del modulo Maven della GUI in StarUML | Scrum Master | In corso |
+| | | Diagramma delle classi di `mplan-ui-vaadin` in StarUML | Scrum Master | In corso |
+| | | Passaggio della GUI da Swing a Vaadin nei documenti e nei moduli Maven | Product Owner | In corso |
 | Sprint 8 e successivi | Dal 26/11/2026, ogni giovedì | Da compilare all'inizio di ogni sprint | Assegnato a inizio sprint | – |
 
 ### 2.5 Approccio basato su modelli (MDA)

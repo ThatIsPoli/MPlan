@@ -11,7 +11,7 @@ Le scelte seguono l'architettura definita in `design.md` (D1–D8), le convenzio
 Nell'architettura a cinque moduli Maven di MPlan:
 
 ```text
-   mplan-ui-swing        schermate (vede solo api)
+   mplan-ui-vaadin       schermate (vede solo api)
          │ usa
          ▼
      mplan-api           contratto pubblico: servizi, entità, input, eccezioni
@@ -30,7 +30,7 @@ Nell'architettura a cinque moduli Maven di MPlan:
 | `mplan-core` | `core.repository` e `core.dominio` (`VoceRegistro`, `TipoModifica`) | Per implementare le interfacce dei repository e delle transazioni e per salvare/leggere le voci del registro |
 | `mplan-api` | `Contatto`, `Attivita`, `StatoAttivita`, `PersistenzaException` | I repository salvano e restituiscono le entità di `api` e convertono i guasti del database in `PersistenzaException` |
 
-Questa doppia dipendenza verso `mplan-core` e `mplan-api` è già prevista in `design.md` (§2.4) e nel `pom.xml` di `mplan-persistence`. Resta invece vero che `mplan-ui-swing` non vede né `core` né `persistence`, e che `mplan-api` non dipende da nessuno.
+Questa doppia dipendenza verso `mplan-core` e `mplan-api` è già prevista in `design.md` (§2.4) e nel `pom.xml` di `mplan-persistence`. Resta invece vero che `mplan-ui-vaadin` non vede né `core` né `persistence`, e che `mplan-api` non dipende da nessuno.
 
 ---
 
