@@ -14,6 +14,7 @@ Corso di Ingegneria del Software, A.A. 2026/27
 | 0.1.6 | 12/11/2026 | Sprint 6: controllo incrociato dei documenti completato da entrambi |
 | 0.1.7 | 14/11/2026 | Etichette delle issue allineate a quelle usate su GitHub; tolto il rimando agli stati dei requisiti |
 | 0.1.8 | 16/11/2026 | Sprint 6: package del core al posto di livelli; ID dei requisiti collegati ai commit tramite issue e branch (3.3, 3.4); attività svolte dai membri aggiornate (4.1); rimandi alla tabella dello sprint backlog corretti (2.2, 4.3) |
+| 0.1.9 | 19/11/2026 | Chiusura dello sprint 6 e sprint backlog dello sprint 7; attività svolte dai membri aggiornate (4.1); piccole correzioni (2.4, 2.5, 3.1, 3.3) |
 
 > **Stato:** bozza. I punti segnati **[DA COMPLETARE]** richiedono dati che il team deve ancora inserire.
 
@@ -48,11 +49,10 @@ Il team segue un approccio agile ispirato a **Scrum**, adattato a un gruppo di d
 | Scrum Master / Agile Coordinator | Michele Bisignano | Cura il rispetto del processo, gestisce la board Kanban e rimuove gli ostacoli |
 | Sviluppatori | Entrambi i membri | Svolgono i compiti dello sprint |
 
-
 | Evento o artefatto di Scrum | Come lo svolgiamo |
 |---|---|
 | Sprint planning | Ogni giovedì, nella sessione congiunta di tre ore (Project Plan, 2.2), si scelgono i compiti dello sprint e si assegnano le issue ai membri |
-| Daily scrum | Allineamento quotidiano di 15 minuti, dalle 10:15 alle 10:30, compatibilmente con gli impegni accademici (Project Plan, 2.2)  |
+| Daily scrum | Allineamento quotidiano di 15 minuti, dalle 10:15 alle 10:30, compatibilmente con gli impegni accademici (Project Plan, 2.2) |
 | Sprint review | Ogni giovedì si fa il punto sul lavoro svolto; inoltre ogni compito è rivisto dall'altro membro con la pull request prima del merge (3.2) |
 | Sprint retrospective | Svolta nella sessione del giovedì (Project Plan, 2.2) |
 | Backlog | Come backlog si usa la specifica dei requisiti, ordinata con le priorità MoSCoW (sezione 6). Lo sprint backlog di ogni sprint è la tabella di 2.4, compilata man mano con i compiti scelti dalla specifica |
@@ -85,20 +85,21 @@ Lo sprint backlog di ogni sprint è una tabella, compilata all'inizio dello spri
 | | | Obiettivi di qualità nel Project Plan allineati a ISO/IEC 9126 (Documento 1, versione 0.2.1) | Product Owner | Completato |
 | | | Software Architecture (Documento 4, sezione 2) | Scrum Master | Completato |
 | Sprint 5 | 05/11/2026 – 12/11/2026 | Macchine a stati finiti (Documento 3, sezioni 8.1 e 8.2) e loro realizzazione in StarUML | Product Owner | Completato |
-| | | Creazione dello scheletro dei moduli Maven (file `pom.xml` e dipendenze), senza pacchetti né classi | Scrum Master | Completato |
+| | | Creazione dello scheletro dei moduli Maven (file `pom.xml` e dipendenze), senza package né classi | Scrum Master | Completato |
 | Sprint 6 | 12/11/2026 – 19/11/2026 | Diagramma delle classi di `mplan-core` (package repository, dominio e servizi) in StarUML, con la sua descrizione | Product Owner | Completato |
-| | | Diagramma delle classi di `mplan-persistence` e dei suoi sotto-pacchetti, e inizializzazione di SQLite | Scrum Master | Completato |
+| | | Diagramma delle classi di `mplan-persistence` e dei suoi package, e inizializzazione di SQLite | Scrum Master | Completato |
 | | | Controllo incrociato dei documenti prodotti finora, per trovare eventuali contraddizioni | Entrambi | Completato |
-| Sprint 7 e successivi | Dal 19/11/2026, ogni giovedì | Da compilare all'inizio di ogni sprint | Assegnato a inizio sprint | – |
+| Sprint 7 | 19/11/2026 – 26/11/2026 | Diagrammi delle classi di `mplan-api` e `mplan-app` in StarUML | Product Owner | In corso |
+| | | Diagramma delle classi del modulo Maven della GUI in StarUML | Scrum Master | In corso |
+| Sprint 8 e successivi | Dal 26/11/2026, ogni giovedì | Da compilare all'inizio di ogni sprint | Assegnato a inizio sprint | – |
 
 ### 2.5 Approccio basato su modelli (MDA)
 
-Per questo progetto utilizziamo il modello MDA basato sullo sviulppo della documentazione in maniera circolare.
+Per questo progetto utilizziamo il modello MDA basato sullo sviluppo della documentazione in maniera circolare.
 
-Il design parte dai diagrammi UML realizzati con StarUML v5.1.0 con estensione Rebel per la conversione in codice Java . Dal diagramma delle classi si genera una prima versione del codice Java, poi completata a mano. Le classi generate e quelle modificate saranno indicate nella relazione.
+Il design parte dai diagrammi UML realizzati con StarUML v5.1.0 con estensione Rebel per la conversione in codice Java. Dal diagramma delle classi si genera una prima versione del codice Java, poi completata a mano. Le classi generate e quelle modificate saranno indicate nella relazione.
 
-Se il codice generato presenta problemi strutturali, di progettazione o di requisiti, il team deve aggiornare la varia documentazione al fine di raggiungere gli obbiettivi prestabiliti ed infine ricreare il codice.
-
+Se il codice generato presenta problemi strutturali, di progettazione o di requisiti, il team deve aggiornare la documentazione al fine di raggiungere gli obiettivi prestabiliti ed infine ricreare il codice.
 
 ---
 
@@ -112,7 +113,7 @@ Se il codice generato presenta problemi strutturali, di progettazione o di requi
 | GitHub Projects | Kanban board per i compiti dello sprint (Project Plan, 2.1) |
 | StarUML | Modelli UML; il file di progetto è nel repository |
 | Eclipse e Maven | Sviluppo e gestione delle dipendenze |
-| GitHub Desktop | Fetch, Pull, Push della repository |
+| GitHub Desktop | Fetch, pull e push del repository |
 
 Il repository è condiviso con il docente e con l'esercitatrice.
 
@@ -148,7 +149,7 @@ Il ramo principale `main` è protetto: non si fa push diretto e ogni modifica en
 |---|---|
 | Aggiornare il workspace | `git pull` |
 | Creare il branch di una issue | `git switch -c <numero>-<nome-del-branch>` |
-| Caricare sullo stage | `git add <file>` e `git commit -m "<tipo: testo>"` |
+| Registrare le modifiche | `git add <file>` e `git commit -m "<tipo: testo>"` |
 | Caricare sul repository remoto le modifiche | `git push -u origin <branch>` |
 | Rivedere, approvare e unire | pull request su GitHub |
 
@@ -160,7 +161,6 @@ In alternativa si può utilizzare l'applicativo GitHub Desktop con le sue azioni
 - Il `.gitignore` esclude i file generati ma non il file `.project`.
 - Il messaggio di commit ha la forma `tipo: testo` (ad esempio `docs: …` per i documenti). L'ID del requisito o del documento non si ripete nel titolo né nella descrizione del commit: lo riporta la issue, e ogni commit sta sul branch che porta il numero della issue (3.2), quindi su GitHub il commit resta collegato alla issue e al suo ID (specifica dei requisiti, sezione 1.7).
 - Le versioni significative sono identificate con tag Git; la release finale avrà il tag `v1.0.0` (Project Plan, 13.1).
-
 
 ### 3.5 Statistiche
 
@@ -183,8 +183,8 @@ Le richieste al docente si fanno con una issue a lui assegnata, come previsto da
 
 | Membro | Ruolo in Scrum | Ruolo di sviluppo | Attività svolte finora |
 |---|---|---|---|
-| Matteo Poli | Product Owner / Customer Representative | Sviluppatore | Specifica dei requisiti; gestione del progetto; bozza del diagramma delle classi; qualità ISO/IEC 9126 nella specifica e nel Project Plan; macchine a stati; diagramma delle classi di `mplan-core` |
-| Michele Bisignano | Scrum Master / Agile Coordinator | Sviluppatore | Diagramma UML dei casi d'uso; Project Plan; controllo generale dei documenti; Software Architecture (Documento 4, sezione 2); scheletro dei moduli Maven; diagramma delle classi di `mplan-persistence` |
+| Matteo Poli | Product Owner / Customer Representative | Sviluppatore | Specifica dei requisiti; gestione del progetto; bozza del diagramma delle classi; qualità ISO/IEC 9126 nella specifica e nel Project Plan; macchine a stati; diagramma delle classi di `mplan-core`; controllo incrociato dei documenti |
+| Michele Bisignano | Scrum Master / Agile Coordinator | Sviluppatore | Diagramma UML dei casi d'uso; Project Plan; controllo generale dei documenti; Software Architecture (Documento 4, sezione 2); scheletro dei moduli Maven; diagramma delle classi di `mplan-persistence`; controllo incrociato dei documenti |
 
 ### 4.2 Schema organizzativo
 
