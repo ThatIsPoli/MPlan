@@ -14,6 +14,7 @@
 | **0.3.0** | 05/11/2026 | Aggiunta di log4j |
 | **0.3.1** | 14/11/2026 | Moduli Maven precisati nei risultati attesi (1.3); etichette delle issue rimandate al Documento 2 (2.3). |
 | **0.3.2** | 16/11/2026 | Aggiunto jOOQ per l'accesso ai dati (8.3, 10.1). |
+| **0.3.3** | 19/11/2026 | GUI web con Vaadin e Spring Boot al posto di Swing (1.3, 6.4, 8.3, 10.1); sicurezza allineata alla specifica (9.1). |
 
 ---
 
@@ -51,7 +52,7 @@ I principali risultati attesi sono:
 
 - Codice sorgente Java organizzato in cinque moduli Maven, raccolti da un POM padre.
 - Database relazionale SQLite.
-- Interfaccia grafica locale per la dimostrazione delle funzionalità principali.
+- Interfaccia grafica web, usata dal browser dello stesso PC, per la dimostrazione delle funzionalità principali.
 - Release finale identificata dal tag Git `v1.0.0`.
 - Soddisfacimento dei requisiti del progetto imposti dal corso.
 
@@ -225,11 +226,11 @@ Le Pull Request vengono sottoposte a revisione da parte dell'altro componente de
 
 ### 6.4 Mancanza di familiarità con i framework
 
-**Descrizione:** limitata esperienza pratica dei membri del team nell'utilizzo delle API e dei layout manager di alcune librerie Java.
+**Descrizione:** limitata esperienza pratica dei membri del team con alcune librerie Java, in particolare con Vaadin e Spring Boot, scelti per la GUI web (Documento 4, D7).
 
 **Impatto:** rallentamento dello sviluppo, codice disordinato o poco manutenibile e potenziale mancato rispetto delle stime di tempo per l'interfaccia.
 
-**Mitigazione:** mantenimento codice essenziale e studio individuale per colmare eventuali lacune.
+**Mitigazione:** mantenimento di un codice essenziale, studio individuale per colmare eventuali lacune e, all'inizio della M3, una prima schermata (la Home) collegata ai servizi, per verificare subito la configurazione di Vaadin e Spring Boot prima di scrivere le altre schermate.
 
 ---
 
@@ -251,7 +252,7 @@ La progettazione viene realizzata utilizzando StarUML v5 (use case, class, state
 
 ### 8.3 Implementazione
 
-Il sistema viene implementato in Java, utilizzando Eclipse come ambiente di sviluppo, Apache Maven per la compilazione e la gestione delle dipendenze, SQLite per la gestione del database, jOOQ per l'accesso ai dati e Swing per la GUI.
+Il sistema viene implementato in Java, utilizzando Eclipse come ambiente di sviluppo, Apache Maven per la compilazione e la gestione delle dipendenze, SQLite per la gestione del database, jOOQ per l'accesso ai dati, Vaadin per la GUI web e Spring Boot per avviare il programma con il server web interno.
 
 Le funzionalità vengono integrate in modo incrementale, verificando la compilazione e il comportamento del sistema a ogni passaggio significativo.
 
@@ -303,7 +304,7 @@ Gli obiettivi di qualità sono definiti secondo le caratteristiche di qualità d
 
 - *Efficacia*: l'utente deve riuscire a registrare e a ritrovare ciò che ha fatto, eseguendo senza assistenza gli scenari principali dei casi d'uso.
 - *Produttività*: registrare il lavoro deve costare poco tempo: creare un'attività dalla Home richiede al massimo 6 click e i casi d'uso principali si completano in al massimo 2 minuti.
-- *Sicurezza*: solo il team di lavoro del committente deve poter accedere ai dati; nella versione 1 i dati restano solo sul PC e l'applicazione non apre connessioni di rete.
+- *Sicurezza*: solo il team di lavoro del committente deve poter accedere ai dati; nella versione 1 i dati restano solo sul PC e l'applicazione accetta connessioni solo dallo stesso PC.
 - *Soddisfazione*: il committente deve ritenere l'applicazione adatta al proprio lavoro e confermarlo all'accettazione finale.
 
 ### 9.2 Organizzazione della qualità
@@ -332,7 +333,9 @@ La persona che sviluppa una modifica non può essere l'unico revisore della rela
 | Collaborazione | GitHub | Repository, issue, Pull Request e board Kanban |
 | Documentazione | Markdown | Redazione dei documenti tecnici |
 | Logging | Apache Log4j | Tracciamento eventi a runtime e gestione log applicativi |
-| GUI | Swing | Libreria per la GUI |
+| GUI | Vaadin | GUI web scritta in Java, usata dal browser del PC |
+| Avvio e server web | Spring Boot | Avvio del programma e server web interno, raggiungibile solo dallo stesso PC |
+| Correzioni grafiche | Vaadin Copilot | Piccoli ritocchi alle schermate durante lo sviluppo; le schermate si scrivono in Java a partire dal diagramma delle classi |
 
 
 ### 10.2 Risorse umane
