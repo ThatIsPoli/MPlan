@@ -15,6 +15,7 @@
 | **0.3.1** | 14/11/2026 | Moduli Maven precisati nei risultati attesi (1.3); etichette delle issue rimandate al Documento 2 (2.3). |
 | **0.3.2** | 16/11/2026 | Aggiunto jOOQ per l'accesso ai dati (8.3, 10.1). |
 | **0.3.3** | 19/11/2026 | GUI web con Vaadin e Spring Boot al posto di Swing (1.3, 6.4, 8.3, 10.1); sicurezza allineata alla specifica (9.1). |
+| **1.0.0** | 19/11/2026  | Rimozione di contenuti superflui. Aggiunto Vaadin |
 
 ---
 
@@ -72,15 +73,13 @@ Realizzazione di un applicativo al fine di supportare la schedulazione del lavor
 
 Il progetto adotta un approccio agile ispirato a **SCRUM**, con iterazioni settimanali e rilascio incrementale delle funzionalità.
 
-Per la gestione operativa delle attività viene utilizzata una board Kanban su GitHub Projects. La board costituisce uno strumento di visualizzazione del lavoro e non modifica l'organizzazione iterativa adottata.
-
 ### 2.2 Organizzazione degli sprint
 
 - **Durata dello sprint:** una settimana.
 - **Incontro settimanale:** ogni giovedì, con una sessione congiunta di tre ore dedicata alla pianificazione, alla revisione del codice e alla retrospettiva.
 - **Daily Scrum:** allineamento quotidiano di 15 minuti, dalle 10:15 alle 10:30, compatibilmente con gli impegni accademici dei componenti del team.
 - **Gestione del lavoro:** assegnazione delle attività e monitoraggio dell'avanzamento tramite issue e board Kanban.
-- **Revisione:** verifica congiunta degli incrementi realizzati e aggiornamento delle priorità per lo sprint successivo.
+- **Revisione:** revisione incrociata ad ogni pull request.
  
 ### 2.3 Milestone di progetto
 
@@ -117,12 +116,10 @@ Le milestone sono su GitHub con relativa scadenza. Le consegne settimanali sono 
 
 **Michele Bisignano**
 
-- Scrum Master / Agile Coordinator: coordinamento delle attività, gestione della board Kanban, monitoraggio della roadmap e verifica dei vincoli temporali e accademici.
+- Scrum Master / Agile Coordinator: coordinamento delle attività, gestione della board Kanban, monitoraggio dei vincoli temporali e accademici.
 - Developer: implementazione delle funzionalità, test e documentazione.
 
-Entrambi i componenti partecipano allo sviluppo Java, alla progettazione UML, alle revisioni del codice e alla stesura della documentazione tecnica.
-
-I ruoli organizzativi sono adattati alle dimensioni ridotte del team e non implicano una separazione rigida delle responsabilità.
+Entrambi i componenti partecipano con un approccio paritetico allo sviluppo, alla progettazione, alle revisioni e alla stesura della documentazione.
 
 ---
 
@@ -167,15 +164,11 @@ I principali riferimenti sono:
 - IEEE 830 come riferimento per la struttura della specifica dei requisiti software.
 - UML per la modellazione strutturale e comportamentale.
 
-Ogni documento è sottoposto a revisione incrociata per verificarne correttezza, completezza e coerenza con il sistema implementato.
-
 ---
 
 ## 5\. Management Activities
 
 ### 5.1 Gestione delle priorità
-
-Il progetto è vincolato da una disponibilità complessiva di 80 ore di lavoro, pari a circa 40 ore per componente del team.
 
 Le priorità vengono stabilite considerando:
 
@@ -184,7 +177,6 @@ Le priorità vengono stabilite considerando:
 - Qualità della progettazione e della documentazione.
 - Affidabilità della persistenza e dei test.
 
-In caso di ritardi, le funzionalità non essenziali possono essere ridimensionate o rinviate, senza compromettere i requisiti fondamentali.
 
 ### 5.2 Monitoraggio dell'avanzamento
 
@@ -218,11 +210,11 @@ Le Pull Request vengono sottoposte a revisione da parte dell'altro componente de
 
 ### 6.3 Mancata validazione dei requisiti con il committente
 
-**Descrizione:** presenza di dubbi e punti aperti sui requisiti (in particolare quelli indicati nella sezione 11 del Documento 3) non ancora formalmente chiariti e approvati dal committente.
+**Descrizione:** presenza di dubbi e punti aperti sui requisiti non ancora formalmente chiariti e approvati dal committente.
 
 **Impatto:** progettazione e sviluppo basati su assunzioni errate, con conseguente necessità di modifiche pesanti del codice e del design.
 
-**Mitigazione:** risoluzione e chiarimento dei punti aperti entro l'apertura della milestone M3 – Sviluppo del codice. **Esito:** rischio mitigato; tutti i punti aperti sono stati risolti (sezione 11 del Documento 3) e la revisione dei requisiti con il committente ha avuto esito positivo il 12/11/2026 (registro della validazione, 12.3 del Documento 3).
+**Mitigazione:** risoluzione e chiarimento dei punti aperti entro l'apertura della milestone M3 – Sviluppo del codice. **Esito:** rischio mitigato; tutti i punti aperti sono stati risolti e la revisione dei requisiti con il committente ha avuto esito positivo il 12/11/2026
 
 ### 6.4 Mancanza di familiarità con i framework
 
@@ -236,7 +228,7 @@ Le Pull Request vengono sottoposte a revisione da parte dell'altro componente de
 
 ## 7\. Staffing
 
-Il team è composto da due persone, con un impegno stimato di circa 40 ore per ciascun componente, per un totale di 80 ore.
+Il team è composto da due persone, con l'impegno stimato in 11.1.
 
 ---
 
@@ -244,17 +236,16 @@ Il team è composto da due persone, con un impegno stimato di circa 40 ore per c
 
 ### 8.1 Analisi dei requisiti
 
-I requisiti vengono raccolti mediante un'intervista strutturata al referente dell'organizzazione utente e successivamente formalizzati in un documento dedicato.
+I requisiti vengono elicitati mediante un'intervista strutturata al referente dell'organizzazione utente e successivamente formalizzati in un documento dedicato.
 
 ### 8.2 Progettazione
 
-La progettazione viene realizzata utilizzando StarUML v5 (use case, class, state, activity, sequence, package, component, communication/timing); architettura con interfacce per facilitare la manutenzione.
+La progettazione viene realizzata utilizzando StarUML v5 (use case, class, state, activity, sequence, package, component, communication/timing).
 
 ### 8.3 Implementazione
 
 Il sistema viene implementato in Java, utilizzando Eclipse come ambiente di sviluppo, Apache Maven per la compilazione e la gestione delle dipendenze, SQLite per la gestione del database, jOOQ per l'accesso ai dati, Vaadin per la GUI web e Spring Boot per avviare il programma con il server web interno.
 
-Le funzionalità vengono integrate in modo incrementale, verificando la compilazione e il comportamento del sistema a ogni passaggio significativo.
 
 ### 8.4 Controllo della configurazione
 
@@ -356,7 +347,7 @@ Un pc Windows 11 per sviluppatore.
 
 ### 11.1 Allocazione dello sforzo
 
-Il budget complessivo previsto è pari a 80 ore, ripartite tra i due componenti del team.
+Il budget complessivo previsto, ripartito tra i due componenti del team, è indicato nella tabella.
 
 | Area di attività | Percentuale | Ore stimate |
 | --- | --- | --- |
@@ -381,7 +372,7 @@ Le richieste di modifica e i nuovi requisiti emersi durante lo sviluppo vengono 
 
 La procedura prevede:
 
-1. Apertura di una issue su GitHub con etichetta.
+1. Apertura di una issue su GitHub con etichetta e creazione del relativo branch.
 2. Valutazione dell'impatto: si indicano requisiti, UML, codice, test.
 3. Approvazione da parte di entrambi i membri.
 4. Implementazione e verifica attraverso Pull Request.
