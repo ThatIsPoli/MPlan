@@ -12,12 +12,12 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>mplan-ui-swing</artifactId>
+    <artifactId>mplan-ui-vaadin</artifactId>
     <packaging>jar</packaging>
-    <name>MPlan - UI Swing</name>
+    <name>MPlan - UI Vaadin</name>
 
     <dependencies>
-        <!-- REGOLA ARCHITETTURALE: mplan-ui-swing dipende SOLO da mplan-api -->
+        <!-- REGOLA ARCHITETTURALE: mplan-ui-vaadin dipende SOLO da mplan-api -->
         <dependency>
             <groupId>it.mpelettrica.mplan</groupId>
             <artifactId>mplan-api</artifactId>

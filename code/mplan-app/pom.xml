@@ -32,7 +32,7 @@
         </dependency>
         <dependency>
             <groupId>it.mpelettrica.mplan</groupId>
-            <artifactId>mplan-ui-swing</artifactId>
+            <artifactId>mplan-ui-vaadin</artifactId>
         </dependency>
 
         <!-- Log4j API e CORE per l'esecuzione a runtime (dispensa pag. 4) -->
