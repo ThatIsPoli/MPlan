@@ -2,7 +2,7 @@
 
 Questo documento spiega il class diagram `mplan-core` del file StarUML (`docs/uml/mplan.mdj`): cosa c'è dentro il core, come si legge il diagramma, perché ogni classe è fatta così e come il core si collega agli altri moduli. Le scelte sono quelle concordate nella PR #58 e nelle issue #54 e #55.
 
-Le firme dei metodi di `mplan-api` sono ancora provvisorie: vanno completate nel class diagram di api.
+Le firme di `mplan-api` sono nel suo class diagram e sono spiegate in `api-spiegazione.md`.
 
 ## 1. Dove sta il core
 
@@ -174,6 +174,7 @@ Hanno un costruttore esplicito che riceve tutti i pezzi di cui hanno bisogno, pe
 
 | Metodo | Parametri e scopo |
 |---|---|
+| `trova(id)` | Carica un'attività dal suo id, per il Form attività aperto dallo storico o dall'agenda (GUI.4.2, GUI.7.2) |
 | `crea(idContatto, dati)` | `idContatto` è il contatto della scheda aperta, `dati` è ciò che l'utente ha scritto. Prima controlla con `contatti.trova(idContatto)` che il contatto esista (DAT.2.6). Restituisce l'attività creata, con stato *da fare* |
 | `modifica(id, dati)` | Aggiorna i testi, per esempio la descrizione scritta dopo il lavoro |
 | `segnaParziale(id)`, `segnaCompletata(id)` | Basta l'id: lo stato di arrivo è già nel nome |
@@ -190,7 +191,7 @@ Il controllo del contatto sta nel core e non nel database perché DAT.2.6 si ver
 
 **Gli id.** `ContattoServiceImpl` e `AttivitaServiceImpl` creano l'id del nuovo oggetto con `UUID.randomUUID()` dentro `crea`. Non serve un generatore passato nel costruttore come il `Clock`: nessuna regola dipende dal valore dell'id e nei test l'id si legge dall'oggetto restituito. Non c'è nemmeno un controllo dei doppioni, perché la chiave primaria della tabella rifiuta già un id ripetuto (design, D3).
 
-**Gli errori.** Gli errori di digitazione si vedono con `valida()`, campo per campo (D4). Le operazioni che la GUI non offre, come un'attività su un contatto inesistente o un cambio di stato non ammesso, sono errori di programmazione: il servizio lancia `IllegalArgumentException` o `IllegalStateException`. Se `crea` o `modifica` ricevono dati che il validatore rifiuta, o `annulla` un motivo vuoto o troppo lungo, il servizio lancia `ValidazioneException`; i guasti del database arrivano dalla persistenza come `PersistenzaException`. Queste due eccezioni stanno in api ed estendono `RuntimeException`, quindi non vanno dichiarate nelle firme (D4). I costruttori di `Contatto` e `Attivita` non applicano regole: controllano solo che i campi obbligatori non siano `null` e, se ne manca uno, lanciano `NullPointerException`, perché è un errore di programmazione (D3).
+**Gli errori.** Gli errori di digitazione si vedono con `valida()`, campo per campo (D4). Le operazioni che la GUI non offre, come un'attività su un contatto inesistente o un cambio di stato non ammesso, sono errori di programmazione: il servizio lancia `IllegalArgumentException` o `IllegalStateException`. Se `crea` o `modifica` ricevono dati che il validatore rifiuta, o `annulla` un motivo vuoto o troppo lungo, il servizio lancia `ValidazioneException` con la lista degli errori, come quella di `valida()`; i guasti del database arrivano dalla persistenza come `PersistenzaException`. Queste due eccezioni stanno in api ed estendono `RuntimeException`, quindi non vanno dichiarate nelle firme (D4). I costruttori di `Contatto` e `Attivita` non applicano regole: controllano solo che i campi obbligatori non siano `null` e, se ne manca uno, lanciano `NullPointerException`, perché è un errore di programmazione (D3).
 
 ## 10. Il pattern Observer
 
@@ -227,4 +228,4 @@ Degli altri pattern visti a lezione:
 
 ## 12. Cosa resta da fare
 
-- Manca il diagramma di `mplan-api`. Nel modello ci sono già i campi di `Contatto` e `DatiContatto` (DAT.1), `TipoContatto`, `VoceAgenda`, `ValidazioneException` e `PersistenzaException`, ma nel diagramma del core si vedono solo come riferimenti grigi.
+- Nel core non resta niente da disegnare: il diagramma di `mplan-api` ora c'è ed è spiegato in `api-spiegazione.md`. Il codice del core si scrive dopo la generazione con Rebel.
