@@ -212,7 +212,7 @@ Perché questa scelta: il servizio non deve sapere come si scrive il registro, d
 
 Degli altri pattern visti a lezione:
 
-- **Singleton**: non serve nel core, perché i servizi ricevono i collaboratori dal costruttore per poterli sostituire nei test. Non serve neanche nella GUI: il passaggio tra le schermate lo gestiscono le rotte di Vaadin (design, D7), quindi non c'è un `Navigatore` da tenere in una sola istanza;
+- **Singleton**: non serve nel core, perché i servizi ricevono i collaboratori dal costruttore per poterli sostituire nei test. Non serve neanche nella GUI: ogni schermata ha la sua rotta di Vaadin (design, D7) e il `Navigatore`, che ricorda la schermata di provenienza per tornare indietro (GUI.1.1), lo crea Spring una volta per ogni scheda del browser (`@UIScope`). Con un Singleton tutte le schede userebbero la stessa pila di schermate;
 - **Abstraction-Occurrence**: servirebbe un'entità "lavoro" che raggruppa le attività di più giorni, ma la specifica sceglie apposta un'attività per giorno (FUN.7);
 - **General Hierarchy**: nel progetto non c'è nessuna struttura ad albero;
 - **Player-Role**: servirebbero ruoli separati per privato, azienda e cantiere, mentre la specifica vuole un solo contatto con un tipo facoltativo (FUN.1.3, DAT.1.7).
