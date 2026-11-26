@@ -41,6 +41,13 @@ public class Navigatore {
     /** Nome del parametro di rotta con l'identificativo dell'attivita'. */
     public static final String PARAMETRO_ATTIVITA = "idAttivita";
 
+    /**
+     * Espressione regolare di un identificativo UUID, usata nei modelli delle rotte: un indirizzo
+     * con un identificativo malformato non corrisponde a nessuna schermata.
+     */
+    public static final String FORMATO_UUID =
+            "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}";
+
     private final Deque<String> pilaRotte;
 
     private LocalDate dataAgenda;

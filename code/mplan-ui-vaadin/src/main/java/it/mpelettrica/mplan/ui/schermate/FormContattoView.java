@@ -5,197 +5,294 @@
 */
 package it.mpelettrica.mplan.ui.schermate;
 
-import java.util.*;
-import java.time.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
-
+import com.vaadin.flow.component.Focusable;
+import com.vaadin.flow.component.HasValidation;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouteAlias;
+
+import it.mpelettrica.mplan.api.Contatto;
 import it.mpelettrica.mplan.api.ContattoService;
+import it.mpelettrica.mplan.api.DatiContatto;
+import it.mpelettrica.mplan.api.ErroreValidazione;
+import it.mpelettrica.mplan.api.TipoContatto;
+import it.mpelettrica.mplan.api.ValidazioneException;
 import it.mpelettrica.mplan.ui.componenti.EditorTelefoni;
 import it.mpelettrica.mplan.ui.navigazione.Navigatore;
-// ----------- << imports@AAAAAAfGdZD1hHRhialyF >>
-// ----------- >>
 
-// ----------- << class.annotations@AAAAAAfGdZD1hHRhialyF >>
-// ----------- >>
+/**
+ * Form per inserire un nuovo contatto o modificarne uno esistente (GUI.3, FUN.1, FUN.2).
+ * <p>
+ * Al salvataggio i dati vengono controllati dal servizio: ogni errore compare sotto il campo
+ * a cui si riferisce e i dati inseriti restano nel form (DAT.5). Dopo il salvataggio si torna
+ * alla schermata di provenienza; "Indietro" torna senza salvare (Tabella 8.2).
+ */
+@Route("contatti/nuovo")
+@RouteAlias("contatti/:" + Navigatore.PARAMETRO_CONTATTO + "(" + Navigatore.FORMATO_UUID + ")/modifica")
+@PageTitle("MPlan – Contatto")
 public class FormContattoView extends VerticalLayout implements BeforeEnterObserver {
-    // ----------- << attribute.annotations@AAAAAAjoynjS36Q7q3t9z >>
-    // ----------- >>
+
+    private static final long serialVersionUID = 1L;
+
+    private static final int LUNGHEZZA_NOME = 100;
+
+    private static final int LUNGHEZZA_CODICE_FISCALE = 16;
+
+    private static final int LUNGHEZZA_PARTITA_IVA = 11;
+
+    private static final String CAMPO_TELEFONI = "telefoni";
+
+    private static final int DURATA_NOTIFICA_MS = 3000;
+
     private UUID idContatto;
 
-    // ----------- << attribute.annotations@AAAAAAhMj5Sd1BSeqkVBR >>
-    // ----------- >>
-    private TextField campoNome;
+    private final H1 titolo = new H1();
 
-    // ----------- << attribute.annotations@AAAAAAJ/NtUhq0SxqM051 >>
-    // ----------- >>
-    private TextField campoCognome;
+    private final TextField campoNome = new TextField("Nome");
 
-    // ----------- << attribute.annotations@AAAAAAAehcX2ZcRsqFKaF >>
-    // ----------- >>
-    private TextField campoIndirizzo;
+    private final TextField campoCognome = new TextField("Cognome");
 
-    // ----------- << attribute.annotations@AAAAAARz740pBiTJanH4C >>
-    // ----------- >>
-    private TextField campoCodiceFiscale;
+    private final TextField campoIndirizzo = new TextField("Indirizzo");
 
-    // ----------- << attribute.annotations@AAAAAAN1uWxB7YSGSc+Df >>
-    // ----------- >>
-    private TextField campoPartitaIva;
+    private final TextField campoCodiceFiscale = new TextField("Codice fiscale");
 
-    // ----------- << attribute.annotations@AAAAAAqXjNRTkvSCqqyVo >>
-    // ----------- >>
-    private Select<TipoContatto> campoTipo;
+    private final TextField campoPartitaIva = new TextField("Partita IVA");
 
-    // ----------- << attribute.annotations@AAAAAAxYteHNddSrmKQl/ >>
-    // ----------- >>
-    private ContattoService contattoService;
+    private final Select<TipoContatto> campoTipo = new Select<>();
 
-    // ----------- << attribute.annotations@AAAAAAY0RZx9L/SZmYVQS >>
-    // ----------- >>
-    private Navigatore navigatore;
+    private final ContattoService contattoService;
 
-    // ----------- << attribute.annotations@AAAAAAuQxnHHgfQY+gjbX >>
-    // ----------- >>
-    private EditorTelefoni editorTelefoni;
+    private final Navigatore navigatore;
 
-    // ----------- << attribute.annotations@AAAAAApqz4m1NZSF24y6+ >>
-    // ----------- >>
-    private Binder binder;
+    private final EditorTelefoni editorTelefoni;
 
-    private UUID getIdContatto() {
-        return idContatto;
-    }
+    private final Binder<DatiContatto> binder;
 
-    private TextField getCampoNome() {
-        return campoNome;
-    }
-
-    private TextField getCampoCognome() {
-        return campoCognome;
-    }
-
-    private TextField getCampoIndirizzo() {
-        return campoIndirizzo;
-    }
-
-    private TextField getCampoCodiceFiscale() {
-        return campoCodiceFiscale;
-    }
-
-    private TextField getCampoPartitaIva() {
-        return campoPartitaIva;
-    }
-
-    private Select<TipoContatto> getCampoTipo() {
-        return campoTipo;
-    }
-
-    private ContattoService getContattoService() {
-        return contattoService;
-    }
-
-    private Navigatore getNavigatore() {
-        return navigatore;
-    }
-
-    private EditorTelefoni getEditorTelefoni() {
-        return editorTelefoni;
-    }
-
-    private Binder getBinder() {
-        return binder;
-    }
-
-    private void setIdContatto(UUID idContatto) {
-        this.idContatto = idContatto;
-    }
-
-    private void setCampoNome(TextField campoNome) {
-        this.campoNome = campoNome;
-    }
-
-    private void setCampoCognome(TextField campoCognome) {
-        this.campoCognome = campoCognome;
-    }
-
-    private void setCampoIndirizzo(TextField campoIndirizzo) {
-        this.campoIndirizzo = campoIndirizzo;
-    }
-
-    private void setCampoCodiceFiscale(TextField campoCodiceFiscale) {
-        this.campoCodiceFiscale = campoCodiceFiscale;
-    }
-
-    private void setCampoPartitaIva(TextField campoPartitaIva) {
-        this.campoPartitaIva = campoPartitaIva;
-    }
-
-    private void setCampoTipo(Select<TipoContatto> campoTipo) {
-        this.campoTipo = campoTipo;
-    }
-
-    private void setContattoService(ContattoService contattoService) {
-        this.contattoService = contattoService;
-    }
-
-    private void setNavigatore(Navigatore navigatore) {
-        this.navigatore = navigatore;
-    }
-
-    private void setEditorTelefoni(EditorTelefoni editorTelefoni) {
-        this.editorTelefoni = editorTelefoni;
-    }
-
-    private void setBinder(Binder binder) {
-        this.binder = binder;
-    }
+    private final Map<String, HasValidation> campiPerNome;
 
     /**
-    * @param contattoService 
-    * @param navigatore
-    */
-
-    // ----------- << method.annotations@AAAAAALP8flHwJS92q8Nb >>
-    // ----------- >>
+     * Crea il form del contatto; i dati vengono caricati all'ingresso nella schermata.
+     *
+     * @param contattoService servizio che valida e salva il contatto
+     * @param navigatore      navigatore tra le schermate
+     */
     public FormContattoView(ContattoService contattoService, Navigatore navigatore) {
-    // ----------- << method.body@AAAAAALP8flHwJS92q8Nb >>
-    // ----------- >>
+        this.contattoService = contattoService;
+        this.navigatore = navigatore;
+        this.editorTelefoni = new EditorTelefoni();
+        this.binder = new Binder<>();
+        this.campiPerNome = mappaCampi();
+        configuraPagina();
+        configuraCampi();
+        configuraBinder();
+        add(creaIntestazione(), creaForm(), creaPulsanti());
     }
-    /**
-    * @param event
-    */
 
-    // ----------- << method.annotations@AAAAAAKkr46un4Q8ewRE4 >>
-    // ----------- >>
-    public void beforeEnter(BeforeEnterEvent event) {
-    // ----------- << method.body@AAAAAAKkr46un4Q8ewRE4 >>
-    // ----------- >>
+    /**
+     * Prepara il form: vuoto per un nuovo contatto, con i dati attuali per una modifica.
+     * Se il contatto da modificare non esiste torna alla schermata principale.
+     *
+     * @param evento l'evento di navigazione
+     */
+    @Override
+    public void beforeEnter(BeforeEnterEvent evento) {
+        pulisciErrori();
+        idContatto = evento.getRouteParameters().get(Navigatore.PARAMETRO_CONTATTO)
+                .map(UUID::fromString).orElse(null);
+        if (idContatto == null) {
+            preparaNuovoContatto();
+            return;
+        }
+        Optional<Contatto> contatto = contattoService.trova(idContatto);
+        if (contatto.isEmpty()) {
+            Notification.show("Il contatto richiesto non esiste.", DURATA_NOTIFICA_MS, Notification.Position.MIDDLE);
+            evento.forwardTo(HomeView.class);
+            return;
+        }
+        titolo.setText("Modifica contatto");
+        binder.readBean(copiaInDati(contatto.get()));
+        editorTelefoni.impostaNumeri(contatto.get().telefoni());
     }
-    // ----------- << method.annotations@AAAAAANLCVdYjZRqGIVZL >>
-    // ----------- >>
-    private List<ErroreValidazione> validaCampi() {
-    // ----------- << method.body@AAAAAANLCVdYjZRqGIVZL >>
-    // ----------- >>
+
+    private void preparaNuovoContatto() {
+        titolo.setText("Nuovo contatto");
+        DatiContatto dati = new DatiContatto();
+        dati.setTipo(TipoContatto.PRIVATO);
+        binder.readBean(dati);
+        editorTelefoni.impostaNumeri(List.of());
     }
-    // ----------- << method.annotations@AAAAAAvcQnPfYiTuO/WmK >>
-    // ----------- >>
+
+    private List<ErroreValidazione> validaCampi(DatiContatto dati) {
+        return contattoService.valida(dati);
+    }
+
     private void salva() {
-    // ----------- << method.body@AAAAAAvcQnPfYiTuO/WmK >>
-    // ----------- >>
+        pulisciErrori();
+        DatiContatto dati = leggiDati();
+        List<ErroreValidazione> errori = validaCampi(dati);
+        if (!errori.isEmpty()) {
+            mostraErrori(errori);
+            return;
+        }
+        try {
+            if (idContatto == null) {
+                contattoService.crea(dati);
+            } else {
+                contattoService.modifica(idContatto, dati);
+            }
+        } catch (ValidazioneException e) {
+            mostraErrori(e.getErrori());
+            return;
+        }
+        Notification.show("Contatto salvato.", DURATA_NOTIFICA_MS, Notification.Position.BOTTOM_START);
+        navigatore.indietro();
     }
-    /**
-    * @param errori
-    */
 
-    // ----------- << method.annotations@AAAAAADWhtZbRiRQmK9J9 >>
-    // ----------- >>
-    private void mostraErrori(List<ErroreValidazione> errori) {
-    // ----------- << method.body@AAAAAADWhtZbRiRQmK9J9 >>
-    // ----------- >>
+    private DatiContatto leggiDati() {
+        DatiContatto dati = new DatiContatto();
+        binder.writeBeanIfValid(dati);
+        dati.setTelefoni(new ArrayList<>(editorTelefoni.getNumeri()));
+        return dati;
     }
-// ----------- << class.extras@AAAAAAfGdZD1hHRhialyF >>
-// ----------- >>
+
+    private void mostraErrori(List<ErroreValidazione> errori) {
+        List<String> senzaCampo = new ArrayList<>();
+        HasValidation primo = null;
+        for (ErroreValidazione errore : errori) {
+            if (CAMPO_TELEFONI.equals(errore.campo())) {
+                editorTelefoni.mostraErrore(errore.motivo());
+                continue;
+            }
+            HasValidation campo = campiPerNome.get(errore.campo());
+            if (campo == null) {
+                senzaCampo.add(errore.motivo());
+                continue;
+            }
+            campo.setErrorMessage(errore.motivo());
+            campo.setInvalid(true);
+            primo = primo == null ? campo : primo;
+        }
+        if (primo instanceof Focusable<?> daEvidenziare) {
+            daEvidenziare.focus();
+        }
+        if (!senzaCampo.isEmpty()) {
+            Notification.show(String.join(" ", senzaCampo), DURATA_NOTIFICA_MS, Notification.Position.MIDDLE)
+                    .addThemeVariants(NotificationVariant.ERROR);
+        }
+    }
+
+    private void pulisciErrori() {
+        campiPerNome.values().forEach(campo -> campo.setInvalid(false));
+        editorTelefoni.pulisciErrore();
+    }
+
+    private static DatiContatto copiaInDati(Contatto contatto) {
+        DatiContatto dati = new DatiContatto();
+        dati.setNome(contatto.nome());
+        dati.setCognome(contatto.cognome());
+        dati.setIndirizzo(contatto.indirizzo());
+        dati.setTelefoni(new ArrayList<>(contatto.telefoni()));
+        dati.setCodiceFiscale(contatto.codiceFiscale());
+        dati.setPartitaIva(contatto.partitaIva());
+        dati.setTipo(contatto.tipo());
+        return dati;
+    }
+
+    private Map<String, HasValidation> mappaCampi() {
+        Map<String, HasValidation> campi = new LinkedHashMap<>();
+        campi.put("nome", campoNome);
+        campi.put("cognome", campoCognome);
+        campi.put("indirizzo", campoIndirizzo);
+        campi.put("codiceFiscale", campoCodiceFiscale);
+        campi.put("partitaIva", campoPartitaIva);
+        return campi;
+    }
+
+    private void configuraPagina() {
+        addClassName("mplan-pagina");
+        setPadding(false);
+        setSpacing(false);
+    }
+
+    private void configuraCampi() {
+        campoNome.setMaxLength(LUNGHEZZA_NOME);
+        campoNome.setRequiredIndicatorVisible(true);
+        campoCognome.setMaxLength(LUNGHEZZA_NOME);
+        campoCodiceFiscale.setMaxLength(LUNGHEZZA_CODICE_FISCALE);
+        campoCodiceFiscale.setHelperText("16 caratteri, oppure 11 cifre per un'azienda.");
+        campoPartitaIva.setMaxLength(LUNGHEZZA_PARTITA_IVA);
+        campoPartitaIva.setHelperText("11 cifre.");
+        campoTipo.setLabel("Tipo");
+        campoTipo.setItems(TipoContatto.values());
+        campoTipo.setItemLabelGenerator(HomeView::nomeTipo);
+    }
+
+    private void configuraBinder() {
+        binder.forField(campoNome).withNullRepresentation("")
+                .bind(DatiContatto::getNome, DatiContatto::setNome);
+        binder.forField(campoCognome).withNullRepresentation("")
+                .bind(DatiContatto::getCognome, DatiContatto::setCognome);
+        binder.forField(campoIndirizzo).withNullRepresentation("")
+                .bind(DatiContatto::getIndirizzo, DatiContatto::setIndirizzo);
+        binder.forField(campoCodiceFiscale).withNullRepresentation("")
+                .bind(DatiContatto::getCodiceFiscale, DatiContatto::setCodiceFiscale);
+        binder.forField(campoPartitaIva).withNullRepresentation("")
+                .bind(DatiContatto::getPartitaIva, DatiContatto::setPartitaIva);
+        binder.forField(campoTipo).bind(DatiContatto::getTipo, DatiContatto::setTipo);
+    }
+
+    private HorizontalLayout creaIntestazione() {
+        titolo.addClassName("mplan-titolo-pagina");
+        HorizontalLayout intestazione = new HorizontalLayout(titolo);
+        intestazione.addClassName("mplan-toolbar");
+        intestazione.setSpacing(false);
+        intestazione.setAlignItems(FlexComponent.Alignment.CENTER);
+        return intestazione;
+    }
+
+    private FormLayout creaForm() {
+        FormLayout form = new FormLayout();
+        form.addClassName("mplan-form");
+        form.setAutoResponsive(true);
+        form.setExpandColumns(true);
+        form.setExpandFields(true);
+        form.addFormRow(campoNome, campoCognome);
+        form.addFormRow(campoTipo);
+        form.add(campoIndirizzo, 2);
+        form.addFormRow(campoCodiceFiscale, campoPartitaIva);
+        form.add(editorTelefoni, 2);
+        return form;
+    }
+
+    private HorizontalLayout creaPulsanti() {
+        Button indietro = new Button("Indietro", evento -> navigatore.indietro());
+        indietro.addThemeVariants(ButtonVariant.TERTIARY);
+        Button salva = new Button("Salva", evento -> salva());
+        salva.addThemeVariants(ButtonVariant.PRIMARY);
+        HorizontalLayout pulsanti = new HorizontalLayout(indietro, salva);
+        pulsanti.addClassName("mplan-pulsanti");
+        pulsanti.setSpacing(false);
+        return pulsanti;
+    }
 }
