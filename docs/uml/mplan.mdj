@@ -47695,6 +47695,7 @@
 						"$ref": "AAAAAAABS0FGo+SrcvQ="
 					},
 					"name": "it",
+					"stereotype": "root",
 					"ownedElements": [
 						{
 							"_type": "UMLPackage",
@@ -48758,7 +48759,8 @@
 																},
 																"visibility": "private",
 																"navigable": "navigable",
-																"multiplicity": "*"
+																"multiplicity": "*",
+																"isOrdered": true
 															}
 														}
 													],
@@ -50955,7 +50957,8 @@
 																		},
 																		"visibility": "private",
 																		"navigable": "navigable",
-																		"multiplicity": "*"
+																		"multiplicity": "*",
+																		"isOrdered": true
 																	}
 																}
 															],

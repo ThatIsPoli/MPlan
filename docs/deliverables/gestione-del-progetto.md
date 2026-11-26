@@ -101,7 +101,7 @@ Lo sprint backlog di ogni sprint è una tabella, compilata all'inizio dello spri
 
 Per questo progetto utilizziamo il modello MDA basato sullo sviluppo della documentazione in maniera circolare.
 
-Il design parte dai diagrammi UML realizzati con StarUML v5.1.0 con estensione Rebel per la conversione in codice Java. Dal diagramma delle classi si genera una prima versione del codice Java, poi completata a mano. Le classi generate e quelle modificate saranno indicate nella relazione.
+Il design parte dai diagrammi UML realizzati con StarUML v5.1.0 con estensione Javazzar (prima chiamata Rebel) per la conversione in codice Java. Dal diagramma delle classi si genera una prima versione del codice Java, poi completata a mano. Le classi generate e quelle modificate saranno indicate nella relazione.
 
 Se il codice generato presenta problemi strutturali, di progettazione o di requisiti, il team deve aggiornare la documentazione al fine di raggiungere gli obiettivi prestabiliti ed infine ricreare il codice.
 
