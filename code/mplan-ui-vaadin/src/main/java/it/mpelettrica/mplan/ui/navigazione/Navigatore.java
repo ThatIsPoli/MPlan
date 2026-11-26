@@ -180,12 +180,20 @@ public class Navigatore {
         tornaIndietroOppure(indirizzo(ROTTA_SCHEDA_CONTATTO, PARAMETRO_CONTATTO, idContatto));
     }
 
+    /**
+     * Toglie dalla pila le voci uguali alla schermata attuale, che restano quando l'utente usa il
+     * pulsante indietro del browser, e poi va alla voce precedente o, a pila vuota, al ripiego.
+     */
     private void tornaIndietroOppure(String ripiego) {
+        String posizione = posizioneAttuale();
+        while (!pilaRotte.isEmpty() && pilaRotte.peek().equals(posizione)) {
+            pilaRotte.pop();
+        }
         ui().navigate(pilaRotte.isEmpty() ? ripiego : pilaRotte.pop());
     }
 
     private void memorizzaPosizione() {
-        String posizione = ui().getActiveViewLocation().getPathWithQueryParameters();
+        String posizione = posizioneAttuale();
         if (!posizione.equals(pilaRotte.peek())) {
             pilaRotte.push(posizione);
         }
@@ -196,6 +204,10 @@ public class Navigatore {
      */
     private static String indirizzo(String modello, String parametro, UUID id) {
         return modello.replace(":" + parametro + "(" + FORMATO_UUID + ")", id.toString());
+    }
+
+    private static String posizioneAttuale() {
+        return ui().getActiveViewLocation().getPathWithQueryParameters();
     }
 
     private static UI ui() {
