@@ -5,21 +5,14 @@
 */
 package it.mpelettrica.mplan.core.dominio;
 
-import java.util.*;
-import java.time.*;
-
-
-
-// ----------- << imports@AAAAAAGh0+KoH+AR5zk= >>
-// ----------- >>
-
-// ----------- << class.annotations@AAAAAAGh0+KoH+AR5zk= >>
-// ----------- >>
+/**
+ * Tipo di modifica registrata nel registro delle modifiche delle attività (DAT.4).
+ */
 public enum TipoModifica {
+    /** Modifica dei dati dell'attività (titolo, data, orario, descrizione, note). */
     MODIFICA,
+    /** Cambio di stato verso parziale o completata. */
     CAMBIO_STATO,
+    /** Annullamento dell'attività con il relativo motivo. */
     ANNULLAMENTO;
-
-// ----------- << enum.extras@AAAAAAGh0+KoH+AR5zk= >>
-// ----------- >>
 }

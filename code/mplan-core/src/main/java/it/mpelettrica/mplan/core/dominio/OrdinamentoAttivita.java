@@ -5,25 +5,30 @@
 */
 package it.mpelettrica.mplan.core.dominio;
 
-import java.util.*;
-import java.time.*;
+import it.mpelettrica.mplan.api.Attivita;
+import java.time.LocalTime;
+import java.util.Comparator;
 
+/**
+ * I due modi di ordinare le attività. I repository restituiscono i dati senza ordinarli,
+ * così la regola sta in un posto solo.
+ */
+public final class OrdinamentoAttivita {
 
+    /**
+     * Ordine dell'agenda: prima le attività senza orario, poi per orario crescente
+     * (FUN.10.2, FUN.10.3). Tra attività senza orario o con lo stesso orario l'ordine non è vincolato.
+     */
+    public static final Comparator<Attivita> PER_AGENDA =
+            Comparator.comparing(Attivita::ora, Comparator.nullsFirst(Comparator.<LocalTime>naturalOrder()));
 
-// ----------- << imports@AAAAAAGh0+BNON686LI= >>
-// ----------- >>
+    /**
+     * Ordine dello storico: per data crescente, dalla più vecchia alla più recente; nello stesso
+     * giorno prima le attività senza orario, poi per orario (FUN.9, FUN.9.2).
+     */
+    public static final Comparator<Attivita> PER_STORICO =
+            Comparator.comparing(Attivita::data).thenComparing(PER_AGENDA);
 
-// ----------- << class.annotations@AAAAAAGh0+BNON686LI= >>
-// ----------- >>
-public class OrdinamentoAttivita {
-    // ----------- << attribute.annotations@AAAAAAGh0+JH79/evGA= >>
-    // ----------- >>
-    private static Comparator<Attivita> PER_STORICO;
-
-    // ----------- << attribute.annotations@AAAAAAGh0+K4ZuAY/GI= >>
-    // ----------- >>
-    private static Comparator<Attivita> PER_AGENDA;
-
-// ----------- << class.extras@AAAAAAGh0+BNON686LI= >>
-// ----------- >>
+    private OrdinamentoAttivita() {
+    }
 }

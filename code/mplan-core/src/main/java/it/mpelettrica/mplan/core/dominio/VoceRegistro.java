@@ -5,49 +5,29 @@
 */
 package it.mpelettrica.mplan.core.dominio;
 
-import java.util.*;
-import java.time.*;
+import java.time.LocalDateTime;
+import java.util.Objects;
+import java.util.UUID;
 
+/**
+ * Una riga del registro delle modifiche delle attività (FUN.13, DAT.4).
+ * Una volta scritta non cambia più.
+ *
+ * @param quando data e ora della modifica, obbligatoria
+ * @param idAttivita identificativo dell'attività interessata, obbligatorio
+ * @param tipo tipo di modifica, obbligatorio
+ * @param motivo motivo o descrizione della modifica; può essere {@code null}
+ */
+public record VoceRegistro(LocalDateTime quando, UUID idAttivita, TipoModifica tipo, String motivo) {
 
-
-// ----------- << imports@AAAAAAGh09+MLt5P+Co= >>
-// ----------- >>
-
-// ----------- << class.annotations@AAAAAAGh09+MLt5P+Co= >>
-// ----------- >>
-public class VoceRegistro {
-    // ----------- << attribute.annotations@AAAAAAGh09+aVd5bbNQ= >>
-    // ----------- >>
-    private LocalDateTime quando;
-
-    // ----------- << attribute.annotations@AAAAAAGh09zRUdzM2oQ= >>
-    // ----------- >>
-    private UUID idAttivita;
-
-    // ----------- << attribute.annotations@AAAAAAGh09/IWt53ONQ= >>
-    // ----------- >>
-    private TipoModifica tipo;
-
-    // ----------- << attribute.annotations@AAAAAAGh0+JtXt/1OA8= >>
-    // ----------- >>
-    private String motivo;
-
-    private LocalDateTime getQuando() {
-        return quando;
+    /**
+     * Costruttore canonico: controlla che i campi obbligatori non siano {@code null}.
+     *
+     * @throws NullPointerException se {@code quando}, {@code idAttivita} o {@code tipo} sono {@code null}
+     */
+    public VoceRegistro {
+        Objects.requireNonNull(quando, "quando");
+        Objects.requireNonNull(idAttivita, "idAttivita");
+        Objects.requireNonNull(tipo, "tipo");
     }
-
-    private UUID getIdAttivita() {
-        return idAttivita;
-    }
-
-    private TipoModifica getTipo() {
-        return tipo;
-    }
-
-    private String getMotivo() {
-        return motivo;
-    }
-
-// ----------- << class.extras@AAAAAAGh09+MLt5P+Co= >>
-// ----------- >>
 }
