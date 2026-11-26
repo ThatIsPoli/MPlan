@@ -14,6 +14,9 @@ import java.util.UUID;
  *
  * <p>Tutti i metodi possono lanciare {@link PersistenzaException} in caso di guasto del
  * database. Le liste restituite sono immutabili. Le attività non si eliminano mai (FUN.12.2).
+ *
+ * <p>Un argomento {@code null} è un errore di programmazione e fa lanciare
+ * {@link NullPointerException}.
  */
 public interface AttivitaService {
 
@@ -22,6 +25,7 @@ public interface AttivitaService {
      *
      * @param id identificativo dell'attività
      * @return l'attività, o un {@code Optional} vuoto se non esiste
+     * @throws NullPointerException se un argomento è {@code null}
      * @throws PersistenzaException in caso di errore del database
      */
     Optional<Attivita> trova(UUID id);
@@ -33,6 +37,7 @@ public interface AttivitaService {
      * @param idContatto identificativo del contatto
      * @param dati i dati scritti dall'utente
      * @return l'attività creata
+     * @throws NullPointerException se un argomento è {@code null}
      * @throws ValidazioneException se i dati non sono validi
      * @throws IllegalArgumentException se il contatto non esiste
      * @throws PersistenzaException in caso di errore del database
@@ -47,6 +52,7 @@ public interface AttivitaService {
      * @param id identificativo dell'attività
      * @param dati i nuovi dati
      * @return l'attività aggiornata
+     * @throws NullPointerException se un argomento è {@code null}
      * @throws ValidazioneException se i dati non sono validi
      * @throws IllegalArgumentException se l'attività non esiste
      * @throws IllegalStateException se l'attività è annullata
@@ -59,6 +65,7 @@ public interface AttivitaService {
      *
      * @param id identificativo dell'attività
      * @return l'attività aggiornata
+     * @throws NullPointerException se un argomento è {@code null}
      * @throws IllegalArgumentException se l'attività non esiste
      * @throws IllegalStateException se la transizione di stato non è ammessa
      * @throws PersistenzaException in caso di errore del database
@@ -71,6 +78,7 @@ public interface AttivitaService {
      *
      * @param id identificativo dell'attività
      * @return l'attività aggiornata
+     * @throws NullPointerException se un argomento è {@code null}
      * @throws IllegalArgumentException se l'attività non esiste
      * @throws IllegalStateException se la transizione di stato non è ammessa
      * @throws PersistenzaException in caso di errore del database
@@ -84,6 +92,7 @@ public interface AttivitaService {
      * @param id identificativo dell'attività
      * @param motivo motivo dell'annullamento, obbligatorio e al massimo di 1000 caratteri
      * @return l'attività annullata
+     * @throws NullPointerException se un argomento è {@code null}
      * @throws ValidazioneException se il motivo è vuoto o troppo lungo
      * @throws IllegalArgumentException se l'attività non esiste
      * @throws IllegalStateException se l'annullamento non è ammesso
@@ -97,6 +106,7 @@ public interface AttivitaService {
      *
      * @param idContatto identificativo del contatto
      * @return lista immutabile, mai {@code null}, vuota se non ci sono attività
+     * @throws NullPointerException se un argomento è {@code null}
      * @throws PersistenzaException in caso di errore del database
      */
     List<Attivita> storico(UUID idContatto);
@@ -106,6 +116,7 @@ public interface AttivitaService {
      *
      * @param dati i dati scritti dall'utente
      * @return gli errori campo per campo: lista immutabile, vuota se i dati sono validi
+     * @throws NullPointerException se un argomento è {@code null}
      */
     List<ErroreValidazione> valida(DatiAttivita dati);
 }

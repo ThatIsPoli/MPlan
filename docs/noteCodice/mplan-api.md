@@ -22,7 +22,7 @@ Il modulo contiene il contratto tra GUI e resto del programma, nel package `it.m
 | `DatiAttivita` | Costruttore vuoto esplicito, getter e setter pubblici, nessun controllo. La Javadoc di `getData` dice che con data `null` i servizi usano oggi |
 | `PersistenzaException` | I due costruttori ora chiamano `super(...)`. Aggiunto `serialVersionUID` |
 | `ValidazioneException` | Un solo `getErrori()` pubblico (quello privato generato è stato tolto). Campo `errori` `final`, assegnato nel costruttore con `List.copyOf`. Il messaggio dell'eccezione è composto da un metodo privato `creaMessaggio`. Aggiunto `serialVersionUID` |
-| `ContattoService`, `AttivitaService`, `AgendaService`, `ChiusuraApplicazione` | Firme invariate, Javadoc completa con `@throws` (`ValidazioneException`, `IllegalArgumentException` per id inesistente, `IllegalStateException` per transizioni o modifiche non ammesse, `PersistenzaException`), ordinamenti delle liste e regola della data predefinita |
+| `ContattoService`, `AttivitaService`, `AgendaService`, `ChiusuraApplicazione` | Firme invariate, Javadoc completa con `@throws` (`ValidazioneException`, `IllegalArgumentException` per id inesistente, `IllegalStateException` per transizioni o modifiche non ammesse, `PersistenzaException`, `NullPointerException` per gli argomenti `null`, `IllegalStateException` in `attivitaDelGiorno` per dati incoerenti), ordinamenti delle liste e regola della data predefinita |
 
 ## Scelte non ovvie
 

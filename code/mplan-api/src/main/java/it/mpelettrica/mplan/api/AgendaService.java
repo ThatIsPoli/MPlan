@@ -10,6 +10,9 @@ import java.util.List;
 
 /**
  * Servizio dell'agenda giornaliera (FUN.10, FUN.11).
+ *
+ * <p>Un argomento {@code null} è un errore di programmazione e fa lanciare
+ * {@link NullPointerException}.
  */
 public interface AgendaService {
 
@@ -19,6 +22,9 @@ public interface AgendaService {
      *
      * @param giorno il giorno da mostrare
      * @return lista immutabile, mai {@code null}, vuota se non ci sono attività
+     * @throws NullPointerException se un argomento è {@code null}
+     * @throws IllegalStateException se un'attività del giorno appartiene a un contatto
+     *     inesistente (dati incoerenti)
      * @throws PersistenzaException in caso di errore del database
      */
     List<VoceAgenda> attivitaDelGiorno(LocalDate giorno);

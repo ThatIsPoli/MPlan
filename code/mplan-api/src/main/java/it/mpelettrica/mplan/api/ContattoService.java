@@ -14,6 +14,9 @@ import java.util.UUID;
  *
  * <p>Tutti i metodi possono lanciare {@link PersistenzaException} in caso di guasto del
  * database. Le liste restituite sono immutabili.
+ *
+ * <p>Un argomento {@code null} è un errore di programmazione e fa lanciare
+ * {@link NullPointerException}.
  */
 public interface ContattoService {
 
@@ -31,6 +34,7 @@ public interface ContattoService {
      *
      * @param id identificativo del contatto
      * @return il contatto, o un {@code Optional} vuoto se non esiste
+     * @throws NullPointerException se un argomento è {@code null}
      * @throws PersistenzaException in caso di errore del database
      */
     Optional<Contatto> trova(UUID id);
@@ -40,6 +44,7 @@ public interface ContattoService {
      *
      * @param dati i dati scritti dall'utente
      * @return il contatto creato
+     * @throws NullPointerException se un argomento è {@code null}
      * @throws ValidazioneException se i dati non sono validi
      * @throws PersistenzaException in caso di errore del database
      */
@@ -51,6 +56,7 @@ public interface ContattoService {
      * @param id identificativo del contatto
      * @param dati i nuovi dati
      * @return il contatto aggiornato
+     * @throws NullPointerException se un argomento è {@code null}
      * @throws ValidazioneException se i dati non sono validi
      * @throws IllegalArgumentException se il contatto non esiste
      * @throws PersistenzaException in caso di errore del database
@@ -62,6 +68,7 @@ public interface ContattoService {
      *
      * @param dati i dati scritti dall'utente
      * @return gli errori campo per campo: lista immutabile, vuota se i dati sono validi
+     * @throws NullPointerException se un argomento è {@code null}
      */
     List<ErroreValidazione> valida(DatiContatto dati);
 }
