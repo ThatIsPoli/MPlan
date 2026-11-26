@@ -11,7 +11,6 @@ import java.util.UUID;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.card.Card;
-import com.vaadin.flow.component.card.CardVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
@@ -33,16 +32,14 @@ import it.mpelettrica.mplan.ui.componenti.ElencoAttivita;
 import it.mpelettrica.mplan.ui.navigazione.Navigatore;
 
 /**
- * Scheda di un contatto: dati anagrafici, pulsanti per modificarlo o aggiungere un'attivita'
- * e storico delle attivita' (GUI.4, FUN.9).
+ * Scheda di un contatto: in alto il nome e i soli dati compilati, subito sotto lo storico delle
+ * attivita' (GUI.4, FUN.9), con i pulsanti per modificare il contatto o aggiungere un'attivita'.
  */
-@Route("contatti/:" + Navigatore.PARAMETRO_CONTATTO + "(" + Navigatore.FORMATO_UUID + ")")
+@Route(Navigatore.ROTTA_SCHEDA_CONTATTO)
 @PageTitle("MPlan – Scheda contatto")
 public class SchedaContattoView extends VerticalLayout implements BeforeEnterObserver {
 
     private static final long serialVersionUID = 1L;
-
-    private static final String VALORE_ASSENTE = "—";
 
     private static final int DURATA_NOTIFICA_MS = 4000;
 
@@ -114,27 +111,33 @@ public class SchedaContattoView extends VerticalLayout implements BeforeEnterObs
         return true;
     }
 
+    /**
+     * Mostra il nome nel titolo e, nel riquadro, solo i dati compilati (GUI.4); se non ce n'e'
+     * nessuno il riquadro viene nascosto.
+     */
     private void mostraDatiContatto(Contatto contatto) {
         titolo.setText(contatto.cognome() == null ? contatto.nome() : contatto.nome() + " " + contatto.cognome());
         grigliaDati.removeAll();
-        grigliaDati.add(
-                creaCoppia("Nome", contatto.nome()),
-                creaCoppia("Cognome", contatto.cognome()),
-                creaCoppia("Tipo", HomeView.nomeTipo(contatto.tipo())),
-                creaCoppia("Indirizzo", contatto.indirizzo()),
-                creaCoppia("Telefoni", String.join(", ", contatto.telefoni())),
-                creaCoppia("Codice fiscale", contatto.codiceFiscale()),
-                creaCoppia("Partita IVA", contatto.partitaIva()));
+        aggiungiSeCompilato("Tipo", HomeView.nomeTipo(contatto.tipo()));
+        aggiungiSeCompilato("Indirizzo", contatto.indirizzo());
+        aggiungiSeCompilato(contatto.telefoni().size() > 1 ? "Telefoni" : "Telefono",
+                String.join(", ", contatto.telefoni()));
+        aggiungiSeCompilato("Codice fiscale", contatto.codiceFiscale());
+        aggiungiSeCompilato("Partita IVA", contatto.partitaIva());
+        riquadroDati.setVisible(grigliaDati.getComponentCount() > 0);
     }
 
-    private static Div creaCoppia(String etichetta, String valore) {
+    private void aggiungiSeCompilato(String etichetta, String valore) {
+        if (valore == null || valore.isBlank()) {
+            return;
+        }
         Span testoEtichetta = new Span(etichetta);
         testoEtichetta.addClassName("mplan-etichetta");
-        Span testoValore = new Span(valore == null || valore.isBlank() ? VALORE_ASSENTE : valore);
+        Span testoValore = new Span(valore);
         testoValore.addClassName("mplan-valore");
         Div coppia = new Div(testoEtichetta, testoValore);
         coppia.addClassName("mplan-coppia");
-        return coppia;
+        grigliaDati.add(coppia);
     }
 
     private void configuraPagina() {
@@ -155,12 +158,12 @@ public class SchedaContattoView extends VerticalLayout implements BeforeEnterObs
                 evento -> navigatore.vaiANuovaAttivita(idContatto));
         nuovaAttivita.addThemeVariants(ButtonVariant.PRIMARY);
 
-        HorizontalLayout azioni = new HorizontalLayout(indietro, modifica, nuovaAttivita);
+        HorizontalLayout azioni = new HorizontalLayout(modifica, nuovaAttivita);
         azioni.addClassName("mplan-toolbar-azioni");
         azioni.setSpacing(false);
         azioni.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        HorizontalLayout intestazione = new HorizontalLayout(titolo, azioni);
+        HorizontalLayout intestazione = new HorizontalLayout(indietro, titolo, azioni);
         intestazione.addClassName("mplan-toolbar");
         intestazione.setSpacing(false);
         intestazione.setAlignItems(FlexComponent.Alignment.CENTER);
@@ -182,8 +185,6 @@ public class SchedaContattoView extends VerticalLayout implements BeforeEnterObs
     private Card creaRiquadroDati() {
         Card card = new Card();
         card.addClassName("mplan-card-dati");
-        card.addThemeVariants(CardVariant.OUTLINED);
-        card.setTitle("Dati del contatto");
         card.add(grigliaDati);
         return card;
     }

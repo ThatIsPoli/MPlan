@@ -11,17 +11,20 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -36,18 +39,18 @@ import it.mpelettrica.mplan.api.TipoContatto;
 import it.mpelettrica.mplan.ui.navigazione.Navigatore;
 
 /**
- * Schermata principale: elenco dei contatti con ricerca, pulsante per un nuovo contatto
- * e menu con l'agenda giornaliera e la chiusura dell'applicazione (GUI.2).
+ * Schermata principale: la rubrica con la ricerca (GUI.2) e tre pulsanti sempre visibili:
+ * "Nuovo contatto" (GUI.2.1), "Agenda giornaliera" (GUI.2.2) e "Chiudi applicazione", che
+ * realizza l'evento {@code chiudi} dalla Home (Tabella 8.2).
+ * <p>
+ * Un contatto si apre con un clic sulla riga oppure, da tastiera, portando il focus sulla riga
+ * con le frecce e premendo Invio o Spazio (GUI.2.3).
  */
-@Route("")
+@Route(Navigatore.ROTTA_HOME)
 @PageTitle("MPlan – Contatti")
 public class HomeView extends VerticalLayout implements BeforeEnterObserver {
 
     private static final long serialVersionUID = 1L;
-
-    private static final String VOCE_AGENDA = "Agenda giornaliera";
-
-    private static final String VOCE_CHIUDI = "Chiudi applicazione";
 
     private static final int DURATA_NOTIFICA_MS = 5000;
 
@@ -58,11 +61,11 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
 
     private List<Contatto> tuttiContatti;
 
+    private Contatto contattoConFocus;
+
     private final TextField campoRicerca;
 
     private final Grid<Contatto> tabellaContatti;
-
-    private final Select<String> menu;
 
     private final ChiusuraApplicazione chiusuraApplicazione;
 
@@ -83,7 +86,6 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
         this.chiusuraApplicazione = chiusuraApplicazione;
         this.navigatore = navigatore;
         this.tuttiContatti = List.of();
-        this.menu = creaMenu();
         this.campoRicerca = creaRicerca();
         this.tabellaContatti = creaTabella();
         configuraPagina();
@@ -151,11 +153,9 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
         chiusuraApplicazione.chiudi();
     }
 
-    private void eseguiVoceMenu(String voce) {
-        if (VOCE_AGENDA.equals(voce)) {
-            apriAgenda();
-        } else if (VOCE_CHIUDI.equals(voce)) {
-            chiudiApplicazione();
+    private void apriContattoConFocus() {
+        if (contattoConFocus != null) {
+            navigatore.vaiASchedaContatto(contattoConFocus.id());
         }
     }
 
@@ -170,11 +170,18 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
         H1 titolo = new H1("Contatti");
         titolo.addClassName("mplan-titolo-pagina");
 
+        Button agenda = new Button("Agenda giornaliera", VaadinIcon.CALENDAR.create(), evento -> apriAgenda());
+
         Button nuovoContatto = new Button("Nuovo contatto", VaadinIcon.PLUS.create(),
                 evento -> navigatore.vaiANuovoContatto());
         nuovoContatto.addThemeVariants(ButtonVariant.PRIMARY);
 
-        HorizontalLayout azioni = new HorizontalLayout(menu, nuovoContatto);
+        Button chiudi = new Button("Chiudi applicazione", VaadinIcon.POWER_OFF.create(),
+                evento -> chiudiApplicazione());
+        chiudi.addThemeVariants(ButtonVariant.ERROR);
+        chiudi.addClassName("mplan-pulsante-chiudi");
+
+        HorizontalLayout azioni = new HorizontalLayout(agenda, nuovoContatto, chiudi);
         azioni.addClassName("mplan-toolbar-azioni");
         azioni.setSpacing(false);
         azioni.setAlignItems(FlexComponent.Alignment.CENTER);
@@ -184,23 +191,6 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
         intestazione.setSpacing(false);
         intestazione.setAlignItems(FlexComponent.Alignment.CENTER);
         return intestazione;
-    }
-
-    private Select<String> creaMenu() {
-        Select<String> tendina = new Select<>();
-        tendina.addClassName("mplan-menu");
-        tendina.setAriaLabel("Menu");
-        tendina.setPlaceholder("Menu");
-        tendina.setItems(VOCE_AGENDA, VOCE_CHIUDI);
-        tendina.addValueChangeListener(evento -> {
-            String voce = evento.getValue();
-            if (voce == null) {
-                return;
-            }
-            tendina.clear();
-            eseguiVoceMenu(voce);
-        });
-        return tendina;
     }
 
     private TextField creaRicerca() {
@@ -219,9 +209,8 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
     private Grid<Contatto> creaTabella() {
         Grid<Contatto> tabella = new Grid<>();
         tabella.addClassName("mplan-tabella-contatti");
-        tabella.addThemeVariants(GridVariant.NO_BORDER);
         tabella.setSelectionMode(Grid.SelectionMode.NONE);
-        tabella.setEmptyStateText("Nessun contatto trovato.");
+        tabella.setEmptyStateComponent(creaStatoVuoto());
         tabella.addColumn(Contatto::nome).setHeader("Nome")
                 .setComparator(Comparator.comparing(Contatto::nome, ORDINE_TESTO));
         tabella.addColumn(Contatto::cognome).setHeader("Cognome")
@@ -231,7 +220,19 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
         tabella.addColumn(HomeView::telefonoPrincipale).setHeader("Telefono");
         tabella.addColumn(Contatto::indirizzo).setHeader("Indirizzo").setFlexGrow(2);
         tabella.addItemClickListener(evento -> navigatore.vaiASchedaContatto(evento.getItem().id()));
+        tabella.addCellFocusListener(evento -> contattoConFocus = evento.getItem().orElse(null));
+        Shortcuts.addShortcutListener(tabella, this::apriContattoConFocus, Key.ENTER).listenOn(tabella);
         return tabella;
+    }
+
+    private static Div creaStatoVuoto() {
+        Icon icona = VaadinIcon.USERS.create();
+        icona.addClassName("mplan-vuoto-icona");
+        Span testo = new Span("Nessun contatto trovato.");
+        testo.addClassName("mplan-vuoto-testo");
+        Div statoVuoto = new Div(icona, testo);
+        statoVuoto.addClassName("mplan-vuoto");
+        return statoVuoto;
     }
 
     private static String telefonoPrincipale(Contatto contatto) {

@@ -22,7 +22,9 @@ import it.mpelettrica.mplan.api.ValidazioneException;
  * Finestra che chiede il motivo e la conferma prima di annullare un'attivita' (GUI.6).
  * <p>
  * L'annullamento e' definitivo: l'attivita' resta nello storico ma non si puo' piu' modificare.
- * Se il motivo manca o e' troppo lungo la finestra resta aperta e mostra l'errore sul campo.
+ * Se il motivo manca o e' troppo lungo la finestra resta aperta e mostra l'errore sul campo:
+ * la lunghezza la controlla il servizio, il campo non tronca il testo. All'apertura il cursore
+ * e' gia' nel campo del motivo.
  */
 public class DialogoAnnullamento extends Dialog {
 
@@ -89,8 +91,8 @@ public class DialogoAnnullamento extends Dialog {
     private static TextArea creaCampoMotivo() {
         TextArea campo = new TextArea("Motivo dell'annullamento");
         campo.addClassName("mplan-dialogo-campo");
-        campo.setMaxLength(LUNGHEZZA_MASSIMA_MOTIVO);
         campo.setRequiredIndicatorVisible(true);
+        campo.setAutofocus(true);
         campo.setHelperText("Al massimo " + LUNGHEZZA_MASSIMA_MOTIVO + " caratteri.");
         return campo;
     }

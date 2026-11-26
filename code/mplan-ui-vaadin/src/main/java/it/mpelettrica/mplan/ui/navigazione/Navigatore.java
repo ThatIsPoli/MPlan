@@ -13,14 +13,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.router.RouteParameters;
 import com.vaadin.flow.spring.annotation.UIScope;
-
-import it.mpelettrica.mplan.ui.schermate.AgendaGiornalieraView;
-import it.mpelettrica.mplan.ui.schermate.FormAttivitaView;
-import it.mpelettrica.mplan.ui.schermate.FormContattoView;
-import it.mpelettrica.mplan.ui.schermate.HomeView;
-import it.mpelettrica.mplan.ui.schermate.SchedaContattoView;
 
 /**
  * Gestisce gli spostamenti tra le schermate di MPlan e il ritorno alla schermata
@@ -30,6 +23,10 @@ import it.mpelettrica.mplan.ui.schermate.SchedaContattoView;
  * spostamento l'indirizzo corrente viene messo in una pila, e {@link #indietro()} lo
  * riprende. Conserva anche il giorno visualizzato nell'agenda, cosi' che tornando
  * all'agenda da un'attivita' si ritrovi lo stesso giorno.
+ * <p>
+ * Le schermate si raggiungono per indirizzo: i modelli delle rotte sono le costanti
+ * {@code ROTTA_*}, usate anche nelle annotazioni {@code @Route} delle schermate, cosi' che
+ * questo package non dipenda dal package delle schermate.
  */
 @Component
 @UIScope
@@ -48,6 +45,29 @@ public class Navigatore {
     public static final String FORMATO_UUID =
             "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}";
 
+    /** Modello della rotta della schermata principale (rubrica). */
+    public static final String ROTTA_HOME = "";
+
+    /** Modello della rotta della scheda di un contatto. */
+    public static final String ROTTA_SCHEDA_CONTATTO =
+            "contatti/:" + PARAMETRO_CONTATTO + "(" + FORMATO_UUID + ")";
+
+    /** Modello della rotta del form per un nuovo contatto. */
+    public static final String ROTTA_NUOVO_CONTATTO = "contatti/nuovo";
+
+    /** Modello della rotta del form per modificare un contatto. */
+    public static final String ROTTA_MODIFICA_CONTATTO = ROTTA_SCHEDA_CONTATTO + "/modifica";
+
+    /** Modello della rotta del form per una nuova attivita' di un contatto. */
+    public static final String ROTTA_NUOVA_ATTIVITA = ROTTA_SCHEDA_CONTATTO + "/nuova-attivita";
+
+    /** Modello della rotta del form di un'attivita' esistente. */
+    public static final String ROTTA_ATTIVITA =
+            "attivita/:" + PARAMETRO_ATTIVITA + "(" + FORMATO_UUID + ")";
+
+    /** Modello della rotta dell'agenda giornaliera. */
+    public static final String ROTTA_AGENDA = "agenda";
+
     private final Deque<String> pilaRotte;
 
     private LocalDate dataAgenda;
@@ -64,7 +84,7 @@ public class Navigatore {
      */
     public void vaiAHome() {
         pilaRotte.clear();
-        ui().navigate(HomeView.class);
+        ui().navigate(ROTTA_HOME);
     }
 
     /**
@@ -74,7 +94,7 @@ public class Navigatore {
      */
     public void vaiASchedaContatto(UUID idContatto) {
         memorizzaPosizione();
-        ui().navigate(SchedaContattoView.class, parametri(PARAMETRO_CONTATTO, idContatto));
+        ui().navigate(indirizzo(ROTTA_SCHEDA_CONTATTO, PARAMETRO_CONTATTO, idContatto));
     }
 
     /**
@@ -82,7 +102,7 @@ public class Navigatore {
      */
     public void vaiANuovoContatto() {
         memorizzaPosizione();
-        ui().navigate(FormContattoView.class);
+        ui().navigate(ROTTA_NUOVO_CONTATTO);
     }
 
     /**
@@ -92,7 +112,7 @@ public class Navigatore {
      */
     public void vaiAModificaContatto(UUID idContatto) {
         memorizzaPosizione();
-        ui().navigate(FormContattoView.class, parametri(PARAMETRO_CONTATTO, idContatto));
+        ui().navigate(indirizzo(ROTTA_MODIFICA_CONTATTO, PARAMETRO_CONTATTO, idContatto));
     }
 
     /**
@@ -102,7 +122,7 @@ public class Navigatore {
      */
     public void vaiANuovaAttivita(UUID idContatto) {
         memorizzaPosizione();
-        ui().navigate(FormAttivitaView.class, parametri(PARAMETRO_CONTATTO, idContatto));
+        ui().navigate(indirizzo(ROTTA_NUOVA_ATTIVITA, PARAMETRO_CONTATTO, idContatto));
     }
 
     /**
@@ -112,7 +132,7 @@ public class Navigatore {
      */
     public void vaiAApriAttivita(UUID idAttivita) {
         memorizzaPosizione();
-        ui().navigate(FormAttivitaView.class, parametri(PARAMETRO_ATTIVITA, idAttivita));
+        ui().navigate(indirizzo(ROTTA_ATTIVITA, PARAMETRO_ATTIVITA, idAttivita));
     }
 
     /**
@@ -122,7 +142,7 @@ public class Navigatore {
     public void vaiAAgenda() {
         dataAgenda = null;
         memorizzaPosizione();
-        ui().navigate(AgendaGiornalieraView.class);
+        ui().navigate(ROTTA_AGENDA);
     }
 
     /**
@@ -147,11 +167,21 @@ public class Navigatore {
      * Torna alla schermata da cui si era arrivati; se non ce n'e' una, apre la schermata principale.
      */
     public void indietro() {
-        if (pilaRotte.isEmpty()) {
-            ui().navigate(HomeView.class);
-            return;
-        }
-        ui().navigate(pilaRotte.pop());
+        tornaIndietroOppure(ROTTA_HOME);
+    }
+
+    /**
+     * Torna alla schermata da cui si era arrivati; se non ce n'e' una (ad esempio perche' il form
+     * di un'attivita' e' stato aperto scrivendone l'indirizzo), apre la scheda del contatto indicato.
+     *
+     * @param idContatto identificativo del contatto la cui scheda fa da ripiego; non {@code null}
+     */
+    public void indietroOppureScheda(UUID idContatto) {
+        tornaIndietroOppure(indirizzo(ROTTA_SCHEDA_CONTATTO, PARAMETRO_CONTATTO, idContatto));
+    }
+
+    private void tornaIndietroOppure(String ripiego) {
+        ui().navigate(pilaRotte.isEmpty() ? ripiego : pilaRotte.pop());
     }
 
     private void memorizzaPosizione() {
@@ -161,8 +191,11 @@ public class Navigatore {
         }
     }
 
-    private static RouteParameters parametri(String nome, UUID id) {
-        return new RouteParameters(nome, id.toString());
+    /**
+     * Ricava un indirizzo da un modello di rotta, mettendo l'identificativo al posto del parametro.
+     */
+    private static String indirizzo(String modello, String parametro, UUID id) {
+        return modello.replace(":" + parametro + "(" + FORMATO_UUID + ")", id.toString());
     }
 
     private static UI ui() {

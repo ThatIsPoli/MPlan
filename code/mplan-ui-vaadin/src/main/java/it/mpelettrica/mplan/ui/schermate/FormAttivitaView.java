@@ -5,29 +5,26 @@
 */
 package it.mpelettrica.mplan.ui.schermate;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.vaadin.flow.component.Focusable;
 import com.vaadin.flow.component.HasValidation;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.card.Card;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
@@ -48,20 +45,21 @@ import it.mpelettrica.mplan.ui.componenti.LocalizzazioneDate;
 import it.mpelettrica.mplan.ui.navigazione.Navigatore;
 
 /**
- * Form per inserire una nuova attivita' di un contatto o aprirne una esistente (GUI.5, FUN.4, FUN.5).
+ * Form per inserire una nuova attivita' di un contatto o aprirne una esistente (GUI.5, FUN.4, FUN.5),
+ * con i campi di DAT.2 divisi in tre sezioni: quando, cosa e note.
  * <p>
- * Per un'attivita' esistente mostra anche la barra dello stato. Un'attivita' annullata e' in
- * sola lettura; una completata resta modificabile nei testi (FUN.5.1). La data proposta e' oggi;
- * una data o un'ora scritte male bloccano il salvataggio con un messaggio sul campo (DAT.5, FUN.11).
+ * Per un'attivita' esistente mostra anche la barra dello stato (GUI.5.2) con l'annullamento (GUI.6).
+ * Un'attivita' annullata e' in sola lettura; una completata resta modificabile nei testi (FUN.5.1).
+ * La data proposta e' oggi (DAT.2.2); una data o un'ora scritte male bloccano il salvataggio con un
+ * messaggio sul campo (DAT.2.3, DAT.5). Dopo il salvataggio, o con "Indietro", si torna alla
+ * schermata di provenienza (Tabella 8.2).
  */
-@Route("contatti/:" + Navigatore.PARAMETRO_CONTATTO + "(" + Navigatore.FORMATO_UUID + ")/nuova-attivita")
-@RouteAlias("attivita/:" + Navigatore.PARAMETRO_ATTIVITA + "(" + Navigatore.FORMATO_UUID + ")")
+@Route(Navigatore.ROTTA_NUOVA_ATTIVITA)
+@RouteAlias(Navigatore.ROTTA_ATTIVITA)
 @PageTitle("MPlan – Attività")
 public class FormAttivitaView extends VerticalLayout implements BeforeEnterObserver {
 
     private static final long serialVersionUID = 1L;
-
-    private static final int LUNGHEZZA_TITOLO = 100;
 
     private static final int LUNGHEZZA_TESTO = 5000;
 
@@ -79,7 +77,7 @@ public class FormAttivitaView extends VerticalLayout implements BeforeEnterObser
 
     private final DatePicker campoData = new DatePicker("Data");
 
-    private final TimePicker campoOra = new TimePicker("Ora");
+    private final TextField campoOra = new TextField("Ora");
 
     private final TextArea campoDescrizione = new TextArea("Descrizione");
 
@@ -119,7 +117,7 @@ public class FormAttivitaView extends VerticalLayout implements BeforeEnterObser
         configuraPagina();
         configuraCampi();
         configuraBinder();
-        add(creaIntestazione(), barraStato, riquadroMotivo, creaForm(), creaPulsanti());
+        add(creaIntestazione(), creaForm());
     }
 
     /**
@@ -222,7 +220,7 @@ public class FormAttivitaView extends VerticalLayout implements BeforeEnterObser
         binder.writeBeanIfValid(dati);
         List<ErroreValidazione> errori = validaCampi(dati);
         if (!errori.isEmpty()) {
-            mostraErrori(errori);
+            FormContattoView.mostraErroriSuiCampi(campiPerNome, errori);
             return;
         }
         try {
@@ -232,11 +230,19 @@ public class FormAttivitaView extends VerticalLayout implements BeforeEnterObser
                 attivitaService.modifica(idAttivita, dati);
             }
         } catch (ValidazioneException e) {
-            mostraErrori(e.getErrori());
+            FormContattoView.mostraErroriSuiCampi(campiPerNome, e.getErrori());
             return;
         }
         Notification.show("Attività salvata.", DURATA_NOTIFICA_MS, Notification.Position.BOTTOM_START);
-        navigatore.indietro();
+        tornaIndietro();
+    }
+
+    /**
+     * Torna alla schermata di provenienza; se il form e' stato aperto scrivendone l'indirizzo,
+     * torna alla scheda del contatto dell'attivita'.
+     */
+    private void tornaIndietro() {
+        navigatore.indietroOppureScheda(idContatto);
     }
 
     private void evidenziaInputNonValido() {
@@ -247,30 +253,8 @@ public class FormAttivitaView extends VerticalLayout implements BeforeEnterObser
         }
     }
 
-    private void mostraErrori(List<ErroreValidazione> errori) {
-        List<String> senzaCampo = new ArrayList<>();
-        HasValidation primo = null;
-        for (ErroreValidazione errore : errori) {
-            HasValidation campo = campiPerNome.get(errore.campo());
-            if (campo == null) {
-                senzaCampo.add(errore.motivo());
-                continue;
-            }
-            campo.setErrorMessage(errore.motivo());
-            campo.setInvalid(true);
-            primo = primo == null ? campo : primo;
-        }
-        if (primo instanceof Focusable<?> daEvidenziare) {
-            daEvidenziare.focus();
-        }
-        if (!senzaCampo.isEmpty()) {
-            Notification.show(String.join(" ", senzaCampo), DURATA_NOTIFICA_MS, Notification.Position.MIDDLE)
-                    .addThemeVariants(NotificationVariant.ERROR);
-        }
-    }
-
     private void pulisciErrori() {
-        campiPerNome.values().forEach(campo -> campo.setInvalid(false));
+        FormContattoView.pulisciErroriSuiCampi(campiPerNome);
     }
 
     private static DatiAttivita copiaInDati(Attivita attivita) {
@@ -291,6 +275,7 @@ public class FormAttivitaView extends VerticalLayout implements BeforeEnterObser
         Map<String, HasValidation> campi = new LinkedHashMap<>();
         campi.put("titolo", campoTitolo);
         campi.put("data", campoData);
+        campi.put("ora", campoOra);
         campi.put("descrizione", campoDescrizione);
         campi.put("note", campoNote);
         return campi;
@@ -305,24 +290,21 @@ public class FormAttivitaView extends VerticalLayout implements BeforeEnterObser
     }
 
     private void configuraCampi() {
-        campoTitolo.setMaxLength(LUNGHEZZA_TITOLO);
         campoTitolo.setRequiredIndicatorVisible(true);
         LocalizzazioneDate.applica(campoData);
         campoData.setHelperText("Se la lasci vuota, vale la data di oggi.");
-        LocalizzazioneDate.applica(campoOra);
-        campoOra.setHelperText("Facoltativa.");
-        campoOra.setClearButtonVisible(true);
-        campoDescrizione.setMaxLength(LUNGHEZZA_TESTO);
+        LocalizzazioneDate.applicaOra(campoOra);
+        campoOra.setHelperText("Facoltativa, nel formato hh:mm.");
         campoDescrizione.setHelperText("Al massimo " + LUNGHEZZA_TESTO + " caratteri.");
-        campoNote.setMaxLength(LUNGHEZZA_TESTO);
-        campoNote.setHelperText("Al massimo " + LUNGHEZZA_TESTO + " caratteri.");
+        campoNote.setHelperText("Anche i materiali necessari. Al massimo " + LUNGHEZZA_TESTO + " caratteri.");
     }
 
     private void configuraBinder() {
         binder.forField(campoTitolo).withNullRepresentation("")
                 .bind(DatiAttivita::getTitolo, DatiAttivita::setTitolo);
         binder.forField(campoData).bind(DatiAttivita::getData, DatiAttivita::setData);
-        binder.forField(campoOra).bind(DatiAttivita::getOra, DatiAttivita::setOra);
+        binder.forField(campoOra).withConverter(LocalizzazioneDate.convertitoreOra())
+                .bind(DatiAttivita::getOra, DatiAttivita::setOra);
         binder.forField(campoDescrizione).withNullRepresentation("")
                 .bind(DatiAttivita::getDescrizione, DatiAttivita::setDescrizione);
         binder.forField(campoNote).withNullRepresentation("")
@@ -338,21 +320,27 @@ public class FormAttivitaView extends VerticalLayout implements BeforeEnterObser
         return intestazione;
     }
 
-    private FormLayout creaForm() {
-        FormLayout form = new FormLayout();
-        form.addClassName("mplan-form");
-        form.setAutoResponsive(true);
-        form.setExpandColumns(true);
-        form.setExpandFields(true);
-        form.addFormRow(campoData, campoOra);
-        form.add(campoTitolo, 2);
-        form.add(campoDescrizione, 2);
-        form.add(campoNote, 2);
-        return form;
+    private Card creaForm() {
+        FormLayout quando = FormContattoView.creaSezione();
+        quando.addFormRow(campoData, campoOra);
+
+        FormLayout cosa = FormContattoView.creaSezione();
+        cosa.add(campoTitolo, 2);
+        cosa.add(campoDescrizione, 2);
+
+        FormLayout note = FormContattoView.creaSezione();
+        note.add(campoNote, 2);
+
+        return FormContattoView.creaRiquadroForm(
+                barraStato, riquadroMotivo,
+                FormContattoView.creaTitoloSezione("Quando"), quando,
+                FormContattoView.creaTitoloSezione("Cosa"), cosa,
+                FormContattoView.creaTitoloSezione("Note e materiali"), note,
+                creaPulsanti());
     }
 
     private HorizontalLayout creaPulsanti() {
-        Button indietro = new Button("Indietro", evento -> navigatore.indietro());
+        Button indietro = new Button("Indietro", evento -> tornaIndietro());
         indietro.addThemeVariants(ButtonVariant.TERTIARY);
         btnSalva.addThemeVariants(ButtonVariant.PRIMARY);
         HorizontalLayout pulsanti = new HorizontalLayout(indietro, btnSalva);

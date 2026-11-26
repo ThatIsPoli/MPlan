@@ -12,12 +12,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Focusable;
 import com.vaadin.flow.component.HasValidation;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.card.Card;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -42,26 +45,25 @@ import it.mpelettrica.mplan.ui.componenti.EditorTelefoni;
 import it.mpelettrica.mplan.ui.navigazione.Navigatore;
 
 /**
- * Form per inserire un nuovo contatto o modificarne uno esistente (GUI.3, FUN.1, FUN.2).
+ * Form per inserire un nuovo contatto o modificarne uno esistente (GUI.3, FUN.1, FUN.2), con i
+ * campi di DAT.1 divisi in tre sezioni: dati anagrafici, recapiti e dati fiscali.
  * <p>
  * Al salvataggio i dati vengono controllati dal servizio: ogni errore compare sotto il campo
  * a cui si riferisce e i dati inseriti restano nel form (DAT.5). Dopo il salvataggio si torna
- * alla schermata di provenienza; "Indietro" torna senza salvare (Tabella 8.2).
+ * alla schermata di provenienza; "Indietro" torna senza salvare (evento {@code chiudi},
+ * Tabella 8.2). I campi non impongono limiti di lunghezza: un testo troppo lungo viene
+ * segnalato dal servizio con il suo messaggio, invece di essere troncato in silenzio.
  */
-@Route("contatti/nuovo")
-@RouteAlias("contatti/:" + Navigatore.PARAMETRO_CONTATTO + "(" + Navigatore.FORMATO_UUID + ")/modifica")
+@Route(Navigatore.ROTTA_NUOVO_CONTATTO)
+@RouteAlias(Navigatore.ROTTA_MODIFICA_CONTATTO)
 @PageTitle("MPlan – Contatto")
 public class FormContattoView extends VerticalLayout implements BeforeEnterObserver {
 
     private static final long serialVersionUID = 1L;
 
-    private static final int LUNGHEZZA_NOME = 100;
-
-    private static final int LUNGHEZZA_CODICE_FISCALE = 16;
-
-    private static final int LUNGHEZZA_PARTITA_IVA = 11;
-
     private static final String CAMPO_TELEFONI = "telefoni";
+
+    private static final String TIPO_NON_INDICATO = "Non indicato";
 
     private static final int DURATA_NOTIFICA_MS = 3000;
 
@@ -106,7 +108,7 @@ public class FormContattoView extends VerticalLayout implements BeforeEnterObser
         configuraPagina();
         configuraCampi();
         configuraBinder();
-        add(creaIntestazione(), creaForm(), creaPulsanti());
+        add(creaIntestazione(), creaForm());
     }
 
     /**
@@ -135,11 +137,89 @@ public class FormContattoView extends VerticalLayout implements BeforeEnterObser
         editorTelefoni.impostaNumeri(contatto.get().telefoni());
     }
 
+    /**
+     * Mostra ogni errore sotto il campo a cui si riferisce e porta il focus sul primo campo in errore;
+     * gli errori che non corrispondono a nessun campo compaiono in una notifica (DAT.5). Usato anche
+     * dal form dell'attivita'.
+     *
+     * @param campi  i campi del form, indicizzati per nome del campo nel servizio
+     * @param errori gli errori restituiti dal servizio
+     */
+    static void mostraErroriSuiCampi(Map<String, HasValidation> campi, List<ErroreValidazione> errori) {
+        List<String> senzaCampo = new ArrayList<>();
+        HasValidation primo = null;
+        for (ErroreValidazione errore : errori) {
+            HasValidation campo = campi.get(errore.campo());
+            if (campo == null) {
+                senzaCampo.add(errore.motivo());
+                continue;
+            }
+            campo.setErrorMessage(errore.motivo());
+            campo.setInvalid(true);
+            primo = primo == null ? campo : primo;
+        }
+        if (primo instanceof Focusable<?> daEvidenziare) {
+            daEvidenziare.focus();
+        }
+        if (!senzaCampo.isEmpty()) {
+            Notification.show(String.join(" ", senzaCampo), DURATA_NOTIFICA_MS, Notification.Position.MIDDLE)
+                    .addThemeVariants(NotificationVariant.ERROR);
+        }
+    }
+
+    /**
+     * Toglie l'evidenza di errore da tutti i campi; usato anche dal form dell'attivita'.
+     *
+     * @param campi i campi del form
+     */
+    static void pulisciErroriSuiCampi(Map<String, HasValidation> campi) {
+        campi.values().forEach(campo -> campo.setInvalid(false));
+    }
+
+    /**
+     * Crea il titoletto di una sezione del form; usato anche dal form dell'attivita'.
+     *
+     * @param testo il titolo della sezione
+     * @return il titoletto
+     */
+    static H2 creaTitoloSezione(String testo) {
+        H2 titoloSezione = new H2(testo);
+        titoloSezione.addClassName("mplan-sezione-titolo");
+        return titoloSezione;
+    }
+
+    /**
+     * Crea una sezione del form: due colonne su una finestra larga, una su una finestra stretta.
+     * Usato anche dal form dell'attivita'.
+     *
+     * @return la sezione, ancora vuota
+     */
+    static FormLayout creaSezione() {
+        FormLayout sezione = new FormLayout();
+        sezione.addClassName("mplan-form");
+        sezione.setAutoResponsive(true);
+        sezione.setExpandColumns(true);
+        sezione.setExpandFields(true);
+        return sezione;
+    }
+
+    /**
+     * Raccoglie titoletti, sezioni e pulsanti di un form in un riquadro bianco; usato anche dal
+     * form dell'attivita'.
+     *
+     * @param contenuto il contenuto del riquadro, nell'ordine in cui va mostrato
+     * @return il riquadro del form
+     */
+    static Card creaRiquadroForm(Component... contenuto) {
+        Card riquadro = new Card();
+        riquadro.addClassName("mplan-card-form");
+        riquadro.add(contenuto);
+        return riquadro;
+    }
+
     private void preparaNuovoContatto() {
         titolo.setText("Nuovo contatto");
-        DatiContatto dati = new DatiContatto();
-        dati.setTipo(TipoContatto.PRIVATO);
-        binder.readBean(dati);
+        binder.readBean(new DatiContatto());
         editorTelefoni.impostaNumeri(List.of());
     }
 
@@ -177,33 +257,19 @@ public class FormContattoView extends VerticalLayout implements BeforeEnterObser
     }
 
     private void mostraErrori(List<ErroreValidazione> errori) {
-        List<String> senzaCampo = new ArrayList<>();
-        HasValidation primo = null;
+        List<ErroreValidazione> suiCampi = new ArrayList<>();
         for (ErroreValidazione errore : errori) {
             if (CAMPO_TELEFONI.equals(errore.campo())) {
                 editorTelefoni.mostraErrore(errore.motivo());
-                continue;
+            } else {
+                suiCampi.add(errore);
             }
-            HasValidation campo = campiPerNome.get(errore.campo());
-            if (campo == null) {
-                senzaCampo.add(errore.motivo());
-                continue;
-            }
-            campo.setErrorMessage(errore.motivo());
-            campo.setInvalid(true);
-            primo = primo == null ? campo : primo;
         }
-        if (primo instanceof Focusable<?> daEvidenziare) {
-            daEvidenziare.focus();
-        }
-        if (!senzaCampo.isEmpty()) {
-            Notification.show(String.join(" ", senzaCampo), DURATA_NOTIFICA_MS, Notification.Position.MIDDLE)
-                    .addThemeVariants(NotificationVariant.ERROR);
-        }
+        mostraErroriSuiCampi(campiPerNome, suiCampi);
     }
 
     private void pulisciErrori() {
-        campiPerNome.values().forEach(campo -> campo.setInvalid(false));
+        pulisciErroriSuiCampi(campiPerNome);
         editorTelefoni.pulisciErrore();
     }
 
@@ -236,16 +302,17 @@ public class FormContattoView extends VerticalLayout implements BeforeEnterObser
     }
 
     private void configuraCampi() {
-        campoNome.setMaxLength(LUNGHEZZA_NOME);
         campoNome.setRequiredIndicatorVisible(true);
-        campoCognome.setMaxLength(LUNGHEZZA_NOME);
-        campoCodiceFiscale.setMaxLength(LUNGHEZZA_CODICE_FISCALE);
+        campoNome.setHelperText("Per un'azienda o un cantiere, la denominazione.");
         campoCodiceFiscale.setHelperText("16 caratteri, oppure 11 cifre per un'azienda.");
-        campoPartitaIva.setMaxLength(LUNGHEZZA_PARTITA_IVA);
         campoPartitaIva.setHelperText("11 cifre.");
         campoTipo.setLabel("Tipo");
         campoTipo.setItems(TipoContatto.values());
         campoTipo.setItemLabelGenerator(HomeView::nomeTipo);
+        // Nessun tipo predefinito (DAT.1.7): la voce vuota permette anche di togliere un tipo gia' salvato
+        campoTipo.setEmptySelectionAllowed(true);
+        campoTipo.setEmptySelectionCaption(TIPO_NON_INDICATO);
+        campoTipo.setPlaceholder(TIPO_NON_INDICATO);
     }
 
     private void configuraBinder() {
@@ -271,18 +338,23 @@ public class FormContattoView extends VerticalLayout implements BeforeEnterObser
         return intestazione;
     }
 
-    private FormLayout creaForm() {
-        FormLayout form = new FormLayout();
-        form.addClassName("mplan-form");
-        form.setAutoResponsive(true);
-        form.setExpandColumns(true);
-        form.setExpandFields(true);
-        form.addFormRow(campoNome, campoCognome);
-        form.addFormRow(campoTipo);
-        form.add(campoIndirizzo, 2);
-        form.addFormRow(campoCodiceFiscale, campoPartitaIva);
-        form.add(editorTelefoni, 2);
-        return form;
+    private Card creaForm() {
+        FormLayout anagrafica = creaSezione();
+        anagrafica.addFormRow(campoNome, campoCognome);
+        anagrafica.addFormRow(campoTipo);
+
+        FormLayout recapiti = creaSezione();
+        recapiti.add(campoIndirizzo, 2);
+        recapiti.add(editorTelefoni, 2);
+
+        FormLayout fiscali = creaSezione();
+        fiscali.addFormRow(campoCodiceFiscale, campoPartitaIva);
+
+        return creaRiquadroForm(
+                creaTitoloSezione("Dati anagrafici"), anagrafica,
+                creaTitoloSezione("Recapiti"), recapiti,
+                creaTitoloSezione("Dati fiscali"), fiscali,
+                creaPulsanti());
     }
 
     private HorizontalLayout creaPulsanti() {

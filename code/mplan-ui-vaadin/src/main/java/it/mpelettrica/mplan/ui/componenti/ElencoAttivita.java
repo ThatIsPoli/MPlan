@@ -15,8 +15,11 @@ import com.vaadin.flow.component.HasAriaRole;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.badge.Badge;
+import com.vaadin.flow.component.card.Card;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.virtuallist.VirtualList;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
@@ -31,7 +34,8 @@ import it.mpelettrica.mplan.api.VoceAgenda;
  * Le righe sono disegnate solo quando sono visibili, quindi anche migliaia di attivita'
  * si aprono subito (NFR.3). Ogni riga mostra lo stato con un badge; le attivita' annullate
  * hanno il titolo barrato (GUI.8). Un clic sulla riga, o il tasto Invio quando la riga ha
- * il focus, apre l'attivita'.
+ * il focus, apre l'attivita'. Le colonne hanno larghezze fisse, cosi' le righe restano
+ * allineate anche con titoli molto lunghi.
  */
 public class ElencoAttivita extends VerticalLayout {
 
@@ -45,7 +49,9 @@ public class ElencoAttivita extends VerticalLayout {
 
     private final VirtualList<VoceElenco> lista;
 
-    private final Span messaggioVuoto;
+    private final Span testoVuoto;
+
+    private final Card messaggioVuoto;
 
     /**
      * Crea un elenco vuoto.
@@ -55,7 +61,8 @@ public class ElencoAttivita extends VerticalLayout {
     public ElencoAttivita(Consumer<UUID> alClick) {
         this.alClick = alClick;
         this.lista = creaLista();
-        this.messaggioVuoto = creaMessaggioVuoto();
+        this.testoVuoto = new Span();
+        this.messaggioVuoto = creaMessaggioVuoto(testoVuoto);
         addClassName("mplan-elenco-attivita");
         setPadding(false);
         setSpacing(false);
@@ -75,6 +82,7 @@ public class ElencoAttivita extends VerticalLayout {
                 .map(a -> new VoceElenco(a.id(), a.stato(), LocalizzazioneDate.formattaData(a.data()),
                         formattaOra(a, SENZA_ORA_STORICO), null, a.titolo()))
                 .toList();
+        impostaTipo("mplan-elenco-storico");
         mostra(voci, "Nessuna attività registrata per questo contatto.");
         if (!voci.isEmpty()) {
             lista.scrollToEnd();
@@ -92,6 +100,7 @@ public class ElencoAttivita extends VerticalLayout {
                 .map(v -> new VoceElenco(v.attivita().id(), v.attivita().stato(), null,
                         formattaOra(v.attivita(), SENZA_ORA_AGENDA), v.nomeContatto(), v.attivita().titolo()))
                 .toList();
+        impostaTipo("mplan-elenco-agenda");
         mostra(righe, "Nessuna attività in questo giorno.");
     }
 
@@ -107,8 +116,13 @@ public class ElencoAttivita extends VerticalLayout {
         return badge;
     }
 
-    private void mostra(List<VoceElenco> voci, String testoVuoto) {
-        messaggioVuoto.setText(testoVuoto);
+    private void impostaTipo(String classe) {
+        removeClassNames("mplan-elenco-storico", "mplan-elenco-agenda");
+        addClassName(classe);
+    }
+
+    private void mostra(List<VoceElenco> voci, String testoSeVuoto) {
+        testoVuoto.setText(testoSeVuoto);
         messaggioVuoto.setVisible(voci.isEmpty());
         lista.setVisible(!voci.isEmpty());
         lista.setItems(voci);
@@ -153,9 +167,13 @@ public class ElencoAttivita extends VerticalLayout {
         return elenco;
     }
 
-    private static Span creaMessaggioVuoto() {
-        Span messaggio = new Span();
+    private static Card creaMessaggioVuoto(Span testo) {
+        Icon icona = VaadinIcon.CALENDAR_O.create();
+        icona.addClassName("mplan-vuoto-icona");
+        testo.addClassName("mplan-vuoto-testo");
+        Card messaggio = new Card();
         messaggio.addClassName("mplan-elenco-vuoto");
+        messaggio.add(icona, testo);
         messaggio.setVisible(false);
         return messaggio;
     }
