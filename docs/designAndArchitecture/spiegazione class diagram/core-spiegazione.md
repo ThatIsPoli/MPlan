@@ -101,7 +101,7 @@ Per questo molte classi non hanno attributi nel riquadro. Quando il tipo di un c
 
 **Corsivo e `#`.** Un nome in corsivo indica una classe astratta: non si possono creare oggetti di quella classe, serve solo da superclasse. Nel core è astratta solo `OsservabileAttivita`. Il `#` davanti a un'operazione vuol dire protetta: la possono usare solo la classe stessa e le sue sottoclassi, come i tre metodi `notifica...` che `AttivitaServiceImpl` eredita.
 
-**{readOnly}.** Il valore non si può cambiare. `PER_STORICO` e `PER_AGENDA` diventano costanti `public static final`.
+**{readOnly}.** Il valore non si può cambiare. `PER_STORICO` e `PER_AGENDA` diventano costanti `public static final`, mentre i quattro campi di `VoceRegistro` diventano i componenti del record (punto 8).
 
 **Il rettangolino tratteggiato con la T.** È il parametro di tipo di una classe generica, come in `List<T>`. `Validatore<T>` vuol dire "valida dati di un tipo che sceglie chi lo implementa":
 
@@ -160,7 +160,7 @@ private final Validatore<DatiAttivita> validatore;   // in AttivitaServiceImpl
 
 Si usano così: `lista.sort(OrdinamentoAttivita.PER_AGENDA)`. Il repository restituisce i dati senza ordinarli, così la regola sta in un posto solo.
 
-**VoceRegistro** è una riga del registro delle modifiche: quando, quale attività, che tipo di modifica, motivo. **TipoModifica** dice il tipo: `MODIFICA`, `CAMBIO_STATO`, `ANNULLAMENTO` (DAT.4). Stanno nel core perché la GUI non li usa.
+**VoceRegistro** è una riga del registro delle modifiche: quando, quale attività, che tipo di modifica, motivo. Una volta scritta non cambia più, quindi è un **«record»** di Java come i record di api (punto 4 di `api-spiegazione.md`). **TipoModifica** dice il tipo: `MODIFICA`, `CAMBIO_STATO`, `ANNULLAMENTO` (DAT.4). Stanno nel core perché la GUI non li usa.
 
 ## 9. Package `servizi`
 
@@ -229,3 +229,4 @@ Degli altri pattern visti a lezione:
 ## 12. Cosa resta da fare
 
 - Nel core non resta niente da disegnare: il diagramma di `mplan-api` ora c'è ed è spiegato in `api-spiegazione.md`. Il codice del core si scrive dopo la generazione con Rebel.
+- Dopo la generazione `VoceRegistro` va trasformata a mano in record, come i quattro record di api, perché Rebel genera una classe normale.

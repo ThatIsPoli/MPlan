@@ -96,7 +96,7 @@ In accordo con la **FSM di Navigazione GUI (Sezione 8.2 dei requisiti)** e gli s
   - Tasti rapidi di scorrimento: `[< Giorno precedente]`, `[Giorno successivo >]`.
   - Selettore diretto `selettoreData: DatePicker` per saltare a qualsiasi data specifica.
 - **Contenuto:** Mostra le voci dell'agenda tramite `elencoAttivita.mostraAgenda(voci)` ottenute da `agendaService.agendaGiorno(giornoCorrente)`.
-- **Ritorno Contestuale:** Quando l'utente clicca su un'attività in agenda, viene aperta la `FormAttivitaView`; alla chiusura, il `Navigatore` ripristina la visualizzazione dell'agenda esattamente sul giorno che si stava consultando (`aggiornaDataAgenda(data)`).
+- **Ritorno Contestuale:** Ogni volta che cambia giorno, la vista lo passa al `Navigatore` con `aggiornaDataAgenda(giorno)`, che lo salva nel campo `dataAgenda`. Quando l'utente apre un'attività e poi torna indietro, Vaadin crea una nuova `AgendaGiornalieraView`: in `beforeEnter` la vista usa `navigatore.dataAgenda()` se c'è, altrimenti `agendaService.oggi()`. `vaiAAgenda()`, usato dalla Home, azzera `dataAgenda`: così l'agenda aperta dalla Home parte sempre da oggi (`FUN.10.4`), mentre tornando dal form si ritrova il giorno che si stava guardando (`GUI.1.1`).
 
 ---
 
@@ -141,6 +141,7 @@ Per risolvere tali problemi è stata introdotta la classe **`Navigatore`**:
 - **Pila delle Rotte (`pilaRotte: Deque<String>`):**
   - Ogni transizione verso una vista figlia (es. `vaiASchedaContatto`, `vaiANuovoContatto`, `vaiAApriAttivita`) effettua il push della rotta di partenza sulla pila interna prima di eseguire `UI.navigate(...)`.
   - Il metodo `indietro()` effettua il `pop()` della rotta precedente e naviga verso di essa; se la pila è vuota, esegue il fallback sicuro verso `HomeView` (`""`).
+- **Giorno dell'agenda (`dataAgenda: LocalDate`):** il `Navigatore` ricorda l'ultimo giorno mostrato dall'agenda, perché la vista viene ricreata a ogni navigazione. `aggiornaDataAgenda(data)` lo salva, `dataAgenda()` lo restituisce e `vaiAAgenda()` lo azzera (vedi 3.5). Il `Navigatore` non legge l'orologio del PC: il giorno corrente lo dà `agendaService.oggi()` (D9).
 - **Disaccoppiamento Completo:** Le viste dipendono solo dall'interfaccia semantica di `Navigatore` (`navigatore.vaiAAgenda()`, `navigatore.indietro()`), senza mai maneggiare stringhe di rotta o riferimenti incrociati ad altre schermate.
 
 ---
