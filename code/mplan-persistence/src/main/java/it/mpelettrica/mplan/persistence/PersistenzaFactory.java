@@ -5,73 +5,134 @@
 */
 package it.mpelettrica.mplan.persistence;
 
-import java.util.*;
-import java.time.*;
+import java.sql.SQLException;
 
+import org.jooq.ConnectionProvider;
+import org.jooq.DSLContext;
+import org.jooq.SQLDialect;
+import org.jooq.conf.Settings;
+import org.jooq.impl.DSL;
+import org.jooq.impl.DataSourceConnectionProvider;
+import org.jooq.impl.DefaultConfiguration;
+import org.jooq.impl.DefaultConnectionProvider;
+import org.jooq.impl.DefaultExecuteListenerProvider;
+import org.sqlite.SQLiteConfig;
+import org.sqlite.SQLiteDataSource;
 
+import it.mpelettrica.mplan.api.PersistenzaException;
+import it.mpelettrica.mplan.core.repository.AttivitaRepository;
+import it.mpelettrica.mplan.core.repository.ContattoRepository;
+import it.mpelettrica.mplan.core.repository.GestoreTransazioni;
+import it.mpelettrica.mplan.core.repository.RegistroRepository;
+import it.mpelettrica.mplan.persistence.infrastruttura.ContestoTransazione;
+import it.mpelettrica.mplan.persistence.infrastruttura.GestoreTransazioniJooq;
+import it.mpelettrica.mplan.persistence.infrastruttura.InizializzatoreSchema;
+import it.mpelettrica.mplan.persistence.infrastruttura.TraduttoreEccezioni;
+import it.mpelettrica.mplan.persistence.repository.JooqAttivitaRepository;
+import it.mpelettrica.mplan.persistence.repository.JooqContattoRepository;
+import it.mpelettrica.mplan.persistence.repository.JooqRegistroRepository;
 
-// ----------- << imports@AAAAAAcUGUNCRT2mGrkx >>
-// ----------- >>
-
-// ----------- << class.annotations@AAAAAAcUGUNCRT2mGrkx >>
-// ----------- >>
+/**
+ * Punto d'ingresso del modulo: configura SQLite e jOOQ e crea schema,
+ * transazioni e repository, senza esporre nulla di jOOQ o di JDBC.
+ * Per gli URL in memoria ({@code jdbc:sqlite::memory:}) usa una sola
+ * connessione, tenuta aperta, altrimenti il database sparirebbe.
+ */
 public class PersistenzaFactory {
-    // ----------- << attribute.annotations@AAAAAAdrDYi5GjbcyjA2 >>
-    // ----------- >>
-    private ContestoTransazione contesto;
 
-    // ----------- << attribute.annotations@AAAAAAeFwXWiFihY9MXV >>
-    // ----------- >>
-    private InizializzatoreSchema inizializzatore;
+    private static final int ATTESA_BLOCCO_MS = 5000;
 
-    private ContestoTransazione getContesto() {
-        return contesto;
-    }
+    private final ContestoTransazione contesto;
 
-    private InizializzatoreSchema getInizializzatore() {
-        return inizializzatore;
+    private final InizializzatoreSchema inizializzatore;
+
+    /**
+     * Prepara l'accesso al database.
+     *
+     * @param urlJdbc indirizzo JDBC di SQLite, per esempio {@code jdbc:sqlite:C:/dati/mplan.db}
+     * @throws PersistenzaException se non si riesce ad aprire il database
+     */
+    public PersistenzaFactory(String urlJdbc) {
+        DSLContext dslBase = creaDsl(urlJdbc);
+        this.contesto = new ContestoTransazione(dslBase);
+        this.inizializzatore = new InizializzatoreSchema(dslBase);
     }
 
     /**
-    * @param urlJdbc
-    */
-
-    // ----------- << method.annotations@AAAAAAecIo2zCh8o18+q >>
-    // ----------- >>
-    public PersistenzaFactory(String urlJdbc) {
-    // ----------- << method.body@AAAAAAecIo2zCh8o18+q >>
-    // ----------- >>
-    }
-    // ----------- << method.annotations@AAAAAAfL2PxNUrayjNCX >>
-    // ----------- >>
+     * Crea tabelle e indici mancanti, senza toccare i dati esistenti.
+     *
+     * @throws PersistenzaException se lo schema non si può creare
+     */
     public void inizializzaSchema() {
-    // ----------- << method.body@AAAAAAfL2PxNUrayjNCX >>
-    // ----------- >>
+        inizializzatore.inizializza();
     }
-    // ----------- << method.annotations@AAAAAAfUgU06e5nFiqxD >>
-    // ----------- >>
+
+    /**
+     * Crea il gestore delle transazioni.
+     *
+     * @return il gestore delle transazioni
+     */
     public GestoreTransazioni creaGestoreTransazioni() {
-    // ----------- << method.body@AAAAAAfUgU06e5nFiqxD >>
-    // ----------- >>
+        return new GestoreTransazioniJooq(contesto);
     }
-    // ----------- << method.annotations@AAAAAAcynIkPxSjR5pb0 >>
-    // ----------- >>
+
+    /**
+     * Crea il repository dei contatti.
+     *
+     * @return il repository dei contatti
+     */
     public ContattoRepository creaContattoRepository() {
-    // ----------- << method.body@AAAAAAcynIkPxSjR5pb0 >>
-    // ----------- >>
+        return new JooqContattoRepository(contesto);
     }
-    // ----------- << method.annotations@AAAAAAf1cm+4vGYwtWYo >>
-    // ----------- >>
+
+    /**
+     * Crea il repository delle attività.
+     *
+     * @return il repository delle attività
+     */
     public AttivitaRepository creaAttivitaRepository() {
-    // ----------- << method.body@AAAAAAf1cm+4vGYwtWYo >>
-    // ----------- >>
+        return new JooqAttivitaRepository(contesto);
     }
-    // ----------- << method.annotations@AAAAAAemrBgbIuornf0h >>
-    // ----------- >>
+
+    /**
+     * Crea il repository del registro delle modifiche.
+     *
+     * @return il repository del registro
+     */
     public RegistroRepository creaRegistroRepository() {
-    // ----------- << method.body@AAAAAAemrBgbIuornf0h >>
-    // ----------- >>
+        return new JooqRegistroRepository(contesto);
     }
-// ----------- << class.extras@AAAAAAcUGUNCRT2mGrkx >>
-// ----------- >>
+
+    private static DSLContext creaDsl(String urlJdbc) {
+        DefaultConfiguration configurazione = new DefaultConfiguration();
+        configurazione.set(SQLDialect.SQLITE);
+        configurazione.set(creaConnectionProvider(urlJdbc));
+        configurazione.set(new DefaultExecuteListenerProvider(new TraduttoreEccezioni()));
+        configurazione.set(new Settings().withRenderSchema(false));
+        return DSL.using(configurazione);
+    }
+
+    private static ConnectionProvider creaConnectionProvider(String urlJdbc) {
+        SQLiteDataSource sorgente = new SQLiteDataSource(creaConfigurazioneSqlite());
+        sorgente.setUrl(urlJdbc);
+        if (!inMemoria(urlJdbc)) {
+            return new DataSourceConnectionProvider(sorgente);
+        }
+        try {
+            return new DefaultConnectionProvider(sorgente.getConnection());
+        } catch (SQLException e) {
+            throw new PersistenzaException("Impossibile aprire il database in memoria", e);
+        }
+    }
+
+    private static SQLiteConfig creaConfigurazioneSqlite() {
+        SQLiteConfig configurazione = new SQLiteConfig();
+        configurazione.enforceForeignKeys(true);
+        configurazione.setBusyTimeout(ATTESA_BLOCCO_MS);
+        return configurazione;
+    }
+
+    private static boolean inMemoria(String urlJdbc) {
+        return urlJdbc.contains(":memory:") || urlJdbc.contains("mode=memory");
+    }
 }

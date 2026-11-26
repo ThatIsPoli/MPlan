@@ -5,58 +5,54 @@
 */
 package it.mpelettrica.mplan.persistence.repository;
 
-import java.util.*;
-import java.time.*;
+import static it.mpelettrica.mplan.persistence.jooq.Tables.VOCE_REGISTRO;
 
+import java.util.List;
+import java.util.UUID;
 
+import it.mpelettrica.mplan.core.dominio.VoceRegistro;
 import it.mpelettrica.mplan.core.repository.RegistroRepository;
 import it.mpelettrica.mplan.persistence.infrastruttura.ContestoTransazione;
-// ----------- << imports@AAAAAAef5C3Yg32PjRcH >>
-// ----------- >>
+import it.mpelettrica.mplan.persistence.mapping.VoceRegistroMapper;
 
-// ----------- << class.annotations@AAAAAAef5C3Yg32PjRcH >>
-// ----------- >>
+/**
+ * Implementazione jOOQ di {@link RegistroRepository}: il registro è solo in
+ * aggiunta, senza modifiche né cancellazioni.
+ */
 public class JooqRegistroRepository implements RegistroRepository {
-    // ----------- << attribute.annotations@AAAAAAdbTi6G7NlowNNa >>
-    // ----------- >>
-    private ContestoTransazione contesto;
 
-    private ContestoTransazione getContesto() {
-        return contesto;
-    }
+    private final ContestoTransazione contesto;
 
     /**
-    * @param contesto
-    */
-
-    // ----------- << method.annotations@AAAAAAckeDdmbk0PRsdQ >>
-    // ----------- >>
+     * Crea il repository.
+     *
+     * @param contesto contesto che fornisce il canale jOOQ corrente
+     */
     public JooqRegistroRepository(ContestoTransazione contesto) {
-    // ----------- << method.body@AAAAAAckeDdmbk0PRsdQ >>
-    // ----------- >>
+        this.contesto = contesto;
     }
-    /**
-    * @param voce
-    */
 
+    /**
+     * Aggiunge una voce in coda al registro.
+     *
+     * @param voce voce da aggiungere
+     */
     @Override
-    // ----------- << method.annotations@AAAAAAeymdLP5R0J8mFy >>
-    // ----------- >>
     public void aggiungi(VoceRegistro voce) {
-    // ----------- << method.body@AAAAAAeymdLP5R0J8mFy >>
-    // ----------- >>
+        contesto.dslCorrente().executeInsert(VoceRegistroMapper.aRecord(voce));
     }
-    /**
-    * @param idAttivita
-    */
 
+    /**
+     * Restituisce le voci di un'attività in ordine cronologico.
+     *
+     * @param idAttivita identificativo dell'attività
+     * @return le voci del registro dell'attività
+     */
     @Override
-    // ----------- << method.annotations@AAAAAAf3LnMyd9vjhv9x >>
-    // ----------- >>
     public List<VoceRegistro> trovaPerAttivita(UUID idAttivita) {
-    // ----------- << method.body@AAAAAAf3LnMyd9vjhv9x >>
-    // ----------- >>
+        return contesto.dslCorrente().selectFrom(VOCE_REGISTRO)
+                .where(VOCE_REGISTRO.ID_ATTIVITA.eq(idAttivita.toString()))
+                .orderBy(VOCE_REGISTRO.QUANDO, VOCE_REGISTRO.ID)
+                .fetch(VoceRegistroMapper::daRecord);
     }
-// ----------- << class.extras@AAAAAAef5C3Yg32PjRcH >>
-// ----------- >>
 }
