@@ -5,127 +5,164 @@
 */
 package it.mpelettrica.mplan.ui.navigazione;
 
-import java.util.*;
-import java.time.*;
+import java.time.LocalDate;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.UUID;
 
+import org.springframework.stereotype.Component;
 
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.router.RouteParameters;
+import com.vaadin.flow.spring.annotation.UIScope;
 
-// ----------- << imports@AAAAAA3js6DH9sRZqyWQS >>
-// ----------- >>
+import it.mpelettrica.mplan.ui.schermate.AgendaGiornalieraView;
+import it.mpelettrica.mplan.ui.schermate.FormAttivitaView;
+import it.mpelettrica.mplan.ui.schermate.FormContattoView;
+import it.mpelettrica.mplan.ui.schermate.HomeView;
+import it.mpelettrica.mplan.ui.schermate.SchedaContattoView;
 
-// ----------- << class.annotations@AAAAAA3js6DH9sRZqyWQS >>
-// ----------- >>
+/**
+ * Gestisce gli spostamenti tra le schermate di MPlan e il ritorno alla schermata
+ * di provenienza (diagramma di navigazione, Figura 8.2 della specifica).
+ * <p>
+ * Ogni scheda del browser ha il proprio navigatore ({@link UIScope}): prima di ogni
+ * spostamento l'indirizzo corrente viene messo in una pila, e {@link #indietro()} lo
+ * riprende. Conserva anche il giorno visualizzato nell'agenda, cosi' che tornando
+ * all'agenda da un'attivita' si ritrovi lo stesso giorno.
+ */
+@Component
+@UIScope
 public class Navigatore {
-    // ----------- << attribute.annotations@AAAAAAbLUOHFVbSAmXZx4 >>
-    // ----------- >>
-    private Deque<String> pilaRotte;
 
-    // ----------- << attribute.annotations@AAAAAAGhMPlanNavDataAg= >>
-    // ----------- >>
+    /** Nome del parametro di rotta con l'identificativo del contatto. */
+    public static final String PARAMETRO_CONTATTO = "idContatto";
+
+    /** Nome del parametro di rotta con l'identificativo dell'attivita'. */
+    public static final String PARAMETRO_ATTIVITA = "idAttivita";
+
+    private final Deque<String> pilaRotte;
+
     private LocalDate dataAgenda;
 
-    private Deque<String> getPilaRotte() {
-        return pilaRotte;
+    /**
+     * Crea un navigatore con la pila delle schermate vuota e nessun giorno di agenda memorizzato.
+     */
+    public Navigatore() {
+        this.pilaRotte = new ArrayDeque<>();
     }
 
-    private LocalDate getDataAgenda() {
+    /**
+     * Torna alla schermata principale e dimentica le schermate visitate.
+     */
+    public void vaiAHome() {
+        pilaRotte.clear();
+        ui().navigate(HomeView.class);
+    }
+
+    /**
+     * Apre la scheda di un contatto.
+     *
+     * @param idContatto identificativo del contatto da mostrare; non {@code null}
+     */
+    public void vaiASchedaContatto(UUID idContatto) {
+        memorizzaPosizione();
+        ui().navigate(SchedaContattoView.class, parametri(PARAMETRO_CONTATTO, idContatto));
+    }
+
+    /**
+     * Apre il form per inserire un nuovo contatto.
+     */
+    public void vaiANuovoContatto() {
+        memorizzaPosizione();
+        ui().navigate(FormContattoView.class);
+    }
+
+    /**
+     * Apre il form per modificare un contatto esistente.
+     *
+     * @param idContatto identificativo del contatto da modificare; non {@code null}
+     */
+    public void vaiAModificaContatto(UUID idContatto) {
+        memorizzaPosizione();
+        ui().navigate(FormContattoView.class, parametri(PARAMETRO_CONTATTO, idContatto));
+    }
+
+    /**
+     * Apre il form per inserire una nuova attivita' di un contatto.
+     *
+     * @param idContatto identificativo del contatto a cui appartiene l'attivita'; non {@code null}
+     */
+    public void vaiANuovaAttivita(UUID idContatto) {
+        memorizzaPosizione();
+        ui().navigate(FormAttivitaView.class, parametri(PARAMETRO_CONTATTO, idContatto));
+    }
+
+    /**
+     * Apre un'attivita' esistente per consultarla, modificarla o cambiarne lo stato.
+     *
+     * @param idAttivita identificativo dell'attivita' da aprire; non {@code null}
+     */
+    public void vaiAApriAttivita(UUID idAttivita) {
+        memorizzaPosizione();
+        ui().navigate(FormAttivitaView.class, parametri(PARAMETRO_ATTIVITA, idAttivita));
+    }
+
+    /**
+     * Apre l'agenda giornaliera sul giorno corrente (FUN.10.4): il giorno memorizzato
+     * in precedenza viene dimenticato.
+     */
+    public void vaiAAgenda() {
+        dataAgenda = null;
+        memorizzaPosizione();
+        ui().navigate(AgendaGiornalieraView.class);
+    }
+
+    /**
+     * Memorizza il giorno visualizzato nell'agenda.
+     *
+     * @param data il giorno mostrato dall'agenda; {@code null} per dimenticarlo
+     */
+    public void aggiornaDataAgenda(LocalDate data) {
+        this.dataAgenda = data;
+    }
+
+    /**
+     * Restituisce il giorno visualizzato per ultimo nell'agenda.
+     *
+     * @return il giorno memorizzato, oppure {@code null} se l'agenda va aperta sul giorno corrente
+     */
+    public LocalDate dataAgenda() {
         return dataAgenda;
     }
 
-    private void setPilaRotte(Deque<String> pilaRotte) {
-        this.pilaRotte = pilaRotte;
-    }
-
-    private void setDataAgenda(LocalDate dataAgenda) {
-        this.dataAgenda = dataAgenda;
-    }
-
-    // ----------- << method.annotations@AAAAAA5uqtznaVTQCmpxJ >>
-    // ----------- >>
-    public Navigatore() {
-    // ----------- << method.body@AAAAAA5uqtznaVTQCmpxJ >>
-    // ----------- >>
-    }
-    // ----------- << method.annotations@AAAAAAr84L1USzQeqwy3f >>
-    // ----------- >>
-    public void vaiAHome() {
-    // ----------- << method.body@AAAAAAr84L1USzQeqwy3f >>
-    // ----------- >>
-    }
     /**
-    * @param idContatto
-    */
-
-    // ----------- << method.annotations@AAAAAAVChYQHgVTauRbdx >>
-    // ----------- >>
-    public void vaiASchedaContatto(UUID idContatto) {
-    // ----------- << method.body@AAAAAAVChYQHgVTauRbdx >>
-    // ----------- >>
-    }
-    // ----------- << method.annotations@AAAAAAUUuoUrRCRHq2cSq >>
-    // ----------- >>
-    public void vaiANuovoContatto() {
-    // ----------- << method.body@AAAAAAUUuoUrRCRHq2cSq >>
-    // ----------- >>
-    }
-    /**
-    * @param idContatto
-    */
-
-    // ----------- << method.annotations@AAAAAAd01npzcoSLKPP2p >>
-    // ----------- >>
-    public void vaiAModificaContatto(UUID idContatto) {
-    // ----------- << method.body@AAAAAAd01npzcoSLKPP2p >>
-    // ----------- >>
-    }
-    /**
-    * @param idContatto
-    */
-
-    // ----------- << method.annotations@AAAAAAN+mbZzL7RWO2bUb >>
-    // ----------- >>
-    public void vaiANuovaAttivita(UUID idContatto) {
-    // ----------- << method.body@AAAAAAN+mbZzL7RWO2bUb >>
-    // ----------- >>
-    }
-    /**
-    * @param idAttivita
-    */
-
-    // ----------- << method.annotations@AAAAAATXE4SNW3TE6XZZ1 >>
-    // ----------- >>
-    public void vaiAApriAttivita(UUID idAttivita) {
-    // ----------- << method.body@AAAAAATXE4SNW3TE6XZZ1 >>
-    // ----------- >>
-    }
-    // ----------- << method.annotations@AAAAAABGDPjsl2QaKXW3c >>
-    // ----------- >>
-    public void vaiAAgenda() {
-    // ----------- << method.body@AAAAAABGDPjsl2QaKXW3c >>
-    // ----------- >>
-    }
-    /**
-    * @param data
-    */
-
-    // ----------- << method.annotations@AAAAAAKQUWjXsmRCC5LlU >>
-    // ----------- >>
-    public void aggiornaDataAgenda(LocalDate data) {
-    // ----------- << method.body@AAAAAAKQUWjXsmRCC5LlU >>
-    // ----------- >>
-    }
-    // ----------- << method.annotations@AAAAAAGhMrHmZQf2jpb5 >>
-    // ----------- >>
-    public LocalDate dataAgenda() {
-    // ----------- << method.body@AAAAAAGhMrHmZQf2jpb5 >>
-    // ----------- >>
-    }
-    // ----------- << method.annotations@AAAAAAa+BTWDKHRWGrdLR >>
-    // ----------- >>
+     * Torna alla schermata da cui si era arrivati; se non ce n'e' una, apre la schermata principale.
+     */
     public void indietro() {
-    // ----------- << method.body@AAAAAAa+BTWDKHRWGrdLR >>
-    // ----------- >>
+        if (pilaRotte.isEmpty()) {
+            ui().navigate(HomeView.class);
+            return;
+        }
+        ui().navigate(pilaRotte.pop());
     }
-// ----------- << class.extras@AAAAAA3js6DH9sRZqyWQS >>
-// ----------- >>
+
+    private void memorizzaPosizione() {
+        String posizione = ui().getActiveViewLocation().getPathWithQueryParameters();
+        if (!posizione.equals(pilaRotte.peek())) {
+            pilaRotte.push(posizione);
+        }
+    }
+
+    private static RouteParameters parametri(String nome, UUID id) {
+        return new RouteParameters(nome, id.toString());
+    }
+
+    private static UI ui() {
+        UI ui = UI.getCurrent();
+        if (ui == null) {
+            throw new IllegalStateException("Navigazione richiesta fuori da una sessione dell'interfaccia.");
+        }
+        return ui;
+    }
 }
