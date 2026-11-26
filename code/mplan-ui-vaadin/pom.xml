@@ -34,6 +34,16 @@
             <artifactId>vaadin-spring</artifactId>
         </dependency>
 
+        <!--
+            API servlet solo in compilazione: VaadinSession implementa interfacce servlet.
+            A runtime la fornisce il server web interno di Spring Boot (mplan-app).
+        -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- Log4j API -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
