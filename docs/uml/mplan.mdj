@@ -54310,16 +54310,6 @@
 																	"name": "tabellaContatti",
 																	"visibility": "private",
 																	"type": "Grid<Contatto>"
-																},
-																{
-																	"_type": "UMLAttribute",
-																	"_id": "AAAAAANK/pAJUMQFWYIL0",
-																	"_parent": {
-																		"$ref": "AAAAAAR1TwAJSQQvOH6FE"
-																	},
-																	"name": "menu",
-																	"visibility": "private",
-																	"type": "Select<String>"
 																}
 															],
 															"operations": [
@@ -64196,23 +64186,6 @@
 											"width": 698,
 											"height": 13,
 											"text": "-tabellaContatti: Grid<Contatto>",
-											"horizontalAlignment": 0
-										},
-										{
-											"_type": "UMLAttributeView",
-											"_id": "AAAAAA5Se+og8gR36O5mQ",
-											"_parent": {
-												"$ref": "AAAAAAl0fJBHktTKGjB6b"
-											},
-											"model": {
-												"$ref": "AAAAAANK/pAJUMQFWYIL0"
-											},
-											"font": "Arial;13;0",
-											"left": 85,
-											"top": 625,
-											"width": 698,
-											"height": 13,
-											"text": "-menu: Select<String>",
 											"horizontalAlignment": 0
 										}
 									],

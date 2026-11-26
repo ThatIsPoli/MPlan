@@ -1,6 +1,6 @@
 # Differenze tra codice e class diagram
 
-Confronto tra il codice di `code/` (branch `80-implementazione-completa-del-codice`) e il class diagram `docs/uml/mplan.mdj`. Il diagramma **non è stato modificato**: questo documento elenca cosa cambia, così il team può decidere se aggiornarlo.
+Confronto tra il codice di `code/` (branch `80-implementazione-completa-del-codice`) e il class diagram `docs/uml/mplan.mdj`. Il diagramma è stato modificato una sola volta, con approvazione: il 26/11/2026 è stato tolto il campo `menu` di `HomeView` (vedi sotto). Per tutto il resto questo documento elenca cosa cambia, così il team può decidere se aggiornarlo.
 
 ## Come è stato fatto il confronto
 
@@ -50,11 +50,13 @@ Le quattro classi iniziali sono state approvate prima dell'implementazione; `Vis
 | `ui.infrastruttura.GestoreErroriUI` | `static String nuovoCodice()`, `static String messaggioPer(Throwable)` (package-private) | Codice dell'errore e messaggio per l'utente, condivisi con `VistaErrore`. |
 | `app.MPlanApplication` | `static URI costruisciUri(String, int)` (package-private) | Indirizzo locale dell'app, usato sia al primo sia al secondo avvio. |
 
-### 2bis. Membri del diagramma tolti dal codice
+### 2bis. Membri tolti dal codice e dal diagramma
 
-| Classe | Membro nel diagramma | Motivo |
+Il diagramma è già allineato: il campo è stato tolto anche da `mplan.mdj`.
+
+| Classe | Membro tolto | Motivo |
 |---|---|---|
-| `ui.schermate.HomeView` | `- menu: Select<String>`, con la voce "Agenda giornaliera" e la voce "Chiudi applicazione" | Su richiesta dell'utente la tendina è sostituita da due pulsanti sempre visibili, "Agenda giornaliera" e "Chiudi applicazione". GUI.2.2 è stato aggiornato nella specifica (versione 0.4.5). I metodi privati `apriAgenda()` e `chiudiApplicazione()` restano. |
+| `ui.schermate.HomeView` | `- menu: Select<String>`, che conteneva la voce "Agenda giornaliera" e la voce "Chiudi applicazione" | Su richiesta dell'utente la tendina è sostituita da due pulsanti sempre visibili, "Agenda giornaliera" e "Chiudi applicazione". GUI.2.2 è stato aggiornato nella specifica (versione 0.4.5). I metodi privati `apriAgenda()` e `chiudiApplicazione()` restano. |
 
 ### 3. Firme cambiate (membri privati)
 
@@ -94,7 +96,7 @@ Se il team vuole che il diagramma rispecchi il codice, in ordine di importanza:
 
 1. Aggiungere `VistaErrore`, `VistaPaginaNonTrovata` e `LocalizzazioneDate` (package `ui`) con le loro relazioni.
 2. Aggiornare le tre firme private delle schermate (`validaCampi`, `caricaAttivita`, `caricaScheda`), `creaRiga` e il tipo di `riquadroDati`.
-3. Aggiungere le costanti pubbliche di `Navigatore` e togliere il campo `menu` di `HomeView`.
+3. Aggiungere le costanti pubbliche di `Navigatore`.
 4. Facoltativo: `ControlliTesto`, `Testi`, `AppShellConfigurator` su `MPlanApplication` e la dipendenza `MPlanApplication → AperturaBrowser`.
 
-La modifica di `mplan.mdj` va fatta solo dopo l'approvazione del team.
+Le altre modifiche a `mplan.mdj` vanno fatte solo dopo l'approvazione del team.
