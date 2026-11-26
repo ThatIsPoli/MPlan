@@ -12,7 +12,7 @@ Tutti i file: tolti i marcatori Javazzar (resta l'intestazione), import esplicit
 
 | File | Cosa è stato fatto |
 |---|---|
-| `PersistenzaFactory` | Costruttore che configura SQLite (`SQLiteConfig`: chiavi esterne attive, `busy_timeout` 5 secondi), il dialetto jOOQ, il `TraduttoreEccezioni` e crea `ContestoTransazione` e `InizializzatoreSchema`. I cinque metodi `crea...` e `inizializzaSchema` delegano ai collaboratori. |
+| `PersistenzaFactory` | Costruttore che configura SQLite (`SQLiteConfig`: chiavi esterne attive, `busy_timeout` 5 secondi, transazioni `BEGIN IMMEDIATE`), il dialetto jOOQ, il `TraduttoreEccezioni` e crea `ContestoTransazione` e `InizializzatoreSchema`. I cinque metodi `crea...` e `inizializzaSchema` delegano ai collaboratori. |
 | `infrastruttura/ContestoTransazione` | `ThreadLocal` inizializzato; `<T>` aggiunto a `eseguiConContesto`; al termine ripristina il canale precedente, quindi le chiamate annidate sono coerenti. |
 | `infrastruttura/GestoreTransazioniJooq` | `<T>` aggiunto a `inTransazione`; usa `transactionResult` di jOOQ (annidamento nativo con savepoint). Le eccezioni dell'operazione passano invariate dopo il rollback; solo `DataAccessException` diventa `PersistenzaException`. |
 | `infrastruttura/InizializzatoreSchema` | Legge `/schema.sql` dal classpath, toglie i commenti, divide sugli `;` ed esegue gli statement in un'unica transazione. |
@@ -26,7 +26,8 @@ Tutti i file: tolti i marcatori Javazzar (resta l'intestazione), import esplicit
 - **Database in memoria.** Per URL con `:memory:` si apre una sola connessione, tenuta aperta da un `DefaultConnectionProvider`, altrimenti il database sparirebbe. Per un file si usa `DataSourceConnectionProvider` su `SQLiteDataSource`. Il diagramma citava `DataSource`: è l'unica differenza.
 - **Chiavi esterne.** `PRAGMA foreign_keys` si attiva con `SQLiteConfig` a ogni connessione.
 - **Telefoni.** Stanno in `TELEFONO_CONTATTO` e si leggono con `ORDER BY rowid` (ordine di inserimento). `aggiorna` cancella e reinserisce i numeri. Nessuna deduplica: un doppione viola la chiave primaria e diventa `PersistenzaException`.
-- **`tutti()`** usa due query complessive, non una per contatto.
+- **`tutti()`** usa due query complessive, non una per contatto, eseguite nella stessa transazione per avere una lettura coerente (se è già aperta una transazione si annida).
+- **`BEGIN IMMEDIATE`.** Con il `BEGIN` differito di SQLite una transazione che prima legge e poi scrive, se un'altra scrive nel frattempo, fallisce subito con `SQLITE_BUSY` perché il `busy_timeout` non vale per il passaggio da lettura a scrittura. Con `TransactionMode.IMMEDIATE` il blocco di scrittura si prende all'inizio e l'attesa funziona.
 - **`aggiorna` su id inesistente** lancia `IllegalArgumentException` (errore di programmazione).
 - **Registro.** `trovaPerAttivita` ordina per `quando` e poi per `id`.
 - **Errori.** Le istruzioni SQL fallite sono tradotte dal listener di jOOQ; gli errori di apertura connessione o commit da `GestoreTransazioniJooq`.
@@ -47,4 +48,5 @@ Nessuna classe o metodo pubblico aggiunto. Unica differenza: `ConnectionProvider
   - rollback con l'eccezione del core rilanciata invariata, e commit di attività e registro insieme;
   - savepoint annidato: l'operazione interna fallita viene annullata e quella esterna conferma il resto; se fallisce l'esterna si annulla anche l'interna;
   - dopo gli errori il canale torna quello di base e le operazioni fuori transazione funzionano.
+- **Concorrenza** (prova temporanea, 8 thread per 40 transazioni che leggono con `perContatto` e `tutti` e poi scrivono, su un database file): 320 riuscite su 320. Ripetuti con `BEGIN IMMEDIATE` anche `:memory:`, `tutti()` dentro e fuori transazione, savepoint annidati, rollback con eccezione invariata e chiave esterna: tutto corretto.
 - Sulla JDK 27 sqlite-jdbc stampa un avviso sull'accesso nativo (`--enable-native-access`): è solo un avviso.
