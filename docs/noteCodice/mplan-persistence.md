@@ -38,4 +38,13 @@ Nessuna classe o metodo pubblico aggiunto. Unica differenza: `ConnectionProvider
 
 ## 5. Verifiche
 
-[DA COMPLETARE dopo la compilazione e la prova temporanea]
+- **Compilazione.** `mvn -pl mplan-persistence -am generate-sources compile` riesce: le classi jOOQ si rigenerano da `schema.sql` e il modulo compila con api e core.
+- **Prova temporanea** (programma usa e getta fuori dal repository, poi cancellato; nessun test nel progetto), eseguita su `jdbc:sqlite::memory:` e su un file, con 17 controlli superati su 17 in entrambi i casi:
+  - schema creato due volte senza errori;
+  - lettura e scrittura di contatti, attività e voci del registro, con ordine dei telefoni conservato;
+  - `aggiorna` su id inesistente lancia `IllegalArgumentException`;
+  - un telefono doppio e una chiave esterna violata diventano `PersistenzaException`, e l'`aggiungi` fallito non lascia dati parziali;
+  - rollback con l'eccezione del core rilanciata invariata, e commit di attività e registro insieme;
+  - savepoint annidato: l'operazione interna fallita viene annullata e quella esterna conferma il resto; se fallisce l'esterna si annulla anche l'interna;
+  - dopo gli errori il canale torna quello di base e le operazioni fuori transazione funzionano.
+- Sulla JDK 27 sqlite-jdbc stampa un avviso sull'accesso nativo (`--enable-native-access`): è solo un avviso.
