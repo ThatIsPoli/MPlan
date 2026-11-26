@@ -5,37 +5,57 @@
 */
 package it.mpelettrica.mplan.persistence.mapping;
 
-import java.util.*;
-import java.time.*;
+import java.time.DateTimeException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
+import it.mpelettrica.mplan.api.PersistenzaException;
+import it.mpelettrica.mplan.core.dominio.TipoModifica;
+import it.mpelettrica.mplan.core.dominio.VoceRegistro;
+import it.mpelettrica.mplan.persistence.jooq.tables.records.VoceRegistroRecord;
 
-
-// ----------- << imports@AAAAAAdR+P98WGxroach >>
-// ----------- >>
-
-// ----------- << class.annotations@AAAAAAdR+P98WGxroach >>
-// ----------- >>
+/**
+ * Converte le voci del registro tra l'oggetto del core e le righe della tabella
+ * {@code VOCE_REGISTRO}. Il momento è salvato come stringa ISO.
+ */
 public class VoceRegistroMapper {
-    /**
-    * @param record
-    */
 
-    // ----------- << method.annotations@AAAAAAeqrTvYqR6cbFUU >>
-    // ----------- >>
+    private VoceRegistroMapper() {
+    }
+
+    /**
+     * Costruisce una voce del registro da una riga della tabella.
+     *
+     * @param record riga della tabella {@code VOCE_REGISTRO}
+     * @return la voce del registro
+     * @throws PersistenzaException se i dati letti dal database sono corrotti
+     */
     public static VoceRegistro daRecord(VoceRegistroRecord record) {
-    // ----------- << method.body@AAAAAAeqrTvYqR6cbFUU >>
-    // ----------- >>
+        try {
+            return new VoceRegistro(
+                    LocalDateTime.parse(record.getQuando()),
+                    UUID.fromString(record.getIdAttivita()),
+                    TipoModifica.valueOf(record.getTipo()),
+                    record.getMotivo());
+        } catch (IllegalArgumentException | DateTimeException | NullPointerException e) {
+            throw new PersistenzaException("Dati del registro non validi nel database", e);
+        }
     }
-    /**
-    * @param voce
-    */
 
-    // ----------- << method.annotations@AAAAAAc9iWd3Qk0A01B+ >>
-    // ----------- >>
+    /**
+     * Costruisce la riga della tabella {@code VOCE_REGISTRO}. L'identificativo non
+     * è impostato: lo genera SQLite.
+     *
+     * @param voce voce da salvare
+     * @return la riga corrispondente
+     */
     public static VoceRegistroRecord aRecord(VoceRegistro voce) {
-    // ----------- << method.body@AAAAAAc9iWd3Qk0A01B+ >>
-    // ----------- >>
+        VoceRegistroRecord record = new VoceRegistroRecord();
+        record.setIdAttivita(voce.idAttivita().toString());
+        record.setQuando(DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(voce.quando()));
+        record.setTipo(voce.tipo().name());
+        record.setMotivo(voce.motivo());
+        return record;
     }
-// ----------- << class.extras@AAAAAAdR+P98WGxroach >>
-// ----------- >>
 }

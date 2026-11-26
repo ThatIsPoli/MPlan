@@ -5,49 +5,82 @@
 */
 package it.mpelettrica.mplan.persistence.mapping;
 
-import java.util.*;
-import java.time.*;
+import java.util.List;
+import java.util.UUID;
 
+import it.mpelettrica.mplan.api.Contatto;
+import it.mpelettrica.mplan.api.PersistenzaException;
+import it.mpelettrica.mplan.api.TipoContatto;
+import it.mpelettrica.mplan.persistence.jooq.tables.records.ContattoRecord;
+import it.mpelettrica.mplan.persistence.jooq.tables.records.TelefonoContattoRecord;
 
-
-// ----------- << imports@AAAAAAehKd19hHsh8TK0 >>
-// ----------- >>
-
-// ----------- << class.annotations@AAAAAAehKd19hHsh8TK0 >>
-// ----------- >>
+/**
+ * Converte i contatti tra l'entità di {@code mplan-api} e le righe delle
+ * tabelle {@code CONTATTO} e {@code TELEFONO_CONTATTO}.
+ */
 public class ContattoMapper {
-    /**
-    * @param record 
-    * @param telefoni
-    */
 
-    // ----------- << method.annotations@AAAAAAcrKDJC1s0+K/t3 >>
-    // ----------- >>
+    private ContattoMapper() {
+    }
+
+    /**
+     * Costruisce un contatto dalla riga e dai suoi numeri di telefono.
+     *
+     * @param record riga della tabella {@code CONTATTO}
+     * @param telefoni numeri di telefono del contatto
+     * @return il contatto
+     * @throws PersistenzaException se i dati letti dal database sono corrotti
+     */
     public static Contatto daRecord(ContattoRecord record, List<String> telefoni) {
-    // ----------- << method.body@AAAAAAcrKDJC1s0+K/t3 >>
-    // ----------- >>
+        try {
+            return new Contatto(
+                    UUID.fromString(record.getId()),
+                    record.getNome(),
+                    record.getCognome(),
+                    record.getIndirizzo(),
+                    telefoni,
+                    record.getCodiceFiscale(),
+                    record.getPartitaIva(),
+                    record.getTipo() == null ? null : TipoContatto.valueOf(record.getTipo()));
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new PersistenzaException("Dati del contatto non validi nel database", e);
+        }
     }
-    /**
-    * @param contatto
-    */
 
-    // ----------- << method.annotations@AAAAAAcVxh+xQTdVBj8W >>
-    // ----------- >>
+    /**
+     * Costruisce la riga della tabella {@code CONTATTO} (senza i telefoni).
+     *
+     * @param contatto contatto da salvare
+     * @return la riga corrispondente
+     */
     public static ContattoRecord aRecord(Contatto contatto) {
-    // ----------- << method.body@AAAAAAcVxh+xQTdVBj8W >>
-    // ----------- >>
+        ContattoRecord record = new ContattoRecord();
+        record.setId(contatto.id().toString());
+        record.setNome(contatto.nome());
+        record.setCognome(contatto.cognome());
+        record.setIndirizzo(contatto.indirizzo());
+        record.setCodiceFiscale(contatto.codiceFiscale());
+        record.setPartitaIva(contatto.partitaIva());
+        record.setTipo(contatto.tipo() == null ? null : contatto.tipo().name());
+        return record;
     }
-    /**
-    * @param idContatto 
-    * @param telefoni
-    */
 
-    // ----------- << method.annotations@AAAAAAfQ+jIlg3gDJnFQ >>
-    // ----------- >>
+    /**
+     * Costruisce le righe della tabella {@code TELEFONO_CONTATTO}, una per numero e
+     * nell'ordine della lista. Un numero ripetuto viola la chiave primaria.
+     *
+     * @param idContatto identificativo del contatto
+     * @param telefoni numeri di telefono
+     * @return le righe corrispondenti
+     */
     public static List<TelefonoContattoRecord> aRecordTelefoni(UUID idContatto, List<String> telefoni) {
-    // ----------- << method.body@AAAAAAfQ+jIlg3gDJnFQ >>
-    // ----------- >>
+        return telefoni.stream().map(numero -> aRecordTelefono(idContatto, numero)).toList();
     }
-// ----------- << class.extras@AAAAAAehKd19hHsh8TK0 >>
-// ----------- >>
+
+    private static TelefonoContattoRecord aRecordTelefono(UUID idContatto, String numero) {
+        TelefonoContattoRecord record = new TelefonoContattoRecord();
+        record.setIdContatto(idContatto.toString());
+        record.setNumero(numero);
+        return record;
+    }
 }

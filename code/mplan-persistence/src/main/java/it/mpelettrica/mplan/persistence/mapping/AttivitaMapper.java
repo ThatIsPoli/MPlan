@@ -5,37 +5,76 @@
 */
 package it.mpelettrica.mplan.persistence.mapping;
 
-import java.util.*;
-import java.time.*;
+import java.time.DateTimeException;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.UUID;
 
+import it.mpelettrica.mplan.api.Attivita;
+import it.mpelettrica.mplan.api.PersistenzaException;
+import it.mpelettrica.mplan.api.StatoAttivita;
+import it.mpelettrica.mplan.persistence.jooq.tables.records.AttivitaRecord;
 
-
-// ----------- << imports@AAAAAAcfcj26Orb5/Bvc >>
-// ----------- >>
-
-// ----------- << class.annotations@AAAAAAcfcj26Orb5/Bvc >>
-// ----------- >>
+/**
+ * Converte le attività tra l'entità di {@code mplan-api} e le righe della
+ * tabella {@code ATTIVITA}. Data e ora sono salvate come stringhe ISO:
+ * {@code yyyy-MM-dd} e {@code HH:mm:ss}.
+ */
 public class AttivitaMapper {
-    /**
-    * @param record
-    */
 
-    // ----------- << method.annotations@AAAAAAdNoddMakNTna7/ >>
-    // ----------- >>
+    private AttivitaMapper() {
+    }
+
+    /**
+     * Costruisce un'attività da una riga della tabella.
+     *
+     * @param record riga della tabella {@code ATTIVITA}
+     * @return l'attività
+     * @throws PersistenzaException se i dati letti dal database sono corrotti
+     */
     public static Attivita daRecord(AttivitaRecord record) {
-    // ----------- << method.body@AAAAAAdNoddMakNTna7/ >>
-    // ----------- >>
+        try {
+            return new Attivita(
+                    UUID.fromString(record.getId()),
+                    UUID.fromString(record.getIdContatto()),
+                    record.getTitolo(),
+                    LocalDate.parse(record.getData()),
+                    record.getOra() == null ? null : LocalTime.parse(record.getOra()),
+                    record.getDescrizione(),
+                    record.getNote(),
+                    StatoAttivita.valueOf(record.getStato()),
+                    record.getMotivoAnnullamento());
+        } catch (IllegalArgumentException | DateTimeException | NullPointerException e) {
+            throw new PersistenzaException("Dati dell'attività non validi nel database", e);
+        }
     }
-    /**
-    * @param attivita
-    */
 
-    // ----------- << method.annotations@AAAAAAf97M2GFDwB+F5t >>
-    // ----------- >>
+    /**
+     * Costruisce la riga della tabella {@code ATTIVITA}.
+     *
+     * @param attivita attività da salvare
+     * @return la riga corrispondente
+     */
     public static AttivitaRecord aRecord(Attivita attivita) {
-    // ----------- << method.body@AAAAAAf97M2GFDwB+F5t >>
-    // ----------- >>
+        AttivitaRecord record = new AttivitaRecord();
+        record.setId(attivita.id().toString());
+        record.setIdContatto(attivita.idContatto().toString());
+        record.setTitolo(attivita.titolo());
+        record.setData(DateTimeFormatter.ISO_LOCAL_DATE.format(attivita.data()));
+        record.setOra(formattaOra(attivita.ora()));
+        record.setDescrizione(attivita.descrizione());
+        record.setNote(attivita.note());
+        record.setStato(attivita.stato().name());
+        record.setMotivoAnnullamento(attivita.motivoAnnullamento());
+        return record;
     }
-// ----------- << class.extras@AAAAAAcfcj26Orb5/Bvc >>
-// ----------- >>
+
+    private static String formattaOra(LocalTime ora) {
+        if (ora == null) {
+            return null;
+        }
+        return DateTimeFormatter.ISO_LOCAL_TIME.format(ora.truncatedTo(ChronoUnit.SECONDS));
+    }
 }
