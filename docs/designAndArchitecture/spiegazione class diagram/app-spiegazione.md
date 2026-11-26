@@ -93,7 +93,7 @@ Il file di log resta configurato in `log4j2.xml`, nella stessa cartella. Spring 
 
 ## 8. Cosa non c'è nel diagramma
 
-- **Le annotazioni di Spring**: `@SpringBootApplication` su `MPlanApplication`, `@Configuration` su `ConfigurazioneMPlan`, `@Bean` sui suoi metodi, `@Value` sui parametri che arrivano da `application.properties` (`percorsoDatabase` e `porta`) ed `@EventListener` su `apri()`. Rebel genera classi, campi e metodi ma non le annotazioni: si aggiungono a mano e vanno scritte nella relazione tra le classi modificate (Documento 2, 2.5).
+- **Le annotazioni di Spring**: `@SpringBootApplication` su `MPlanApplication`, `@Configuration` su `ConfigurazioneMPlan`, `@Bean` sui suoi metodi, `@Value` sui parametri che arrivano da `application.properties` (`percorsoDatabase` e `porta`) ed `@EventListener` su `apri()`. Javazzar (prima si chiamava Rebel) genera classi, campi e metodi ma non le annotazioni: si aggiungono a mano e vanno scritte nella relazione tra le classi modificate (Documento 2, 2.5).
 - **Le schermate**: app non usa nessuna classe di `mplan-ui-vaadin`. Le crea Vaadin, che le trova cercandole nel package `it.mpelettrica.mplan.ui`. Per questo non ci sono frecce verso la GUI, anche se nel `pom.xml` app dipende da quel modulo.
 - **Il logger**: come negli altri diagrammi, il campo per il log non è disegnato.
 
@@ -111,5 +111,5 @@ Il file di log resta configurato in `log4j2.xml`, nella stessa cartella. Spring 
 - **Come Vaadin trova le schermate.** Di solito Vaadin cerca le rotte nel package della classe con `@SpringBootApplication` e nei suoi sotto-package, cioè in `it.mpelettrica.mplan.app`, mentre le schermate stanno in `it.mpelettrica.mplan.ui`. Va indicato il package giusto, per esempio con `@EnableVaadin`. Si prova con la prima schermata, la Home, come prevede il Project Plan (6.4) per verificare subito la configurazione di Vaadin e Spring Boot.
 - **Un secondo avvio.** Se l'utente chiude la scheda con la X invece di usare `chiudi`, il server resta acceso. All'avvio successivo la porta è occupata: il nuovo avvio si ferma con un errore nel log e il browser non si apre. Una soluzione semplice è aprire solo il browser sull'indirizzo e terminare, quando all'avvio la porta è già occupata.
 - **Le dipendenze**: Spring Boot e Vaadin vanno aggiunti ai `pom.xml`, nelle versioni compatibili con Java 27 (design, 2.3).
-- **Dopo la generazione con Rebel**: aggiungere le annotazioni e scrivere i metodi di `ConfigurazioneMPlan`, `chiudi()` e `apri()`.
+- **Dopo la generazione con Javazzar**: aggiungere le annotazioni e scrivere i metodi di `ConfigurazioneMPlan`, `chiudi()` e `apri()`. Come negli altri moduli, i campi delle associazioni diventano `final` e si tolgono i getter e i setter generati.
 - Esportare l'immagine del diagramma per il Documento 4.

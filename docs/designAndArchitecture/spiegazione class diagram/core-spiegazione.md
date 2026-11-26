@@ -37,7 +37,7 @@ Il core non conosce né Vaadin né il database. Questo permette di provarlo con 
 
 Tutto il codice sta sotto `it.mpelettrica.mplan`. In Java i package iniziano con il dominio internet al contrario di chi possiede il software, per non scontrarsi con le librerie di altri. Il dominio è `mpelettrica.it`, il sito del committente. Lo stesso nome è già usato come `groupId` nei `pom.xml` e nel package di `MPlanApplication`, ed è stato confermato nella PR #58.
 
-Nel file StarUML questo si vede come una catena di package `it` > `mpelettrica` > `mplan`, con dentro `api` e `core`. Rebel genera le cartelle Java seguendo la stessa catena.
+Nel file StarUML questo si vede come una catena di package `it` > `mpelettrica` > `mplan`, con dentro `api` e `core`. Javazzar, l'estensione di StarUML che prima si chiamava Rebel, genera le cartelle Java seguendo la stessa catena. Parte dal package `it`, che per questo ha lo stereotipo «root»: senza, Javazzar non genera niente.
 
 ## 3. Tre package, non tre livelli
 
@@ -91,9 +91,9 @@ Come si legge un'associazione, per esempio `ContattoServiceImpl  X──── -
 - `-contatti` è il nome del campo (il meno vuol dire privato). Il nome del ruolo si scrive vicino alla classe che quel ruolo indica, cioè dal lato della punta, come nelle slide del corso (esempio `Student` e `Professor` con il ruolo `+lecturer`): il campo però appartiene alla classe dal lato della X;
 - `1` dal lato del repository: il servizio ne ha esattamente uno;
 - `*` dal lato del servizio: lo stesso repository può essere usato da più servizi;
-- `osservatori *` dal lato di `OsservatoreAttivita`: `OsservabileAttivita` ha una lista di osservatori, che `AttivitaServiceImpl` eredita.
+- `osservatori *` dal lato di `OsservatoreAttivita`: `OsservabileAttivita` ha una lista di osservatori, che `AttivitaServiceImpl` eredita. Nel modello l'estremo è segnato `{ordered}`, così Javazzar genera una `List` e non un `Set`.
 
-Per questo molte classi non hanno attributi nel riquadro. Quando il tipo di un campo è una classe disegnata nel diagramma, il campo si mostra come associazione e non si ripete nel riquadro: è la forma che le slide indicano come preferibile. Rebel genera i campi proprio dalle associazioni. Le interfacce invece non possono avere campi, e i validatori e `RegoleStatoAttivita` non ne hanno bisogno.
+Per questo molte classi non hanno attributi nel riquadro. Quando il tipo di un campo è una classe disegnata nel diagramma, il campo si mostra come associazione e non si ripete nel riquadro: è la forma che le slide indicano come preferibile. Javazzar genera i campi proprio dalle associazioni. Le interfacce invece non possono avere campi, e i validatori e `RegoleStatoAttivita` non ne hanno bisogno.
 
 ## 6. Notazioni particolari
 
@@ -101,7 +101,7 @@ Per questo molte classi non hanno attributi nel riquadro. Quando il tipo di un c
 
 **Corsivo e `#`.** Un nome in corsivo indica una classe astratta: non si possono creare oggetti di quella classe, serve solo da superclasse. Nel core è astratta solo `OsservabileAttivita`. Il `#` davanti a un'operazione vuol dire protetta: la possono usare solo la classe stessa e le sue sottoclassi, come i tre metodi `notifica...` che `AttivitaServiceImpl` eredita.
 
-**{readOnly}.** Il valore non si può cambiare. `PER_STORICO` e `PER_AGENDA` diventano costanti `public static final`.
+**{readOnly}.** Il valore non si può cambiare. `PER_STORICO` e `PER_AGENDA` diventano costanti `public static final`, mentre i quattro campi di `VoceRegistro` diventano i componenti del record (punto 8). Javazzar però non scrive `final`: per lui `{readOnly}` vuol dire solo "senza setter". `public`, `final` e il valore delle due costanti si aggiungono a mano (punto 12).
 
 **Il rettangolino tratteggiato con la T.** È il parametro di tipo di una classe generica, come in `List<T>`. `Validatore<T>` vuol dire "valida dati di un tipo che sceglie chi lo implementa":
 
@@ -113,7 +113,7 @@ class ValidatoreContatto implements Validatore<DatiContatto> { ... }   // T = Da
 class ValidatoreAttivita implements Validatore<DatiAttivita> { ... }   // T = DatiAttivita
 ```
 
-Lo stesso vale per `inTransazione(operazione: Supplier<T>): T`, dove `T` è il tipo del risultato. In StarUML `T` è dichiarato come parametro template dell'operazione, altrimenti Rebel genererebbe una classe `T.java` inesistente.
+Lo stesso vale per `inTransazione(operazione: Supplier<T>): T`, dove `T` è il tipo del risultato. In StarUML `T` è dichiarato come parametro template dell'operazione. Javazzar però non scrive `<T>` davanti al metodo, quindi dopo la generazione va aggiunto a mano: `public <T> T inTransazione(Supplier<T> operazione)`. Allo stesso modo scrive `implements Validatore` senza tipo, e nei due validatori va completato in `Validatore<DatiContatto>` e `Validatore<DatiAttivita>`.
 
 **Optional.** `trova(id)` restituisce `Optional<...>` perché l'id potrebbe non esistere: chi lo chiama deve gestire il caso "non trovato".
 
@@ -160,13 +160,13 @@ private final Validatore<DatiAttivita> validatore;   // in AttivitaServiceImpl
 
 Si usano così: `lista.sort(OrdinamentoAttivita.PER_AGENDA)`. Il repository restituisce i dati senza ordinarli, così la regola sta in un posto solo.
 
-**VoceRegistro** è una riga del registro delle modifiche: quando, quale attività, che tipo di modifica, motivo. **TipoModifica** dice il tipo: `MODIFICA`, `CAMBIO_STATO`, `ANNULLAMENTO` (DAT.4). Stanno nel core perché la GUI non li usa.
+**VoceRegistro** è una riga del registro delle modifiche: quando, quale attività, che tipo di modifica, motivo. Una volta scritta non cambia più, quindi è un **«record»** di Java come i record di api (punto 4 di `api-spiegazione.md`). **TipoModifica** dice il tipo: `MODIFICA`, `CAMBIO_STATO`, `ANNULLAMENTO` (DAT.4). Stanno nel core perché la GUI non li usa.
 
 ## 9. Package `servizi`
 
 Le tre classi `...ServiceImpl` implementano le interfacce di api. Non contengono regole: le chiedono a `dominio` e salvano tramite `repository`.
 
-Hanno un costruttore esplicito che riceve tutti i pezzi di cui hanno bisogno, per esempio `AttivitaServiceImpl(attivita, contatti, transazioni, validatore, clock)`. Il servizio non crea da solo i suoi collaboratori: glieli passa `mplan-app`. Nei test invece si passano un repository finto e un `Clock` fermo su una data, così il risultato è sempre lo stesso (D8, D9). Il costruttore esplicito serve anche a Rebel per generare i campi `private final`.
+Hanno un costruttore esplicito che riceve tutti i pezzi di cui hanno bisogno, per esempio `AttivitaServiceImpl(attivita, contatti, transazioni, validatore, clock)`. Il servizio non crea da solo i suoi collaboratori: glieli passa `mplan-app`. Nei test invece si passano un repository finto e un `Clock` fermo su una data, così il risultato è sempre lo stesso (D8, D9). Javazzar genera i campi dalle associazioni come `private`, con un getter e un setter, e il costruttore con il corpo vuoto. Dopo la generazione si aggiunge `final` ai campi, si assegnano nel costruttore e si tolgono getter e setter, che ai servizi non servono.
 
 **ContattoServiceImpl**: `elenca()`, `trova(id)`, `crea(dati)`, `modifica(id, dati)`, `valida(dati)`. Usa `ContattoRepository`, `GestoreTransazioni` e un `Validatore<DatiContatto>`.
 
@@ -228,4 +228,10 @@ Degli altri pattern visti a lezione:
 
 ## 12. Cosa resta da fare
 
-- Nel core non resta niente da disegnare: il diagramma di `mplan-api` ora c'è ed è spiegato in `api-spiegazione.md`. Il codice del core si scrive dopo la generazione con Rebel.
+- Nel core non resta niente da disegnare: il diagramma di `mplan-api` ora c'è ed è spiegato in `api-spiegazione.md`. Il codice del core si scrive dopo la generazione con Javazzar.
+- Dopo la generazione, nel codice del core:
+  - `VoceRegistro` va trasformata a mano in record, come i quattro record di api, perché Javazzar genera una classe normale con i metodi `getX()`;
+  - i campi delle associazioni diventano `final` e si assegnano nel costruttore; si tolgono i getter e i setter generati;
+  - `PER_STORICO` e `PER_AGENDA` diventano `public static final` con il loro valore;
+  - si aggiunge `<T>` davanti a `inTransazione` e il tipo a `implements Validatore` (punto 6);
+  - si aggiungono gli import che mancano (in Eclipse Ctrl+Shift+O): Javazzar mette solo `java.util.*`, `java.time.*` e le classi disegnate nel modello.

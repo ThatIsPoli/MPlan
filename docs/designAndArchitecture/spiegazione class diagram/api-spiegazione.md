@@ -77,7 +77,7 @@ Non ci sono setter, quindi i dati non si possono cambiare dopo la creazione, com
 
 Se un contatto non ha numeri, `telefoni` è una lista vuota. Il costruttore la copia con `List.copyOf`, così nessuno può aggiungere numeri da fuori.
 
-Rebel genera dal diagramma una classe normale con i campi: va trasformata a mano in record, e va scritta nella relazione tra le classi modificate (Documento 2, 2.5).
+Javazzar, l'estensione di StarUML che prima si chiamava Rebel, genera dal diagramma una classe normale con i campi e un metodo `getX()` per ognuno. Va trasformata a mano in record, togliendo i `getX()` perché il record ha già i suoi metodi `x()`, e va scritta nella relazione tra le classi modificate (Documento 2, 2.5).
 
 **VoceAgenda** è una riga dell'agenda: l'attività e il nome del suo contatto (GUI.7.1). Il campo `attivita` è disegnato come associazione `-attivita 1` verso `Attivita`, con la regola del core: quando il tipo di un campo è una classe del diagramma si usa la freccia e il campo non si ripete nel riquadro. Il `*` dall'altro lato dice che la stessa attività può comparire in più voci, una per ogni volta che si carica l'agenda.
 
@@ -91,7 +91,7 @@ Le due enumerazioni restano campi nel riquadro (`-stato`, `-tipo`), come `tipo` 
 
 ## 5. I dati di input
 
-`DatiContatto` e `DatiAttivita` contengono ciò che l'utente ha scritto nel form, anche se non è valido (D3). Sono classi normali e non record perché il form le riempie un campo alla volta: il `Binder` di Vaadin collega ogni campo del form a una coppia di getter e setter. Getter e setter non sono disegnati, per non raddoppiare le righe: Rebel genera i campi e il resto si aggiunge in Eclipse (Source → Generate Getters and Setters).
+`DatiContatto` e `DatiAttivita` contengono ciò che l'utente ha scritto nel form, anche se non è valido (D3). Sono classi normali e non record perché il form le riempie un campo alla volta: il `Binder` di Vaadin collega ogni campo del form a una coppia di getter e setter. Getter e setter non sono disegnati, per non raddoppiare le righe: Javazzar li genera da solo, uno per ogni campo.
 
 `DatiAttivita` non ha lo stato né il contatto: lo stato cambia solo con `segnaParziale`, `segnaCompletata` e `annulla` (FUN.6.3), e il contatto si passa a parte in `crea`.
 
@@ -99,7 +99,7 @@ Le due enumerazioni restano campi nel riquadro (`-stato`, `-tipo`), come `tipo` 
 
 **ErroreValidazione** è un record con il campo sbagliato e il motivo, per esempio `titolo` e "obbligatorio". È ciò che la GUI mostra accanto al campo (DAT.5).
 
-**ValidazioneException** si lancia quando `crea`, `modifica` o `annulla` ricevono dati non validi. Porta con sé la lista degli errori (`-errori *`, che si legge con `getErrori()`), così la GUI mostra gli stessi messaggi di `valida()` anche in questo caso. Il `0..1` dall'altro lato dice che un errore sta al massimo in un'eccezione: quelli restituiti da `valida()` non stanno in nessuna.
+**ValidazioneException** si lancia quando `crea`, `modifica` o `annulla` ricevono dati non validi. Porta con sé la lista degli errori (`-errori *`, che si legge con `getErrori()`), così la GUI mostra gli stessi messaggi di `valida()` anche in questo caso. Nel modello l'estremo `errori` è segnato `{ordered}`, così Javazzar genera una `List` come quella di `valida()` e non un `Set`. Il `0..1` dall'altro lato dice che un errore sta al massimo in un'eccezione: quelli restituiti da `valida()` non stanno in nessuna.
 
 **PersistenzaException** arriva dalla persistenza quando il database ha un problema. Il secondo costruttore riceve anche la causa, cioè l'errore originale di JDBC (`SQLException`), che così non si perde nei log (D4).
 
@@ -122,5 +122,8 @@ Tutte e due estendono `RuntimeException` (grigia, da `java.lang`): sono eccezion
 
 ## 9. Cosa resta da fare
 
-- Dopo la generazione con Rebel: trasformare i quattro record, aggiungere getter e setter a `DatiContatto` e `DatiAttivita` e scrivere i controlli dei `null`.
+- Dopo la generazione con Javazzar:
+  - trasformare i quattro record e scrivere i controlli dei `null`;
+  - in `ValidazioneException` lasciare un solo `getErrori()`: Javazzar ne genera uno dal campo `errori`, oltre a quello disegnato;
+  - rendere `final` il campo `errori` e assegnarlo nel costruttore.
 - Esportare l'immagine del diagramma per il Documento 4.

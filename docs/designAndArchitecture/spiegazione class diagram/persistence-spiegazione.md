@@ -2,7 +2,7 @@
 
 Questo documento spiega l'organizzazione e il class diagram `mplan-persistence` del file StarUML (`docs/uml/mplan.mdj`): quali package contiene, perché ogni classe è progettata così, come dialoga con il database SQLite tramite jOOQ e come si collega a `mplan-core`, `mplan-api` e `mplan-app`.
 
-Le scelte seguono l'architettura definita in `design.md` (D1–D8), le convenzioni StarUML/Rebel già usate in `core-spiegazione.md` e i principi di progettazione del corso (van Vliet, Cap. 11–12; slide sui pattern).
+Le scelte seguono l'architettura definita in `design.md` (D1–D8), le convenzioni StarUML/Javazzar già usate in `core-spiegazione.md` e i principi di progettazione del corso (van Vliet, Cap. 11–12; slide sui pattern).
 
 ---
 
@@ -79,16 +79,17 @@ esterni / contratti (grigi) api (Contatto, Attivita, StatoAttivita, PersistenzaE
                             package generato jOOQ (tabelle/record) · org.jooq (DSLContext, ExecuteListener, ExecuteContext) · javax.sql (DataSource)
 ```
 
-### Regole StarUML / Rebel seguite
+### Regole StarUML / Javazzar seguite
 
 - **Elementi grigi:** non vanno ricreati; si trascinano dal Model Explorer (per `core` e `api`) oppure si aggiungono nei rispettivi package esterni (`org.jooq`, `javax.sql`, package generato jOOQ) accanto a `java.time`.
 - **Frecce:**
   - tratteggiata con triangolo vuoto (`..|>`): realizzazione di un'interfaccia (`JooqAttivitaRepository ..|> AttivitaRepository`);
-  - continua con punta aperta e `X` dal lato del possessore (`X── -campo 1 ──>`): associazione navigabile, cioè un campo `private final` generato da Rebel senza ripeterlo nel riquadro degli attributi;
+  - continua con punta aperta e `X` dal lato del possessore (`X── -campo 1 ──>`): associazione navigabile, cioè un campo privato generato da Javazzar senza ripeterlo nel riquadro degli attributi (`final` si aggiunge a mano dopo la generazione);
   - tratteggiata con punta aperta (`..>`): uso temporaneo in un metodo o chiamata a metodi statici (es. dai repository verso i `*Mapper`).
-- **Costruttori espliciti:** tutte le classi istanziate hanno il costruttore nel diagramma, così Rebel genera i campi e le dipendenze vengono passate dall'esterno (*Dependency Injection*).
+- **Costruttori espliciti:** tutte le classi istanziate hanno il costruttore nel diagramma, così le dipendenze vengono passate dall'esterno (*Dependency Injection*). Javazzar genera i campi dalle associazioni e il costruttore con il corpo vuoto: dopo la generazione il costruttore assegna i campi, che diventano `final`, e si tolgono i getter e i setter generati.
 - **Operazioni sottolineate:** indicano metodi `static`, usati nei tre `*Mapper`.
-- **Parametro template `<T>`:** usato in `ContestoTransazione.eseguiConContesto` (come in `GestoreTransazioni.inTransazione` del core) per evitare che Rebel generi una classe `T.java` inesistente.
+- **Parametro template `<T>`:** usato in `ContestoTransazione.eseguiConContesto` (come in `GestoreTransazioni.inTransazione` del core) per dire che il metodo è generico. Javazzar non scrive `<T>` davanti al metodo: va aggiunto a mano dopo la generazione.
+- **Record di jOOQ:** `ContattoRecord`, `TelefonoContattoRecord`, `AttivitaRecord` e `VoceRegistroRecord` stanno nel modello sotto `persistence.jooq.tables.records`, quindi Javazzar li genera insieme al resto. Quelle classi però le genera jOOQ da `schema.sql` durante la build: la cartella `persistence/jooq` prodotta da Javazzar va cancellata.
 
 ---
 
@@ -235,6 +236,10 @@ Riprendendo l'esempio del §11 di `core-spiegazione.md` dal punto di vista della
 
 ## 11. Cosa resta da fare
 
-- Disegnare il diagramma `mplan-persistence` in `docs/uml/mplan.mdj` seguendo la struttura descritta sopra, trascinando in grigio le interfacce di `core.repository`, i tipi di `api` / `core.dominio` e i tipi esterni.
-- Completare in `mplan-api` (diagramma `mplan-api`) i campi di `Contatto` / `DatiContatto` previsti da `DAT.1` (compresi i telefoni multipli `DAT.1.4` e l'eventuale `TipoContatto`) e aggiungere `PersistenzaException` (`D4`).
-- Creare `code/mplan-persistence/src/main/resources/schema.sql` con le 4 tabelle e gli indici, e configurare `jooq-meta-extensions` nel `pom.xml` per generare il package jOOQ in fase di build Maven (`D6`).
+- Nel diagramma non resta niente da disegnare: `schema.sql` e la generazione jOOQ nel `pom.xml` ci sono già.
+- Dopo la generazione con Javazzar, nel codice della persistence:
+  - cancellare la cartella `persistence/jooq` (punto 3);
+  - rendere `final` i campi delle associazioni, assegnarli nel costruttore e togliere i getter e i setter generati;
+  - scrivere `private final ThreadLocal<DSLContext> corrente = new ThreadLocal<>();` in `ContestoTransazione`, perché Javazzar non scrive né `final` né il valore;
+  - aggiungere `<T>` davanti a `inTransazione` e `eseguiConContesto`;
+  - aggiungere gli import che mancano (in Eclipse Ctrl+Shift+O).
