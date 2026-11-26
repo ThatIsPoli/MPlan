@@ -5,20 +5,14 @@
 */
 package it.mpelettrica.mplan.api;
 
-import java.util.*;
-import java.time.*;
-
-
-
-// ----------- << imports@AAAAAAGh845/j074FrM= >>
-// ----------- >>
-
-// ----------- << class.annotations@AAAAAAGh845/j074FrM= >>
-// ----------- >>
+/**
+ * Chiusura dell'applicazione, comando {@code chiudi} della Home.
+ *
+ * <p>Chiudere la scheda del browser non basta: va fermato il server interno (design, D7).
+ * Lo può fare solo il modulo che avvia l'applicazione, che implementa questa interfaccia.
+ */
 public interface ChiusuraApplicazione {
-    // ----------- << method.annotations@AAAAAAGh846COU757rE= >>
-    // ----------- >>
+
+    /** Chiude l'applicazione fermando il server interno. */
     void chiudi();
-// ----------- << interface.extras@AAAAAAGh845/j074FrM= >>
-// ----------- >>
 }

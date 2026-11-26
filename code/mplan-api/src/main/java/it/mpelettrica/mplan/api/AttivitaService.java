@@ -5,80 +5,107 @@
 */
 package it.mpelettrica.mplan.api;
 
-import java.util.*;
-import java.time.*;
-
-
-
-// ----------- << imports@AAAAAAABLIVOjaA/fEU= >>
-// ----------- >>
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
-* Riferimento: contratto di mplan-api, da completare nel class diagram di mplan-api. Firme provvisorie.
-*/
-
-// ----------- << class.annotations@AAAAAAABLIVOjaA/fEU= >>
-// ----------- >>
+ * Servizio sulle attività dei contatti (FUN.4, FUN.5, FUN.6, FUN.9, FUN.12).
+ *
+ * <p>Tutti i metodi possono lanciare {@link PersistenzaException} in caso di guasto del
+ * database. Le liste restituite sono immutabili. Le attività non si eliminano mai (FUN.12.2).
+ */
 public interface AttivitaService {
-    /**
-    * @param id
-    */
 
-    // ----------- << method.annotations@AAAAAAGh845m7k7qtqQ= >>
-    // ----------- >>
+    /**
+     * Cerca un'attività dal suo identificativo.
+     *
+     * @param id identificativo dell'attività
+     * @return l'attività, o un {@code Optional} vuoto se non esiste
+     * @throws PersistenzaException in caso di errore del database
+     */
     Optional<Attivita> trova(UUID id);
-    /**
-    * @param idContatto 
-    * @param dati
-    */
 
-    // ----------- << method.annotations@AAAAAAABQGI10vRbn1Y= >>
-    // ----------- >>
+    /**
+     * Crea una nuova attività, in stato {@link StatoAttivita#DA_FARE}, sul contatto indicato.
+     * Se la data dei dati è {@code null} si usa la data di oggi.
+     *
+     * @param idContatto identificativo del contatto
+     * @param dati i dati scritti dall'utente
+     * @return l'attività creata
+     * @throws ValidazioneException se i dati non sono validi
+     * @throws IllegalArgumentException se il contatto non esiste
+     * @throws PersistenzaException in caso di errore del database
+     */
     Attivita crea(UUID idContatto, DatiAttivita dati);
-    /**
-    * @param id 
-    * @param dati
-    */
 
-    // ----------- << method.annotations@AAAAAAABjiUHYgfOEX8= >>
-    // ----------- >>
+    /**
+     * Aggiorna titolo, data, orario, descrizione e note di un'attività. Se la data dei dati è
+     * {@code null} si usa la data di oggi. Si può modificare un'attività in qualunque stato
+     * tranne {@link StatoAttivita#ANNULLATA}.
+     *
+     * @param id identificativo dell'attività
+     * @param dati i nuovi dati
+     * @return l'attività aggiornata
+     * @throws ValidazioneException se i dati non sono validi
+     * @throws IllegalArgumentException se l'attività non esiste
+     * @throws IllegalStateException se l'attività è annullata
+     * @throws PersistenzaException in caso di errore del database
+     */
     Attivita modifica(UUID id, DatiAttivita dati);
-    /**
-    * @param id
-    */
 
-    // ----------- << method.annotations@AAAAAAAB9w866xpW+RI= >>
-    // ----------- >>
+    /**
+     * Segna l'attività come parziale. Ammesso solo da {@link StatoAttivita#DA_FARE}.
+     *
+     * @param id identificativo dell'attività
+     * @return l'attività aggiornata
+     * @throws IllegalArgumentException se l'attività non esiste
+     * @throws IllegalStateException se la transizione di stato non è ammessa
+     * @throws PersistenzaException in caso di errore del database
+     */
     Attivita segnaParziale(UUID id);
-    /**
-    * @param id
-    */
 
-    // ----------- << method.annotations@AAAAAAABa54olouKr5w= >>
-    // ----------- >>
+    /**
+     * Segna l'attività come completata. Ammesso da {@link StatoAttivita#DA_FARE} e
+     * {@link StatoAttivita#PARZIALE}.
+     *
+     * @param id identificativo dell'attività
+     * @return l'attività aggiornata
+     * @throws IllegalArgumentException se l'attività non esiste
+     * @throws IllegalStateException se la transizione di stato non è ammessa
+     * @throws PersistenzaException in caso di errore del database
+     */
     Attivita segnaCompletata(UUID id);
-    /**
-    * @param id 
-    * @param motivo
-    */
 
-    // ----------- << method.annotations@AAAAAAABdMQQx6ey+vA= >>
-    // ----------- >>
+    /**
+     * Annulla l'attività in modo permanente, con il motivo. Ammesso da
+     * {@link StatoAttivita#DA_FARE} e {@link StatoAttivita#PARZIALE}.
+     *
+     * @param id identificativo dell'attività
+     * @param motivo motivo dell'annullamento, obbligatorio e al massimo di 1000 caratteri
+     * @return l'attività annullata
+     * @throws ValidazioneException se il motivo è vuoto o troppo lungo
+     * @throws IllegalArgumentException se l'attività non esiste
+     * @throws IllegalStateException se l'annullamento non è ammesso
+     * @throws PersistenzaException in caso di errore del database
+     */
     Attivita annulla(UUID id, String motivo);
-    /**
-    * @param idContatto
-    */
 
-    // ----------- << method.annotations@AAAAAAAB2WhS03NInLM= >>
-    // ----------- >>
+    /**
+     * Restituisce lo storico delle attività di un contatto, dal più vecchio al più recente;
+     * nello stesso giorno prima le attività senza ora, poi quelle per ora.
+     *
+     * @param idContatto identificativo del contatto
+     * @return lista immutabile, mai {@code null}, vuota se non ci sono attività
+     * @throws PersistenzaException in caso di errore del database
+     */
     List<Attivita> storico(UUID idContatto);
-    /**
-    * @param dati
-    */
 
-    // ----------- << method.annotations@AAAAAAABhUg2gG7d2ZQ= >>
-    // ----------- >>
+    /**
+     * Controlla i dati senza salvarli. Se la data è {@code null} si usa la data di oggi.
+     *
+     * @param dati i dati scritti dall'utente
+     * @return gli errori campo per campo: lista immutabile, vuota se i dati sono validi
+     */
     List<ErroreValidazione> valida(DatiAttivita dati);
-// ----------- << interface.extras@AAAAAAABLIVOjaA/fEU= >>
-// ----------- >>
 }

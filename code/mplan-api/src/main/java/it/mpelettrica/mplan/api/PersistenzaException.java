@@ -5,38 +5,31 @@
 */
 package it.mpelettrica.mplan.api;
 
-import java.util.*;
-import java.time.*;
-
-
-
-// ----------- << imports@AAAAAAe6w+UK6FxR8Cdh >>
-// ----------- >>
-
-// ----------- << class.annotations@AAAAAAe6w+UK6FxR8Cdh >>
-// ----------- >>
+/**
+ * Errore del database, ad esempio un guasto del disco o una query fallita (D4).
+ *
+ * <p>È un'eccezione non controllata. La causa tipica è una {@code SQLException}.
+ */
 public class PersistenzaException extends RuntimeException {
-    /**
-    * @param messaggio
-    */
 
-    // ----------- << method.annotations@AAAAAAeBFKWa8He/ekeQ >>
-    // ----------- >>
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * Crea l'eccezione con un messaggio.
+     *
+     * @param messaggio descrizione del problema
+     */
     public PersistenzaException(String messaggio) {
-    // ----------- << method.body@AAAAAAeBFKWa8He/ekeQ >>
-    // ----------- >>
+        super(messaggio);
     }
-    /**
-    * @param messaggio 
-    * @param causa
-    */
 
-    // ----------- << method.annotations@AAAAAAeCIL4ULR91OOsX >>
-    // ----------- >>
+    /**
+     * Crea l'eccezione con un messaggio e l'errore originale.
+     *
+     * @param messaggio descrizione del problema
+     * @param causa errore originale, che così non si perde nei log
+     */
     public PersistenzaException(String messaggio, Throwable causa) {
-    // ----------- << method.body@AAAAAAeCIL4ULR91OOsX >>
-    // ----------- >>
+        super(messaggio, causa);
     }
-// ----------- << class.extras@AAAAAAe6w+UK6FxR8Cdh >>
-// ----------- >>
 }
