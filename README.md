@@ -85,6 +85,15 @@ Per provare l'applicazione senza toccare i propri dati si può indicare un altro
 java -jar code/mplan-app/target/mplan-app-0.0.1-SNAPSHOT.jar --mplan.database=C:/percorso/prova.db
 ```
 
+**Avviare da Eclipse**:
+
+1. Registrare il JDK 27 in *Window → Preferences → Java → Installed JREs*.
+2. *File → Import → Maven → Existing Maven Projects* e scegliere la cartella `code/`: si importano il progetto padre e i cinque moduli.
+3. La prima volta eseguire `mvn package` sul progetto padre (*Run As → Maven build…*, goal `package`), poi *Maven → Update Project*. Il comando genera le classi jOOQ di `mplan-persistence`.
+4. Avviare `it.mpelettrica.mplan.app.MPlanApplication` (modulo `mplan-app`) con *Run As → Java Application*. Per usare un database di prova si aggiunge `--mplan.database=...` in *Run Configurations → Arguments*.
+
+Da Eclipse Vaadin parte in modalità di sviluppo e mostra la sua barra degli strumenti in basso a destra. Il jar creato da `mvn package` parte invece in modalità di produzione.
+
 **Eseguire i test**: `mvn test` dalla cartella `code/`. I test JUnit sono ancora da scrivere.
 
 ## Come si lavora sul repository
