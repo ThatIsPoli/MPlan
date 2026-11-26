@@ -37,7 +37,7 @@ memory.md
 /vite.config.ts
 /index.html
 # NOTA: solo /src alla root per sandbox IDX, non dentro code/
-^/src/
+/src/
 
 # ==========================================
 # 3. JAVA & MAVEN (VIN.2, VIN.6)
@@ -61,6 +61,11 @@ buildNumber.properties
 node_modules/
 **/src/main/frontend/generated/
 vite.generated.ts
+code/**/package.json
+code/**/package-lock.json
+code/**/tsconfig.json
+code/**/types.d.ts
+code/**/vite.config.ts
 
 # Crash logs JVM
 hs_err_pid*
