@@ -68,7 +68,7 @@ Sono dettagli normali in un class diagram di progetto; si riportano per complete
   - `Riga`: privata, `extends Div implements Focusable, HasAriaRole`. È la riga cliccabile e raggiungibile da tastiera.
   - `VoceElenco`: record privato.
 - **Realizzazione in più**: `MPlanApplication implements AppShellConfigurator`, richiesta da Vaadin per le annotazioni a livello di applicazione (`@StyleSheet`, `@ColorScheme`).
-- **Annotazioni di Spring e Vaadin**: `@SpringBootApplication`, `@EnableVaadin`, `@Configuration`, `@Bean`, `@Route`, `@RouteAlias`, `@PageTitle`, `@UIScope`, `@SpringComponent`, `@StyleSheet`, `@ColorScheme`.
+- **Annotazioni di Spring e Vaadin**: `@SpringBootApplication`, `@EnableVaadin`, `@Configuration`, `@Bean`, `@Route`, `@RouteAlias`, `@PageTitle`, `@UIScope`, `@Component`, `@StyleSheet`, `@ColorScheme`.
 - **Dipendenza in più**: `MPlanApplication` usa `AperturaBrowser` al secondo avvio. Se la porta 8642 è occupata, apre solo il browser. Nel diagramma non c'è la freccia.
 - **Getter e setter**: quelli di `DatiContatto` e `DatiAttivita`. Nel diagramma i campi sono privati e i metodi d'accesso sono sottintesi.
 - **Membri privati di supporto**: costanti `LOGGER` e metodi privati di supporto in quasi tutte le classi. L'elenco è nelle note di ogni modulo (`mplan-*.md` in questa cartella).
