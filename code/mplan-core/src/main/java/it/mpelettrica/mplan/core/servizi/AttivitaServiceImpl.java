@@ -102,7 +102,8 @@ public class AttivitaServiceImpl extends OsservabileAttivita implements Attivita
 
     /**
      * Modifica titolo, data, orario, descrizione e note, lasciando invariati stato e motivo.
-     * Si può modificare anche un'attività completata (FUN.5.1), non una annullata.
+     * Si può modificare anche un'attività completata (Tabella 8.1), non una annullata (FUN.6.2).
+     * Se i dati non cambiano nulla, l'attività viene salvata ma la modifica non si registra (FUN.13).
      *
      * @param id identificativo dell'attività
      * @param dati nuovi dati scritti dall'utente
@@ -124,7 +125,9 @@ public class AttivitaServiceImpl extends OsservabileAttivita implements Attivita
             Attivita nuova = daDati(id, attuale.idContatto(), completi, attuale.stato(),
                     attuale.motivoAnnullamento());
             attivita.aggiorna(nuova);
-            notificaModifica(nuova);
+            if (!nuova.equals(attuale)) {
+                notificaModifica(nuova);
+            }
             return nuova;
         });
         LOG.info("Attività modificata: {}", id);

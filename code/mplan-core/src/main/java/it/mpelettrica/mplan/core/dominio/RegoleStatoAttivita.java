@@ -53,7 +53,7 @@ public final class RegoleStatoAttivita {
     /**
      * Dice se i dati di un'attività in un certo stato si possono modificare.
      * Solo l'attività annullata è bloccata; quella completata resta modificabile
-     * nei testi (FUN.5.1, Tabella 8.1).
+     * nei testi (Tabella 8.1, FUN.6.2).
      *
      * @param stato stato dell'attività
      * @return {@code false} se lo stato è annullata, {@code true} altrimenti

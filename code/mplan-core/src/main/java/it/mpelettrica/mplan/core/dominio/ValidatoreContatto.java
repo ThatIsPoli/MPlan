@@ -48,9 +48,9 @@ public class ValidatoreContatto implements Validatore<DatiContatto> {
     public List<ErroreValidazione> valida(DatiContatto dati) {
         Objects.requireNonNull(dati, "dati");
         List<ErroreValidazione> errori = new ArrayList<>();
-        ControlliTesto.obbligatorio(errori, CAMPO_NOME, "Il nome", dati.getNome(), MAX_NOME);
-        ControlliTesto.facoltativo(errori, CAMPO_COGNOME, "Il cognome", dati.getCognome(), MAX_COGNOME);
-        ControlliTesto.facoltativo(errori, CAMPO_INDIRIZZO, "L'indirizzo", dati.getIndirizzo(), MAX_INDIRIZZO);
+        ControlliTesto.obbligatorio(errori, CAMPO_NOME, "Nome", dati.getNome(), MAX_NOME);
+        ControlliTesto.facoltativo(errori, CAMPO_COGNOME, "Cognome", dati.getCognome(), MAX_COGNOME);
+        ControlliTesto.facoltativo(errori, CAMPO_INDIRIZZO, "Indirizzo", dati.getIndirizzo(), MAX_INDIRIZZO);
         controllaTelefoni(errori, dati.getTelefoni());
         controllaCodiceFiscale(errori, dati.getCodiceFiscale());
         controllaPartitaIva(errori, dati.getPartitaIva());

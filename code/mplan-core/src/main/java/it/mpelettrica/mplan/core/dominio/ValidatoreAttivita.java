@@ -36,11 +36,11 @@ public class ValidatoreAttivita implements Validatore<DatiAttivita> {
     public List<ErroreValidazione> valida(DatiAttivita dati) {
         Objects.requireNonNull(dati, "dati");
         List<ErroreValidazione> errori = new ArrayList<>();
-        ControlliTesto.obbligatorio(errori, CAMPO_TITOLO, "Il titolo", dati.getTitolo(), MAX_TITOLO);
+        ControlliTesto.obbligatorio(errori, CAMPO_TITOLO, "Titolo", dati.getTitolo(), MAX_TITOLO);
         controllaData(errori, dati);
-        ControlliTesto.facoltativo(errori, CAMPO_DESCRIZIONE, "La descrizione", dati.getDescrizione(),
+        ControlliTesto.facoltativo(errori, CAMPO_DESCRIZIONE, "Descrizione", dati.getDescrizione(),
                 MAX_TESTO_LIBERO);
-        ControlliTesto.facoltativo(errori, CAMPO_NOTE, "Le note", dati.getNote(), MAX_TESTO_LIBERO);
+        ControlliTesto.facoltativo(errori, CAMPO_NOTE, "Note", dati.getNote(), MAX_TESTO_LIBERO);
         return errori;
     }
 

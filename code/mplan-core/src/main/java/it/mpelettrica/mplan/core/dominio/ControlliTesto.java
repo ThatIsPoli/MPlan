@@ -28,7 +28,7 @@ final class ControlliTesto {
      *
      * @param errori lista a cui aggiungere l'eventuale errore
      * @param campo nome del campo
-     * @param etichetta nome del campo con articolo, per il messaggio (per esempio "Il nome")
+     * @param etichetta nome del campo, per il messaggio (per esempio "Nome")
      * @param valore testo da controllare
      * @param massimo numero massimo di caratteri
      */
@@ -36,7 +36,7 @@ final class ControlliTesto {
             String valore, int massimo) {
         String pulito = pulisci(valore);
         if (pulito == null || pulito.isEmpty()) {
-            errori.add(new ErroreValidazione(campo, etichetta + " è obbligatorio"));
+            errori.add(new ErroreValidazione(campo, etichetta + ": campo obbligatorio"));
         } else {
             controllaLunghezza(errori, campo, etichetta, pulito, massimo);
         }
@@ -47,7 +47,7 @@ final class ControlliTesto {
      *
      * @param errori lista a cui aggiungere l'eventuale errore
      * @param campo nome del campo
-     * @param etichetta nome del campo con articolo, per il messaggio
+     * @param etichetta nome del campo, per il messaggio
      * @param valore testo da controllare
      * @param massimo numero massimo di caratteri
      */
@@ -80,7 +80,7 @@ final class ControlliTesto {
             String etichetta, String pulito, int massimo) {
         if (pulito.length() > massimo) {
             errori.add(new ErroreValidazione(campo,
-                    etichetta + " non può superare i " + massimo + " caratteri"));
+                    etichetta + ": al massimo " + massimo + " caratteri"));
         }
     }
 }
