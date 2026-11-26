@@ -74,7 +74,7 @@ public class DialogoAnnullamento extends Dialog {
             return;
         }
         close();
-        Notification.show("Attività annullata.", DURATA_NOTIFICA_MS, Notification.Position.BOTTOM_START);
+        Notification.show("Attività annullata.", DURATA_NOTIFICA_MS, Notification.Position.TOP_CENTER);
         alCompletamento.run();
     }
 

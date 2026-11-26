@@ -98,13 +98,13 @@ public class BarraStatoAttivita extends VerticalLayout {
 
     private void segnaParziale() {
         attivitaService.segnaParziale(idAttivita);
-        Notification.show("Attività segnata come parziale.", DURATA_NOTIFICA_MS, Notification.Position.BOTTOM_START);
+        Notification.show("Attività segnata come parziale.", DURATA_NOTIFICA_MS, Notification.Position.TOP_CENTER);
         alCambioStato.run();
     }
 
     private void segnaCompletata() {
         attivitaService.segnaCompletata(idAttivita);
-        Notification.show("Attività segnata come completata.", DURATA_NOTIFICA_MS, Notification.Position.BOTTOM_START);
+        Notification.show("Attività segnata come completata.", DURATA_NOTIFICA_MS, Notification.Position.TOP_CENTER);
         alCambioStato.run();
     }
 

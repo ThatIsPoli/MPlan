@@ -137,7 +137,7 @@ public class GestoreErroriUI implements VaadinServiceInitListener, ErrorHandler 
         if (ui == null) {
             return;
         }
-        Notification notifica = Notification.show(messaggio, DURATA_NOTIFICA_MS, Notification.Position.MIDDLE);
+        Notification notifica = Notification.show(messaggio, DURATA_NOTIFICA_MS, Notification.Position.TOP_CENTER);
         notifica.addThemeVariants(NotificationVariant.ERROR);
     }
 }
