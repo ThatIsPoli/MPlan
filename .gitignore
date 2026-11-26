@@ -125,6 +125,8 @@ local.properties
 *.njsproj
 *.sln
 *.sw?
+# Dati locali del plugin SonarQube for IDE (ex SonarLint)
+.sonarlint/
 
 # OS
 .DS_Store
