@@ -17,7 +17,7 @@ Confronto tra il codice di `code/` (branch `80-implementazione-completa-del-codi
 | mplan-core | Conforme, più 2 classi di supporto package-private |
 | mplan-persistence | Conforme |
 | mplan-app | Conforme, più 1 metodo package-private e un'interfaccia di Vaadin |
-| mplan-ui-vaadin | 2 classi in più e alcune firme cambiate (sotto) |
+| mplan-ui-vaadin | 3 classi in più e alcune firme cambiate (sotto) |
 
 Già allineati al diagramma, quindi **non** sono differenze:
 - i record `Contatto`, `Attivita`, `ErroreValidazione`, `VoceAgenda` e `VoceRegistro` (nel modello hanno lo stereotipo «record»);
@@ -36,8 +36,9 @@ Già allineati al diagramma, quindi **non** sono differenze:
 | `core.servizi.Testi` | package-private, `final` | Normalizzazione dei testi comune ai servizi (`pulisci`, `nullSeVuoto`). | Facoltativa, come sopra, nel package `servizi`. |
 | `ui.componenti.LocalizzazioneDate` | public, `final` | Imposta formato e testi in italiano di `DatePicker` e `TimePicker` e formatta date e ore negli elenchi, in un solo punto. | Da aggiungere: la usano `FormAttivitaView`, `AgendaGiornalieraView` ed `ElencoAttivita`. |
 | `ui.infrastruttura.VistaErrore` | public | Pagina d'errore dell'applicazione (`extends VerticalLayout implements HasErrorParameter<Exception>`). Mostra il messaggio e il codice dell'errore al posto della pagina predefinita di Vaadin. Sostituisce i `try/catch` ripetuti nelle schermate. | Da aggiungere: usa `GestoreErroriUI`. |
+| `ui.infrastruttura.VistaPaginaNonTrovata` | public | Pagina "Pagina non trovata" in italiano per gli indirizzi inesistenti (`extends VerticalLayout implements HasErrorParameter<NotFoundException>`). Serve perché Vaadin usa sempre la pagina d'errore più specifica: per `NotFoundException` la sua `RouteNotFoundError`, in inglese, vinceva su `VistaErrore`. Una classe non può gestire due tipi di eccezione con `HasErrorParameter`. | Da aggiungere accanto a `VistaErrore`: usa `Navigatore`. |
 
-Le quattro classi sono state approvate prima dell'implementazione.
+Le quattro classi iniziali sono state approvate prima dell'implementazione; `VistaPaginaNonTrovata` è stata approvata dopo il controllo visivo.
 
 ### 2. Membri aggiunti, non privati
 
@@ -67,7 +68,7 @@ Sono dettagli normali in un class diagram di progetto; si riportano per complete
 - **Classi interne di `ElencoAttivita`**:
   - `Riga`: privata, `extends Div implements Focusable, HasAriaRole`. È la riga cliccabile e raggiungibile da tastiera.
   - `VoceElenco`: record privato.
-- **Realizzazione in più**: `MPlanApplication implements AppShellConfigurator`, richiesta da Vaadin per le annotazioni a livello di applicazione (`@StyleSheet`, `@ColorScheme`).
+- **Realizzazione in più**: `MPlanApplication implements AppShellConfigurator`, richiesta da Vaadin per le annotazioni a livello di applicazione (`@StyleSheet`, `@ColorScheme`) e per l'icona della pagina (`configurePage`).
 - **Annotazioni di Spring e Vaadin**: `@SpringBootApplication`, `@EnableVaadin`, `@Configuration`, `@Bean`, `@Route`, `@RouteAlias`, `@PageTitle`, `@UIScope`, `@Component`, `@StyleSheet`, `@ColorScheme`.
 - **Dipendenza in più**: `MPlanApplication` usa `AperturaBrowser` al secondo avvio. Se la porta 8642 è occupata, apre solo il browser. Nel diagramma non c'è la freccia.
 - **Getter e setter**: quelli di `DatiContatto` e `DatiAttivita`. Nel diagramma i campi sono privati e i metodi d'accesso sono sottintesi.
@@ -79,7 +80,7 @@ Sono dettagli normali in un class diagram di progetto; si riportano per complete
 
 Se il team vuole che il diagramma rispecchi il codice, in ordine di importanza:
 
-1. Aggiungere `VistaErrore` e `LocalizzazioneDate` (package `ui`) con le loro relazioni.
+1. Aggiungere `VistaErrore`, `VistaPaginaNonTrovata` e `LocalizzazioneDate` (package `ui`) con le loro relazioni.
 2. Aggiornare le tre firme private delle schermate (`validaCampi`, `caricaAttivita`, `caricaScheda`), `creaRiga` e il tipo di `riquadroDati`.
 3. Aggiungere le costanti pubbliche di `Navigatore`.
 4. Facoltativo: `ControlliTesto`, `Testi`, `AppShellConfigurator` su `MPlanApplication` e la dipendenza `MPlanApplication → AperturaBrowser`.
