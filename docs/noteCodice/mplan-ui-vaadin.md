@@ -16,7 +16,7 @@ Regole valide per tutti i file generati da Javazzar:
 Le classi file per file:
 
 - **`navigazione/Navigatore`.** È un bean `@Component @UIScope`, cioè uno per scheda del browser.
-  - Prima di ogni `vaiA…` mette in una pila l'indirizzo corrente; `indietro()` lo riprende, oppure va alla Home se la pila è vuota. `indietroOppureScheda(idContatto)` fa lo stesso ma, a pila vuota, apre la scheda del contatto: la usa il form dell'attività aperto scrivendone l'indirizzo.
+  - Prima di ogni `vaiA…` mette in una pila l'indirizzo corrente; `indietro()` lo riprende, oppure va alla Home se la pila è vuota. Prima di riprenderlo scarta le voci uguali alla schermata attuale (`UI.getActiveViewLocation()`): restano in cima quando l'utente usa il pulsante indietro del browser, e senza questo controllo il primo "Indietro" dell'app non cambierebbe schermata. `indietroOppureScheda(idContatto)` fa lo stesso ma, a pila vuota, apre la scheda del contatto: la usa il form dell'attività aperto scrivendone l'indirizzo.
   - `vaiAHome()` svuota la pila; `vaiAAgenda()` dimentica il giorno memorizzato, perché l'agenda si apre su oggi. `dataAgenda` conserva il giorno dell'agenda quando si torna indietro da un'attività.
   - Naviga per indirizzo e non importa le schermate, così il package `ui.navigazione` non dipende da `ui.schermate` (niente ciclo tra package). I modelli delle rotte sono costanti pubbliche (`ROTTA_HOME`, `ROTTA_SCHEDA_CONTATTO`, `ROTTA_NUOVO_CONTATTO`, `ROTTA_MODIFICA_CONTATTO`, `ROTTA_NUOVA_ATTIVITA`, `ROTTA_ATTIVITA`, `ROTTA_AGENDA`), usate anche nelle `@Route` e `@RouteAlias` delle schermate; l'indirizzo concreto si ottiene mettendo l'identificativo al posto del parametro. Restano le costanti `PARAMETRO_CONTATTO`, `PARAMETRO_ATTIVITA` e `FORMATO_UUID`.
 - **`infrastruttura/GestoreErroriUI`.** È un bean `@Component`, che Vaadin registra da solo come `VaadinServiceInitListener`; in ogni nuova sessione si imposta come `ErrorHandler`.
@@ -37,12 +37,12 @@ Le classi file per file:
   - La riga è una classe privata `Riga extends Div implements Focusable, HasAriaRole`: si raggiunge con il tasto Tab, ha ruolo "button" e si apre con un clic o con Invio.
 - **`componenti/BarraStatoAttivita`.** Mostra il badge dello stato e solo i pulsanti delle transizioni ammesse (Tabella 8.1): da DA_FARE parziale, completata e annulla; da PARZIALE completata e annulla; da COMPLETATA e ANNULLATA nessuno.
 - **`componenti/DialogoAnnullamento`.** È un `Dialog` con il campo del motivo (obbligatorio, con il focus all'apertura grazie a `setAutofocus`) e il pulsante di conferma. Il campo non ha `setMaxLength`: la lunghezza la controlla il servizio, e il suo `ValidazioneException` viene mostrato sul campo mentre la finestra resta aperta (GUI.6).
-- **`schermate/HomeView`** (`Navigatore.ROTTA_HOME`).
+- **`schermate/HomeView`** (`Navigatore.ROTTA_HOME`, titolo della pagina "MPlan – Home", intestazione "Rubrica").
   - Tabella dei contatti con colonne Nome, Cognome, Tipo, Telefono e Indirizzo (GUI.2). Una riga si apre con un clic oppure da tastiera, con le frecce e poi Invio o Spazio (GUI.2.3): Invio è una scorciatoia sulla tabella che apre il contatto della cella con il focus, ricordato con `addCellFocusListener`.
   - Ricerca in memoria tramite `GridListDataView.setFilter`, su nome, cognome, telefoni, codice fiscale e partita IVA. Con la tabella vuota compare uno stato vuoto con icona e testo (`setEmptyStateComponent`).
   - Nell'intestazione tre pulsanti sempre visibili: "Agenda giornaliera" (secondario, GUI.2.2), "Nuovo contatto" (primario, GUI.2.1) e "Chiudi applicazione" (pericolo, evento `chiudi` dalla Home della Tabella 8.2). Hanno sostituito il menu a tendina, su richiesta dell'utente.
-- **`schermate/SchedaContattoView`** (`ROTTA_SCHEDA_CONTATTO`). In alto "Indietro", il nome come titolo, "Modifica contatto" e "Nuova attività"; sotto, in una `Card` (era un `Div` nello scheletro), solo i dati compilati, senza segnaposti per quelli vuoti (GUI.4); se non c'è nessun dato la card si nasconde. Subito sotto lo storico, a tutta larghezza.
-- **`schermate/FormContattoView`** (`ROTTA_NUOVO_CONTATTO` e alias `ROTTA_MODIFICA_CONTATTO`).
+- **`schermate/SchedaContattoView`** (`ROTTA_SCHEDA_CONTATTO`, titolo "MPlan – Scheda contatto"). In alto "Indietro", il nome come titolo, "Modifica contatto" e "Nuova attività"; sotto, in una `Card` (era un `Div` nello scheletro), solo i dati compilati, senza segnaposti per quelli vuoti (GUI.4); se non c'è nessun dato la card si nasconde. Subito sotto lo storico, a tutta larghezza.
+- **`schermate/FormContattoView`** (`ROTTA_NUOVO_CONTATTO` e alias `ROTTA_MODIFICA_CONTATTO`, titolo "MPlan – Form contatto", intestazione "Nuovo contatto" o "Modifica contatto").
   - Campi di DAT.1 in una `Card`, divisi in tre sezioni con titoletto: "Dati anagrafici", "Recapiti", "Dati fiscali". Ogni sezione è un `FormLayout` auto-responsive: due colonne su PC, una su schermo stretto.
   - `Binder<DatiContatto>` con `withNullRepresentation("")`.
   - Il tipo non ha valore predefinito: la `Select` ha la voce vuota "Non indicato" (`setEmptySelectionAllowed`), che serve anche a togliere un tipo già salvato.
@@ -50,13 +50,15 @@ Le classi file per file:
   - Validazione con `ContattoService.valida`: ogni errore viene mostrato sul campo corrispondente, `telefoni` sull'editor, e il focus va sul primo campo in errore (DAT.5).
   - Dopo il salvataggio, `navigatore.indietro()`.
   - Contiene alcuni metodi statici package-private riusati dal form dell'attività, per non duplicare il codice: `mostraErroriSuiCampi`, `pulisciErroriSuiCampi`, `creaTitoloSezione`, `creaSezione` e `creaRiquadroForm`.
-- **`schermate/FormAttivitaView`** (`ROTTA_NUOVA_ATTIVITA` e alias `ROTTA_ATTIVITA`).
+- **`schermate/FormAttivitaView`** (`ROTTA_NUOVA_ATTIVITA` e alias `ROTTA_ATTIVITA`, titolo "MPlan – Form attività").
+  - L'intestazione riporta il contatto: "Nuova attività – Mario Rossi" oppure "Attività – Mario Rossi", così un'attività aperta dall'agenda si riconosce subito. Per questo il costruttore riceve anche `ContattoService`.
+  - Per una nuova attività controlla in `beforeEnter` che il contatto esista; se non esiste torna alla Home con l'avviso "Il contatto richiesto non esiste.", come il form del contatto. Altrimenti il cursore va sul campo Titolo.
   - Campi di DAT.2 in una `Card`, in tre sezioni: "Quando" (data e ora), "Cosa" (titolo e descrizione), "Note e materiali". La data propone `agendaService.oggi()` (DAT.2.2).
   - L'ora è un `TextField` con un convertitore del `Binder` (`LocalizzazioneDate.convertitoreOra()`): accetta `hh:mm` o `hh.mm` con ore 0–23 e minuti 00–59, e per ogni altro testo (ad esempio `25:99`, `24:00`, `12:75`) mostra "Ora non valida: usa il formato hh:mm, ad esempio 08:30." e blocca il salvataggio (DAT.2.3, DAT.5).
   - Nessun `setMaxLength` su titolo, descrizione e note: i limiti li controlla il servizio.
   - Per un'attività esistente mostra in testa alla card la barra dello stato e, se annullata, il motivo; un'attività ANNULLATA è in sola lettura.
   - "Indietro" e il salvataggio tornano alla schermata di provenienza; se il form è stato aperto scrivendone l'indirizzo, tornano alla scheda del contatto dell'attività (`indietroOppureScheda`).
-- **`schermate/AgendaGiornalieraView`** (`ROTTA_AGENDA`). In alto "Indietro" e il titolo; sotto, in una `Card`, freccia indietro, giorno, freccia avanti, "Vai a…" accanto alle frecce e "Oggi" (GUI.7, GUI.7.3). "Vai a…" è un `DatePicker` con il testo "Vai a…" come prefisso e il giorno visualizzato come valore iniziale. Ha la validazione manuale (`setManualValidation(true)`): con una data vuota o scritta male mostra "Data non valida: usa il formato gg/mm/aaaa." sul campo e resta sul giorno visualizzato (DAT.5); l'errore sparisce al cambio di giorno.
+- **`schermate/AgendaGiornalieraView`** (`ROTTA_AGENDA`, titolo "MPlan – Agenda giornaliera"). In alto "Indietro" e il titolo; sotto, in una `Card`, freccia indietro, giorno, freccia avanti, "Vai a…" accanto alle frecce e "Oggi" (GUI.7, GUI.7.3). "Vai a…" è un `DatePicker` con il testo "Vai a…" come prefisso e il giorno visualizzato come valore iniziale. Ha la validazione manuale (`setManualValidation(true)`): con una data vuota o scritta male mostra "Data non valida: usa il formato gg/mm/aaaa." sul campo e resta sul giorno visualizzato (DAT.5); l'errore sparisce al cambio di giorno.
 
 Classi nuove, approvate:
 
@@ -78,6 +80,9 @@ Tema grafico:
 
 ## Scelte non ovvie
 
+- **Titoli delle schermate.** I titoli della pagina (`@PageTitle`) usano i nomi di GUI.1: Home, Form contatto, Scheda contatto, Form attività, Agenda giornaliera. Le intestazioni visibili dicono cosa c'è sulla pagina: "Rubrica" nella Home (GUI.1: "Home (rubrica)"), il nome del contatto nella scheda, "Nuovo contatto" o "Modifica contatto" e l'attività con il suo contatto nei form.
+- **Notifiche in alto al centro.** Tutte le `Notification` dell'app usano `Position.TOP_CENTER`, così non coprono i pulsanti Salva e Indietro in fondo ai form.
+- **Nome completo in un solo punto.** `HomeView.nomeCompleto` (package-private) è usato anche dalla scheda e dal form dell'attività.
 - **Nessuno stile inline.** Il codice Java usa solo `addClassName("mplan-…")` e varianti del tema (`ButtonVariant.PRIMARY`, `TERTIARY`, `ERROR`). Colori e font stanno solo nel blocco 2 del CSS: per cambiare aspetto basta modificare quello.
 - **Ora in un `TextField` e non in un `TimePicker`.** Con il `TimePicker` di Vaadin 25.3 un'ora fuori scala come `25:99` viene interpretata dal connettore lato browser, che mostra `02:39`, mentre il valore resta vuoto e il campo non risulta non valido: l'attività si salverebbe senza ora mentre l'utente ne vede una. Il server non riceve né il testo né un errore, quindi non c'è un'API per accorgersene. Con un `TextField` e un convertitore del `Binder` il testo viene controllato tutto lato server. Si perde solo l'elenco a tendina degli orari.
 - **Navigazione per indirizzo.** `Navigatore` usa `UI.navigate(String)` invece della navigazione tipizzata per classe, che lo costringerebbe a importare le schermate e creerebbe un ciclo tra i package. Gli indirizzi nascono dalle stesse costanti usate nelle `@Route`, quindi restano allineati.
@@ -101,9 +106,12 @@ Tema grafico:
   - nuovi metodi privati di supporto.
 - Nuovi membri pubblici e package-private:
   - in `Navigatore`, le costanti `PARAMETRO_*`, `FORMATO_UUID` e `ROTTA_*` (i modelli delle rotte, usati anche nelle `@Route`) e il metodo `indietroOppureScheda(UUID)`;
-  - `HomeView.nomeTipo`, `ElencoAttivita.creaBadgeStato`, `GestoreErroriUI.nuovoCodice` e `GestoreErroriUI.messaggioPer` (package-private);
+  - `HomeView.nomeTipo`, `HomeView.nomeCompleto`, `ElencoAttivita.creaBadgeStato`, `GestoreErroriUI.nuovoCodice` e `GestoreErroriUI.messaggioPer` (package-private);
   - in `FormContattoView`, i metodi statici package-private `mostraErroriSuiCampi`, `pulisciErroriSuiCampi`, `creaTitoloSezione`, `creaSezione` e `creaRiquadroForm`.
 - `FormAttivitaView.campoOra` è un `TextField` invece del `TimePicker` del diagramma (vedi "Scelte non ovvie").
+- Il costruttore di `FormAttivitaView` riceve anche `ContattoService` (nel diagramma: `AttivitaService`, `AgendaService`, `Navigatore`), che serve per controllare il contatto e mostrarne il nome.
+- `DialogoAnnullamento` resta `public`, classe e costruttore, come nel diagramma, anche se lo usa solo `BarraStatoAttivita`.
+- `LocalizzazioneDate.FORMATO_DATA` è privata; `ITALIANO` resta pubblica perché la usa anche la ricerca della Home.
 - Il tema non è attivato nel modulo ui ma su `MPlanApplication`, per decisione dell'utente.
 
 ## Verifica
@@ -130,4 +138,11 @@ Tema grafico:
   - aperto da indirizzo diretto, il form dell'attività con "Indietro" va alla scheda del contatto;
   - nessuno scorrimento orizzontale a 390 px;
   - nessun errore nella console né risposte HTTP di errore (il 404 di `/favicon.ico` non c'è più).
+- Verifica a runtime delle correzioni minori (istanza sulla porta 8651, database nella scratchpad), tutte superate:
+  - dopo l'indietro del browser, il primo "Indietro" dell'app cambia schermata;
+  - `/contatti/<id inesistente>/nuova-attivita` torna alla Home con l'avviso;
+  - aprendo "Nuova attività" il cursore è nel Titolo;
+  - le intestazioni dei form dell'attività riportano il contatto;
+  - i titoli delle pagine sono quelli di GUI.1;
+  - le notifiche compaiono in alto.
 - Nessun test, come stabilito.
