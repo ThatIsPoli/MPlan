@@ -255,6 +255,11 @@ vaadin-grid {
 /* 5. Classi semantiche                                                */
 /* ------------------------------------------------------------------ */
 
+/* Un elemento nascosto da Java (setVisible(false)) resta nascosto anche se la sua classe imposta display */
+[class*="mplan-"][hidden] {
+  display: none !important;
+}
+
 /* Pagina e intestazione */
 .mplan-pagina {
   box-sizing: border-box;
@@ -379,6 +384,12 @@ vaadin-grid {
 
 .mplan-telefoni-campo {
   flex-grow: 1;
+}
+
+.mplan-errori-telefoni {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mplan-spazio-1);
 }
 
 .mplan-errore-telefoni {

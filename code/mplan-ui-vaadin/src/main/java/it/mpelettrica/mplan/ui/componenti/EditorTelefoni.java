@@ -5,77 +5,165 @@
 */
 package it.mpelettrica.mplan.ui.componenti;
 
-import java.util.*;
-import java.time.*;
+import java.util.ArrayList;
+import java.util.List;
 
-
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-// ----------- << imports@AAAAAArxi+7Qm1TNa+RMZ >>
-// ----------- >>
+import com.vaadin.flow.component.textfield.TextField;
 
-// ----------- << class.annotations@AAAAAArxi+7Qm1TNa+RMZ >>
-// ----------- >>
+/**
+ * Editor dell'elenco dei numeri di telefono di un contatto.
+ * <p>
+ * Mostra un campo per ogni numero, con un pulsante per toglierlo, e un pulsante per
+ * aggiungerne un altro. Sotto i campi elenca gli errori di validazione sui telefoni:
+ * possono essere piu' di uno, uno per ogni numero non valido o ripetuto.
+ */
 public class EditorTelefoni extends VerticalLayout {
-    // ----------- << attribute.annotations@AAAAAAGT3h4InkQ9Ssiq/ >>
-    // ----------- >>
-    private List<TextField> campiNumero;
 
-    private List<TextField> getCampiNumero() {
-        return campiNumero;
-    }
+    private static final long serialVersionUID = 1L;
 
-    private void setCampiNumero(List<TextField> campiNumero) {
-        this.campiNumero = campiNumero;
-    }
+    private final List<TextField> campiNumero;
 
-    // ----------- << method.annotations@AAAAAAJ1BwNzSyTsuA33u >>
-    // ----------- >>
+    private final VerticalLayout righe;
+
+    private final Div areaErrori;
+
+    /**
+     * Crea l'editor con una sola riga vuota.
+     */
     public EditorTelefoni() {
-    // ----------- << method.body@AAAAAAJ1BwNzSyTsuA33u >>
-    // ----------- >>
+        this.campiNumero = new ArrayList<>();
+        this.righe = creaContenitoreRighe();
+        this.areaErrori = creaAreaErrori();
+        addClassName("mplan-editor-telefoni");
+        setPadding(false);
+        setSpacing(false);
+        add(creaTitolo(), righe, areaErrori, creaPulsanteAggiungi());
+        aggiungiRiga("");
     }
-    /**
-    * @param numeri
-    */
 
-    // ----------- << method.annotations@AAAAAAOraAupQoST2Fy7B >>
-    // ----------- >>
+    /**
+     * Sostituisce i numeri mostrati con quelli indicati e cancella gli errori.
+     *
+     * @param numeri i numeri da mostrare; se {@code null} o vuoto resta una riga vuota
+     */
     public void impostaNumeri(List<String> numeri) {
-    // ----------- << method.body@AAAAAAOraAupQoST2Fy7B >>
-    // ----------- >>
+        righe.removeAll();
+        campiNumero.clear();
+        pulisciErrore();
+        if (numeri == null || numeri.isEmpty()) {
+            aggiungiRiga("");
+            return;
+        }
+        numeri.forEach(this::aggiungiRiga);
     }
-    // ----------- << method.annotations@AAAAAA94kJQVLVQRWn8m3 >>
-    // ----------- >>
+
+    /**
+     * Restituisce i numeri inseriti, senza spazi all'inizio e alla fine; le righe vuote
+     * vengono ignorate.
+     *
+     * @return una nuova lista non modificabile con i numeri, nell'ordine dei campi
+     */
     public List<String> getNumeri() {
-    // ----------- << method.body@AAAAAA94kJQVLVQRWn8m3 >>
-    // ----------- >>
+        return campiNumero.stream()
+                .map(TextField::getValue)
+                .map(String::strip)
+                .filter(numero -> !numero.isEmpty())
+                .toList();
     }
-    /**
-    * @param messaggio
-    */
 
-    // ----------- << method.annotations@AAAAAAsEcQrghCS9ytyDg >>
-    // ----------- >>
+    /**
+     * Aggiunge un messaggio d'errore sotto i campi. Chiamate successive accumulano i messaggi;
+     * i campi il cui numero compare nel messaggio vengono evidenziati.
+     *
+     * @param messaggio il motivo dell'errore da mostrare; non {@code null}
+     */
     public void mostraErrore(String messaggio) {
-    // ----------- << method.body@AAAAAAsEcQrghCS9ytyDg >>
-    // ----------- >>
+        Span riga = new Span(messaggio);
+        riga.addClassName("mplan-errore-telefoni");
+        areaErrori.add(riga);
+        areaErrori.setVisible(true);
+        evidenziaCampiCitati(messaggio);
     }
-    // ----------- << method.annotations@AAAAAAU5XaBIlLRgmtdJK >>
-    // ----------- >>
-    public void pulisciErrore() {
-    // ----------- << method.body@AAAAAAU5XaBIlLRgmtdJK >>
-    // ----------- >>
-    }
-    /**
-    * @param valore
-    */
 
-    // ----------- << method.annotations@AAAAAAxFvZgqrQT6+ouuZ >>
-    // ----------- >>
-    private void aggiungiRiga(String valore) {
-    // ----------- << method.body@AAAAAAxFvZgqrQT6+ouuZ >>
-    // ----------- >>
+    /**
+     * Cancella tutti i messaggi d'errore e toglie l'evidenziazione dai campi.
+     */
+    public void pulisciErrore() {
+        areaErrori.removeAll();
+        areaErrori.setVisible(false);
+        campiNumero.forEach(campo -> campo.setInvalid(false));
     }
-// ----------- << class.extras@AAAAAArxi+7Qm1TNa+RMZ >>
-// ----------- >>
+
+    private void aggiungiRiga(String numero) {
+        TextField campo = new TextField();
+        campo.setAriaLabel("Numero di telefono");
+        campo.setPlaceholder("Numero di telefono");
+        campo.setValue(numero == null ? "" : numero);
+        campo.addClassName("mplan-telefoni-campo");
+
+        HorizontalLayout riga = new HorizontalLayout();
+        riga.addClassName("mplan-telefoni-riga");
+        riga.setPadding(false);
+        riga.setSpacing(false);
+
+        Button rimuovi = new Button(VaadinIcon.TRASH.create(), evento -> rimuoviRiga(riga, campo));
+        rimuovi.addThemeVariants(ButtonVariant.TERTIARY);
+        rimuovi.setAriaLabel("Rimuovi il numero");
+        rimuovi.setTooltipText("Rimuovi il numero");
+
+        riga.add(campo, rimuovi);
+        campiNumero.add(campo);
+        righe.add(riga);
+    }
+
+    private void rimuoviRiga(HorizontalLayout riga, TextField campo) {
+        righe.remove(riga);
+        campiNumero.remove(campo);
+        if (campiNumero.isEmpty()) {
+            aggiungiRiga("");
+        }
+    }
+
+    private void evidenziaCampiCitati(String messaggio) {
+        for (TextField campo : campiNumero) {
+            String numero = campo.getValue().strip();
+            if (!numero.isEmpty() && messaggio.contains(numero)) {
+                campo.setInvalid(true);
+            }
+        }
+    }
+
+    private static Span creaTitolo() {
+        Span titolo = new Span("Telefoni");
+        titolo.addClassName("mplan-telefoni-titolo");
+        return titolo;
+    }
+
+    private static VerticalLayout creaContenitoreRighe() {
+        VerticalLayout contenitore = new VerticalLayout();
+        contenitore.setPadding(false);
+        contenitore.setSpacing(false);
+        contenitore.addClassName("mplan-editor-telefoni");
+        return contenitore;
+    }
+
+    private static Div creaAreaErrori() {
+        Div area = new Div();
+        area.addClassName("mplan-errori-telefoni");
+        area.setVisible(false);
+        return area;
+    }
+
+    private Button creaPulsanteAggiungi() {
+        Button aggiungi = new Button("Aggiungi telefono", VaadinIcon.PLUS.create(), evento -> aggiungiRiga(""));
+        aggiungi.addThemeVariants(ButtonVariant.TERTIARY);
+        return aggiungi;
+    }
 }

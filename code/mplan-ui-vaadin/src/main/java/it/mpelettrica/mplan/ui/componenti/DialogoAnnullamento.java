@@ -5,84 +5,101 @@
 */
 package it.mpelettrica.mplan.ui.componenti;
 
-import java.util.*;
-import java.time.*;
+import java.util.UUID;
 
-
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.textfield.TextArea;
+
 import it.mpelettrica.mplan.api.AttivitaService;
-// ----------- << imports@AAAAAAPwSYam0XR/2SduN >>
-// ----------- >>
+import it.mpelettrica.mplan.api.ErroreValidazione;
+import it.mpelettrica.mplan.api.ValidazioneException;
 
-// ----------- << class.annotations@AAAAAAPwSYam0XR/2SduN >>
-// ----------- >>
+/**
+ * Finestra che chiede il motivo e la conferma prima di annullare un'attivita' (GUI.6).
+ * <p>
+ * L'annullamento e' definitivo: l'attivita' resta nello storico ma non si puo' piu' modificare.
+ * Se il motivo manca o e' troppo lungo la finestra resta aperta e mostra l'errore sul campo.
+ */
 public class DialogoAnnullamento extends Dialog {
-    // ----------- << attribute.annotations@AAAAAAhR0gwvqOQGufZGt >>
-    // ----------- >>
-    private UUID idAttivita;
 
-    // ----------- << attribute.annotations@AAAAAA+Vu+/7oDQu+PuyU >>
-    // ----------- >>
-    private Runnable alCompletamento;
+    private static final long serialVersionUID = 1L;
 
-    // ----------- << attribute.annotations@AAAAAAfWSQymDfSemF7pM >>
-    // ----------- >>
-    private TextArea campoMotivo;
+    private static final int LUNGHEZZA_MASSIMA_MOTIVO = 1000;
 
-    // ----------- << attribute.annotations@AAAAAANmiSRZCgQS2rt4a >>
-    // ----------- >>
-    private AttivitaService attivitaService;
+    private static final int DURATA_NOTIFICA_MS = 3000;
 
-    private UUID getIdAttivita() {
-        return idAttivita;
-    }
+    private final UUID idAttivita;
 
-    private Runnable getAlCompletamento() {
-        return alCompletamento;
-    }
+    private final Runnable alCompletamento;
 
-    private TextArea getCampoMotivo() {
-        return campoMotivo;
-    }
+    private final TextArea campoMotivo;
 
-    private AttivitaService getAttivitaService() {
-        return attivitaService;
-    }
-
-    private void setIdAttivita(UUID idAttivita) {
-        this.idAttivita = idAttivita;
-    }
-
-    private void setAlCompletamento(Runnable alCompletamento) {
-        this.alCompletamento = alCompletamento;
-    }
-
-    private void setCampoMotivo(TextArea campoMotivo) {
-        this.campoMotivo = campoMotivo;
-    }
-
-    private void setAttivitaService(AttivitaService attivitaService) {
-        this.attivitaService = attivitaService;
-    }
+    private final AttivitaService attivitaService;
 
     /**
-    * @param idAttivita 
-    * @param attivitaService 
-    * @param alCompletamento
-    */
-
-    // ----------- << method.annotations@AAAAAAryO3UPUfRMy2Y9/ >>
-    // ----------- >>
+     * Crea la finestra di annullamento; per mostrarla chiamare {@link #open()}.
+     *
+     * @param idAttivita      identificativo dell'attivita' da annullare; non {@code null}
+     * @param attivitaService servizio che esegue l'annullamento; non {@code null}
+     * @param alCompletamento azione eseguita dopo un annullamento riuscito; non {@code null}
+     */
     public DialogoAnnullamento(UUID idAttivita, AttivitaService attivitaService, Runnable alCompletamento) {
-    // ----------- << method.body@AAAAAAryO3UPUfRMy2Y9/ >>
-    // ----------- >>
+        this.idAttivita = idAttivita;
+        this.attivitaService = attivitaService;
+        this.alCompletamento = alCompletamento;
+        this.campoMotivo = creaCampoMotivo();
+        addClassName("mplan-dialogo");
+        setHeaderTitle("Annulla attività");
+        setCloseOnOutsideClick(false);
+        add(creaAvviso(), campoMotivo);
+        creaPulsanti();
     }
-    // ----------- << method.annotations@AAAAAAEEiHrECeRXKF3b3 >>
-    // ----------- >>
+
     private void confermaAnnullamento() {
-    // ----------- << method.body@AAAAAAEEiHrECeRXKF3b3 >>
-    // ----------- >>
+        String motivo = campoMotivo.getValue().strip();
+        if (motivo.isEmpty()) {
+            mostraErrore("Indica il motivo dell'annullamento.");
+            return;
+        }
+        try {
+            attivitaService.annulla(idAttivita, motivo);
+        } catch (ValidazioneException e) {
+            mostraErrore(String.join(" ", e.getErrori().stream().map(ErroreValidazione::motivo).toList()));
+            return;
+        }
+        close();
+        Notification.show("Attività annullata.", DURATA_NOTIFICA_MS, Notification.Position.BOTTOM_START);
+        alCompletamento.run();
     }
-// ----------- << class.extras@AAAAAAPwSYam0XR/2SduN >>
-// ----------- >>
+
+    private void mostraErrore(String messaggio) {
+        campoMotivo.setErrorMessage(messaggio);
+        campoMotivo.setInvalid(true);
+        campoMotivo.focus();
+    }
+
+    private static Paragraph creaAvviso() {
+        return new Paragraph("L'attività resterà nello storico come annullata e non sarà più modificabile.");
+    }
+
+    private static TextArea creaCampoMotivo() {
+        TextArea campo = new TextArea("Motivo dell'annullamento");
+        campo.addClassName("mplan-dialogo-campo");
+        campo.setMaxLength(LUNGHEZZA_MASSIMA_MOTIVO);
+        campo.setRequiredIndicatorVisible(true);
+        campo.setHelperText("Al massimo " + LUNGHEZZA_MASSIMA_MOTIVO + " caratteri.");
+        return campo;
+    }
+
+    private void creaPulsanti() {
+        Button indietro = new Button("Indietro", evento -> close());
+        indietro.addThemeVariants(ButtonVariant.TERTIARY);
+        Button conferma = new Button("Conferma annullamento", evento -> confermaAnnullamento());
+        conferma.addThemeVariants(ButtonVariant.PRIMARY, ButtonVariant.ERROR);
+        getFooter().add(indietro, conferma);
+    }
 }
