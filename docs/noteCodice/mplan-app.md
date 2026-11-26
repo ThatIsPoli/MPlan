@@ -22,6 +22,7 @@ Nei quattro file generati da Javazzar sono stati tolti i marcatori, i getter e i
 - **`costruisciUri`.** Metodo statico con visibilità di package in `MPlanApplication`: lo usano anche `ConfigurazioneMPlan` e il controllo del secondo avvio, senza nuovi membri pubblici. L'indirizzo locale è una costante privata di `ConfigurazioneMPlan`.
 - **Percorso del database.** `Path.of(...).toAbsolutePath()`, poi `jdbc:sqlite:` più il percorso. Se la cartella non si può creare, si lancia `PersistenzaException`.
 - **Log.** Nella cartella `MPlan` dell'utente accanto al database, così non dipendono dalla cartella da cui si lancia il programma (design 2.6).
+- **Icona.** `MPlanApplication` implementa `configurePage` dell'`AppShellConfigurator` e aggiunge l'icona `mplan-tema/icona.svg` (del modulo ui) con `addFavIcon`. Verificato: l'HTML contiene `<link rel="icon">` e il file risponde 200.
 - **Chiusura.** Il thread separato e la pausa di 500 ms servono a far arrivare al browser la risposta al clic su `chiudi` prima dello spegnimento del server.
 
 ## Deviazioni dal diagramma

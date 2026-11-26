@@ -21,6 +21,7 @@ import org.springframework.core.env.Environment;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.component.page.ColorScheme;
+import com.vaadin.flow.server.AppShellSettings;
 import com.vaadin.flow.spring.annotation.EnableVaadin;
 import com.vaadin.flow.theme.aura.Aura;
 
@@ -44,6 +45,8 @@ public class MPlanApplication implements AppShellConfigurator {
 
     private static final String PROPRIETA_PORTA = "server.port";
 
+    private static final String ICONA = "mplan-tema/icona.svg";
+
     /**
      * Avvia MPlan. La grafica resta attiva, perché senza Java non può aprire il browser.
      *
@@ -59,6 +62,16 @@ public class MPlanApplication implements AppShellConfigurator {
             }
         });
         app.run(args);
+    }
+
+    /**
+     * Imposta l'icona dell'applicazione nella scheda del browser.
+     *
+     * @param impostazioni impostazioni della pagina
+     */
+    @Override
+    public void configurePage(AppShellSettings impostazioni) {
+        impostazioni.addFavIcon("icon", ICONA, "any");
     }
 
     /**
