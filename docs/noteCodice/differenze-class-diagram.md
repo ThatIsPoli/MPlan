@@ -104,4 +104,14 @@ Se il team vuole che il diagramma rispecchi il codice, in ordine di importanza:
 3. Aggiungere le costanti pubbliche di `Navigatore`.
 4. Facoltativo: `ControlliTesto`, `Testi`, `AppShellConfigurator` su `MPlanApplication` e la dipendenza `MPlanApplication → AperturaBrowser`.
 
+### Da verificare
+
+Questi punti sono descritti nelle sezioni sopra ma mancano dall'elenco. Il codice non è ancora definitivo, quindi vanno ricontrollati prima di modificare il diagramma.
+
+- `Navigatore.indietroOppureScheda(UUID)` è un metodo pubblico (sezione 2), ma il punto 3 parla solo delle costanti.
+- Il tipo di `campoOra` in `FormAttivitaView` è `TimePicker` nel diagramma e `TextField` nel codice (sezione 3), ma il punto 2 cita solo il tipo di `riquadroDati`.
+- Le dipendenze diverse dal diagramma (sezione 4):
+  - da aggiungere: `BarraStatoAttivita → ElencoAttivita`, `GestoreErroriUI → ValidazioneException`, `ConfigurazioneMPlan → PersistenzaException`, `FormAttivitaView → FormContattoView`;
+  - da togliere: `BarraStatoAttivita → ValidazioneException`, che c'è nel diagramma ma non nel codice.
+
 Le altre modifiche a `mplan.mdj` vanno fatte solo dopo l'approvazione del team.
