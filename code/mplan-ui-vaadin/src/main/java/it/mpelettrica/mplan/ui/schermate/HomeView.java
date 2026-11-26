@@ -119,18 +119,17 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
 
     private void aggiornaElenco() {
         tuttiContatti = contattoService.elenca();
+        tabellaContatti.setItems(tuttiContatti);
         filtraContatti(campoRicerca.getValue());
     }
 
     private void filtraContatti(String testo) {
         String cercato = testo == null ? "" : testo.strip().toLowerCase(ITALIANO);
         if (cercato.isEmpty()) {
-            tabellaContatti.setItems(tuttiContatti);
+            tabellaContatti.getListDataView().removeFilters();
             return;
         }
-        tabellaContatti.setItems(tuttiContatti.stream()
-                .filter(contatto -> corrisponde(contatto, cercato))
-                .toList());
+        tabellaContatti.getListDataView().setFilter(contatto -> corrisponde(contatto, cercato));
     }
 
     private static boolean corrisponde(Contatto contatto, String cercato) {
