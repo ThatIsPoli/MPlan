@@ -50,6 +50,12 @@ Le quattro classi iniziali sono state approvate prima dell'implementazione; `Vis
 | `ui.infrastruttura.GestoreErroriUI` | `static String nuovoCodice()`, `static String messaggioPer(Throwable)` (package-private) | Codice dell'errore e messaggio per l'utente, condivisi con `VistaErrore`. |
 | `app.MPlanApplication` | `static URI costruisciUri(String, int)` (package-private) | Indirizzo locale dell'app, usato sia al primo sia al secondo avvio. |
 
+### 2bis. Membri del diagramma tolti dal codice
+
+| Classe | Membro nel diagramma | Motivo |
+|---|---|---|
+| `ui.schermate.HomeView` | `- menu: Select<String>`, con la voce "Agenda giornaliera" e la voce "Chiudi applicazione" | Su richiesta dell'utente la tendina è sostituita da due pulsanti sempre visibili, "Agenda giornaliera" e "Chiudi applicazione". GUI.2.2 è stato aggiornato nella specifica (versione 0.4.5). I metodi privati `apriAgenda()` e `chiudiApplicazione()` restano. |
+
 ### 3. Firme cambiate (membri privati)
 
 | Classe | Nel diagramma | Nel codice | Motivo |
@@ -71,6 +77,12 @@ Sono dettagli normali in un class diagram di progetto; si riportano per complete
 - **Realizzazione in più**: `MPlanApplication implements AppShellConfigurator`, richiesta da Vaadin per le annotazioni a livello di applicazione (`@StyleSheet`, `@ColorScheme`) e per l'icona della pagina (`configurePage`).
 - **Annotazioni di Spring e Vaadin**: `@SpringBootApplication`, `@EnableVaadin`, `@Configuration`, `@Bean`, `@Route`, `@RouteAlias`, `@PageTitle`, `@UIScope`, `@Component`, `@StyleSheet`, `@ColorScheme`.
 - **Dipendenza in più**: `MPlanApplication` usa `AperturaBrowser` al secondo avvio. Se la porta 8642 è occupata, apre solo il browser. Nel diagramma non c'è la freccia.
+- **Dipendenze diverse dal diagramma**:
+  - nel codice e non nel diagramma:
+    - `BarraStatoAttivita` → `ElencoAttivita`, per il badge dello stato;
+    - `GestoreErroriUI` → `ValidazioneException`, per mostrare gli errori sui campi;
+    - `ConfigurazioneMPlan` → `PersistenzaException`, che avvolge gli errori di avvio del database;
+  - nel diagramma e non nel codice: `BarraStatoAttivita` → `ValidazioneException`. L'errore del motivo lo gestisce `DialogoAnnullamento`.
 - **Getter e setter**: quelli di `DatiContatto` e `DatiAttivita`. Nel diagramma i campi sono privati e i metodi d'accesso sono sottintesi.
 - **Membri privati di supporto**: costanti `LOGGER` e metodi privati di supporto in quasi tutte le classi. L'elenco è nelle note di ogni modulo (`mplan-*.md` in questa cartella).
 - **Costruttori privati**: `RegoleStatoAttivita` e `OrdinamentoAttivita` sono `final` con costruttore privato, perché hanno solo membri statici.
@@ -82,7 +94,7 @@ Se il team vuole che il diagramma rispecchi il codice, in ordine di importanza:
 
 1. Aggiungere `VistaErrore`, `VistaPaginaNonTrovata` e `LocalizzazioneDate` (package `ui`) con le loro relazioni.
 2. Aggiornare le tre firme private delle schermate (`validaCampi`, `caricaAttivita`, `caricaScheda`), `creaRiga` e il tipo di `riquadroDati`.
-3. Aggiungere le costanti pubbliche di `Navigatore`.
+3. Aggiungere le costanti pubbliche di `Navigatore` e togliere il campo `menu` di `HomeView`.
 4. Facoltativo: `ControlliTesto`, `Testi`, `AppShellConfigurator` su `MPlanApplication` e la dipendenza `MPlanApplication → AperturaBrowser`.
 
 La modifica di `mplan.mdj` va fatta solo dopo l'approvazione del team.
