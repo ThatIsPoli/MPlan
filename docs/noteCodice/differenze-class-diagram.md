@@ -51,17 +51,18 @@ Le quattro classi iniziali sono state approvate prima dell'implementazione; `Vis
 | `ui.schermate.HomeView` | `static String nomeTipo(TipoContatto)` (package-private) | Testo in italiano del tipo di contatto, riusato da scheda e form contatto. |
 | `ui.schermate.HomeView` | `static String nomeCompleto(Contatto)` (package-private) | Nome e cognome del contatto in un solo punto, usato da Home, scheda e form attività. |
 | `ui.componenti.LocalizzazioneDate` | `public static final Locale ITALIANO` | Lingua italiana usata da date, ore e ricerca della Home, senza ridefinirla altrove. |
+| `ui.componenti.LocalizzazioneDate` | `public static void applica(DatePicker)`, `public static void applicaOra(TextField)`, `public static Converter<String, LocalTime> convertitoreOra()` | Formato e testi in italiano del selettore della data e del campo dell'ora, con il convertitore `hh:mm` usato dal `Binder` del Form attività. |
+| `ui.componenti.LocalizzazioneDate` | `public static String formattaData(LocalDate)`, `public static String formattaDataEstesa(LocalDate)`, `public static String formattaOra(LocalTime)` | Date e ore scritte allo stesso modo negli elenchi, nell'agenda e nei titoli. |
 | `ui.componenti.ElencoAttivita` | `static Badge creaBadgeStato(StatoAttivita)` (package-private) | Badge colorato dello stato, riusato da `BarraStatoAttivita`. |
 | `ui.infrastruttura.GestoreErroriUI` | `static String nuovoCodice()`, `static String messaggioPer(Throwable)` (package-private) | Codice dell'errore e messaggio per l'utente, condivisi con `VistaErrore`. |
 | `app.MPlanApplication` | `static URI costruisciUri(String, int)` (package-private) | Indirizzo locale dell'app, usato sia al primo sia al secondo avvio. |
 
-### 2bis. Membri tolti dal codice e dal diagramma
+### 2bis. Membri tolti dal codice
 
-Il diagramma è già allineato: il campo è stato tolto anche da `mplan.mdj`.
-
-| Classe | Membro tolto | Motivo |
-|---|---|---|
-| `ui.schermate.HomeView` | `- menu: Select<String>`, che conteneva la voce "Agenda giornaliera" e la voce "Chiudi applicazione" | Su richiesta dell'utente la tendina è sostituita da due pulsanti sempre visibili, "Agenda giornaliera" e "Chiudi applicazione". GUI.2.2 è stato aggiornato nella specifica (versione 0.4.5). I metodi privati `apriAgenda()` e `chiudiApplicazione()` restano. |
+| Classe | Membro tolto | Nel diagramma | Motivo |
+|---|---|---|---|
+| `ui.schermate.HomeView` | `- menu: Select<String>`, che conteneva la voce "Agenda giornaliera" e la voce "Chiudi applicazione" | Già tolto | Su richiesta dell'utente la tendina è sostituita da due pulsanti sempre visibili, "Agenda giornaliera" e "Chiudi applicazione". GUI.2.2 è stato aggiornato nella specifica (versione 0.4.5). I metodi privati `apriAgenda()` e `chiudiApplicazione()` restano. |
+| `ui.schermate.FormAttivitaView` | `- mostraErrori(List<ErroreValidazione>): void` | **Ancora presente, da togliere** | Gli errori sui campi li mostra `FormContattoView.mostraErroriSuiCampi` (sezione 2), condiviso dai due form. In `FormContattoView` il metodo privato `mostraErrori` invece resta. |
 
 ### 3. Firme cambiate (membri privati)
 
@@ -72,7 +73,7 @@ Il diagramma è già allineato: il campo è stato tolto anche da `mplan.mdj`.
 | `ui.schermate.FormContattoView` | `- validaCampi(): List<ErroreValidazione>` | `- validaCampi(DatiContatto): List<ErroreValidazione>` | Come sopra. |
 | `ui.schermate.FormAttivitaView` | `- caricaAttivita(UUID): void` | `- caricaAttivita(UUID): boolean` | Restituisce `false` se l'attività non esiste, così `beforeEnter` rimanda alla Home senza costruire la schermata. |
 | `ui.schermate.SchedaContattoView` | `- caricaScheda(): void` | `- caricaScheda(): boolean` | Come sopra, per il contatto. |
-| `ui.schermate.FormAttivitaView` | `+ FormAttivitaView(AttivitaService, AgendaService, Navigatore)` | `+ FormAttivitaView(AttivitaService, AgendaService, ContattoService, Navigatore)` | Serve il contatto dell'attività: per controllare che esista quando si apre "Nuova attività" da indirizzo diretto e per mostrarne il nome nel titolo del form. Nessun servizio dell'api restituisce il contatto a partire dall'attività. Spring inietta il servizio in più senza altre modifiche. Il costruttore è pubblico, quindi va aggiornato nel diagramma. |
+| `ui.schermate.FormAttivitaView` | `+ FormAttivitaView(AttivitaService, AgendaService, Navigatore)` | `+ FormAttivitaView(AttivitaService, ContattoService, AgendaService, Navigatore)` | Serve il contatto dell'attività: per controllare che esista quando si apre "Nuova attività" da indirizzo diretto e per mostrarne il nome nel titolo del form. Nessun servizio dell'api restituisce il contatto a partire dall'attività. Spring inietta il servizio in più senza altre modifiche. Il costruttore è pubblico, quindi va aggiornato nel diagramma. |
 | `ui.schermate.FormAttivitaView` | `- campoOra: TimePicker` | `- campoOra: TextField` | Con un'ora fuori scala, ad esempio "25:99", il `TimePicker` di Vaadin 25.3 mostra un altro orario mentre il valore resta vuoto, così l'attività si salverebbe senza ora. Un `TextField` con un convertitore `hh:mm` dà un errore sul campo (DAT.5). |
 | `ui.schermate.SchedaContattoView` | `- riquadroDati: Div` | `- riquadroDati: Card` | `Card` è il componente di Vaadin 25 per i riquadri: dà già bordo, ombra e raggio del tema, senza stile scritto a mano. |
 
@@ -101,21 +102,31 @@ Sono dettagli normali in un class diagram di progetto; si riportano per complete
 
 ## Cosa conviene riportare nel diagramma
 
-Se il team vuole che il diagramma rispecchi il codice, in ordine di importanza:
+Elenco completo delle modifiche a `mplan.mdj` perché il diagramma rispecchi il codice, in ordine di importanza. Il codice della GUI è ancora in lavorazione: conviene fare queste modifiche quando è definitivo e ricontrollare prima le firme.
 
-1. Aggiungere `VistaErrore`, `VistaPaginaNonTrovata` e `LocalizzazioneDate` (package `ui`) con le loro relazioni.
-2. Aggiornare le tre firme private delle schermate (`validaCampi`, `caricaAttivita`, `caricaScheda`), `creaRiga` e il tipo di `riquadroDati`.
-3. Aggiungere le costanti pubbliche di `Navigatore`.
-4. Facoltativo: `ControlliTesto`, `Testi`, `AppShellConfigurator` su `MPlanApplication` e la dipendenza `MPlanApplication → AperturaBrowser`.
+**Da fare**
 
-### Da verificare
+1. **Classi nuove** nel package `ui`, con i membri pubblici e le relazioni:
+   - `VistaErrore` in `infrastruttura`, che usa `GestoreErroriUI`;
+   - `VistaPaginaNonTrovata` in `infrastruttura`, che usa `Navigatore`;
+   - `LocalizzazioneDate` in `componenti`, con `ITALIANO` e i sei metodi statici della sezione 2, usata da `FormAttivitaView`, `AgendaGiornalieraView` ed `ElencoAttivita`.
+2. **Costruttore di `FormAttivitaView`**: `+ FormAttivitaView(AttivitaService, ContattoService, AgendaService, Navigatore)`, nell'ordine del codice, più la dipendenza `FormAttivitaView → ContattoService`.
+3. **Firme private**:
+   - `FormAttivitaView`: `validaCampi(DatiAttivita): List<ErroreValidazione>` e `caricaAttivita(UUID): boolean`;
+   - `FormContattoView`: `validaCampi(DatiContatto): List<ErroreValidazione>`;
+   - `SchedaContattoView`: `caricaScheda(): boolean`;
+   - `ElencoAttivita`: `creaRiga(VoceElenco): Component`.
+4. **Tipi dei campi**: `FormAttivitaView.campoOra: TextField` e `SchedaContattoView.riquadroDati: Card`.
+5. **Membro da togliere**: `FormAttivitaView.mostraErrori(List<ErroreValidazione>)` (sezione 2bis).
+6. **`Navigatore`**: le dieci costanti pubbliche e il metodo `+ indietroOppureScheda(UUID): void` (sezione 2).
+7. **Dipendenze**:
+   - da aggiungere: `BarraStatoAttivita → ElencoAttivita`, `GestoreErroriUI → ValidazioneException`, `ConfigurazioneMPlan → PersistenzaException`, `FormAttivitaView → FormContattoView`;
+   - da togliere: `BarraStatoAttivita → ValidazioneException`, che c'è nel diagramma ma non nel codice.
 
-Questi punti sono descritti nelle sezioni sopra ma mancano dall'elenco. Il codice non è ancora definitivo, quindi vanno ricontrollati prima di modificare il diagramma.
+**Facoltativo**
 
-- `Navigatore.indietroOppureScheda(UUID)` è un metodo pubblico (sezione 2), ma il punto 3 parla solo delle costanti.
-- Il tipo di `campoOra` in `FormAttivitaView` è `TimePicker` nel diagramma e `TextField` nel codice (sezione 3), ma il punto 2 cita solo il tipo di `riquadroDati`.
-- Le dipendenze diverse dal diagramma (sezione 4):
-  - da aggiungere: `BarraStatoAttivita → ElencoAttivita`, `GestoreErroriUI → ValidazioneException`, `ConfigurazioneMPlan → PersistenzaException`, `FormAttivitaView → FormContattoView`;
-  - da togliere: `BarraStatoAttivita → ValidazioneException`, che c'è nel diagramma ma non nel codice.
+- `ControlliTesto` e `Testi`, classi di supporto package-private.
+- `AppShellConfigurator` su `MPlanApplication` e la dipendenza `MPlanApplication → AperturaBrowser`.
+- I metodi statici package-private della sezione 2: quelli di `FormContattoView`, `HomeView`, `ElencoAttivita`, `GestoreErroriUI` e `MPlanApplication`.
 
-Le altre modifiche a `mplan.mdj` vanno fatte solo dopo l'approvazione del team.
+Le modifiche a `mplan.mdj` vanno fatte solo dopo l'approvazione del team.
