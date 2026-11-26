@@ -129,6 +129,9 @@ public class PersistenzaFactory {
         SQLiteConfig configurazione = new SQLiteConfig();
         configurazione.enforceForeignKeys(true);
         configurazione.setBusyTimeout(ATTESA_BLOCCO_MS);
+        // BEGIN IMMEDIATE: il blocco di scrittura si prende subito, così l'attesa vale anche
+        // per le transazioni che prima leggono e poi scrivono (altrimenti SQLITE_BUSY immediato).
+        configurazione.setTransactionMode(SQLiteConfig.TransactionMode.IMMEDIATE);
         return configurazione;
     }
 

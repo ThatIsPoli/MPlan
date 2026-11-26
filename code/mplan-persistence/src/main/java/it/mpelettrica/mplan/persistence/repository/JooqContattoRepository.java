@@ -58,19 +58,18 @@ public class JooqContattoRepository implements ContattoRepository {
     }
 
     /**
-     * Restituisce tutti i contatti, senza ordine, con due sole query.
+     * Restituisce tutti i contatti, senza ordine, con due sole query
+     * eseguite nella stessa transazione, per avere una lettura coerente.
      *
      * @return l'elenco dei contatti
      */
     @Override
     public List<Contatto> tutti() {
-        DSLContext dsl = contesto.dslCorrente();
-        Map<String, List<String>> telefoni = dsl.select(TELEFONO_CONTATTO.ID_CONTATTO, TELEFONO_CONTATTO.NUMERO)
-                .from(TELEFONO_CONTATTO)
-                .orderBy(ORDINE_INSERIMENTO)
-                .fetchGroups(TELEFONO_CONTATTO.ID_CONTATTO, TELEFONO_CONTATTO.NUMERO);
-        return dsl.selectFrom(CONTATTO)
-                .fetch(riga -> ContattoMapper.daRecord(riga, telefoni.getOrDefault(riga.getId(), List.of())));
+        return contesto.dslCorrente().transactionResult(cfg -> {
+            DSLContext dsl = DSL.using(cfg);
+            Map<String, List<String>> telefoni = telefoniPerContatto(dsl);
+            return leggiContatti(dsl, telefoni);
+        });
     }
 
     /**
@@ -106,6 +105,18 @@ public class JooqContattoRepository implements ContattoRepository {
                     .execute();
             inserisciTelefoni(dsl, contatto);
         });
+    }
+
+    private Map<String, List<String>> telefoniPerContatto(DSLContext dsl) {
+        return dsl.select(TELEFONO_CONTATTO.ID_CONTATTO, TELEFONO_CONTATTO.NUMERO)
+                .from(TELEFONO_CONTATTO)
+                .orderBy(ORDINE_INSERIMENTO)
+                .fetchGroups(TELEFONO_CONTATTO.ID_CONTATTO, TELEFONO_CONTATTO.NUMERO);
+    }
+
+    private List<Contatto> leggiContatti(DSLContext dsl, Map<String, List<String>> telefoni) {
+        return dsl.selectFrom(CONTATTO)
+                .fetch(riga -> ContattoMapper.daRecord(riga, telefoni.getOrDefault(riga.getId(), List.of())));
     }
 
     private List<String> telefoniDi(DSLContext dsl, String idContatto) {
