@@ -90,7 +90,7 @@ java -jar code/mplan-app/target/mplan-app-0.0.1-SNAPSHOT.jar --mplan.database=C:
 1. Registrare il JDK 27 in *Window → Preferences → Java → Installed JREs*.
 2. *File → Import → Maven → Existing Maven Projects* e scegliere la cartella `code/`: si importano il progetto padre e i cinque moduli.
 3. La prima volta eseguire `mvn package` sul progetto padre (*Run As → Maven build…*, goal `package`), poi *Maven → Update Project*. Il comando genera le classi jOOQ di `mplan-persistence`.
-4. Avviare `it.mpelettrica.mplan.app.MPlanApplication` (modulo `mplan-app`) con *Run As → Java Application*. Per usare un database di prova si aggiunge `--mplan.database=...` in *Run Configurations → Arguments*.
+4. Avviare MPlan con la configurazione **MPlan**, già inclusa nel progetto (`code/mplan-app/MPlan.launch`): si trova tra i preferiti del pulsante *Run* oppure in *Run → Run Configurations… → Java Application → MPlan*. Usa `MPlanApplication` e passa a Java `--enable-native-access=ALL-UNNAMED`, che evita gli avvisi della libreria nativa di SQLite in console. Per usare un database di prova si aggiunge `--mplan.database=...` in *Arguments → Program arguments*.
 
 Da Eclipse Vaadin parte in modalità di sviluppo e mostra la sua barra degli strumenti in basso a destra. Il jar creato da `mvn package` parte invece in modalità di produzione.
 
