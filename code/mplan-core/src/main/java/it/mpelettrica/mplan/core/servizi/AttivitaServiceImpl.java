@@ -255,15 +255,21 @@ public class AttivitaServiceImpl extends OsservabileAttivita implements Attivita
 
     private String esigiMotivoValido(String motivo) {
         String pulito = Testi.nullSeVuoto(motivo);
-        if (pulito == null) {
-            throw new ValidazioneException(
-                    List.of(new ErroreValidazione(CAMPO_MOTIVO, "Il motivo è obbligatorio")));
-        }
-        if (pulito.length() > MAX_MOTIVO) {
-            throw new ValidazioneException(List.of(new ErroreValidazione(CAMPO_MOTIVO,
-                    "Il motivo non può superare i " + MAX_MOTIVO + " caratteri")));
+        String problema = problemaDelMotivo(pulito);
+        if (problema != null) {
+            throw new ValidazioneException(List.of(new ErroreValidazione(CAMPO_MOTIVO, problema)));
         }
         return pulito;
+    }
+
+    private String problemaDelMotivo(String pulito) {
+        if (pulito == null) {
+            return "Il motivo è obbligatorio";
+        }
+        if (pulito.length() > MAX_MOTIVO) {
+            return "Il motivo non può superare i " + MAX_MOTIVO + " caratteri";
+        }
+        return null;
     }
 
     private DatiAttivita conDataPredefinita(DatiAttivita dati) {

@@ -17,10 +17,12 @@ public final class OrdinamentoAttivita {
 
     /**
      * Ordine dell'agenda: prima le attività senza orario, poi per orario crescente
-     * (FUN.10.2, FUN.10.3). Tra attività senza orario o con lo stesso orario l'ordine non è vincolato.
+     * (FUN.10.2, FUN.10.3). Tra attività senza orario o con lo stesso orario l'ordine non è vincolato
+     * dalla specifica; per renderlo stabile tra due letture si spareggia per identificativo.
      */
     public static final Comparator<Attivita> PER_AGENDA =
-            Comparator.comparing(Attivita::ora, Comparator.nullsFirst(Comparator.<LocalTime>naturalOrder()));
+            Comparator.comparing(Attivita::ora, Comparator.nullsFirst(Comparator.<LocalTime>naturalOrder()))
+                    .thenComparing(Attivita::id);
 
     /**
      * Ordine dello storico: per data crescente, dalla più vecchia alla più recente; nello stesso

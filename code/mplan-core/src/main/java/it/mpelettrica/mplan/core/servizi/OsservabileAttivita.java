@@ -7,9 +7,9 @@ package it.mpelettrica.mplan.core.servizi;
 
 import it.mpelettrica.mplan.api.Attivita;
 import it.mpelettrica.mplan.api.StatoAttivita;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Soggetto del pattern Observer per le attività: tiene la lista degli osservatori e li avvisa.
@@ -18,7 +18,7 @@ import java.util.Objects;
  */
 public abstract class OsservabileAttivita {
 
-    private final List<OsservatoreAttivita> osservatori = new ArrayList<>();
+    private final List<OsservatoreAttivita> osservatori = new CopyOnWriteArrayList<>();
 
     /**
      * Registra un osservatore.

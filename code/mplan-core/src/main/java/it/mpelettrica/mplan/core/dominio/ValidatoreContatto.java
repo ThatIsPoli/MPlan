@@ -68,7 +68,7 @@ public class ValidatoreContatto implements Validatore<DatiContatto> {
     }
 
     private void controllaNumero(List<ErroreValidazione> errori, String numero, Set<String> visti) {
-        if (numero == null || numero.isEmpty()) {
+        if (numero.isEmpty()) {
             errori.add(new ErroreValidazione(CAMPO_TELEFONI, "Il numero di telefono non può essere vuoto"));
         } else if (numero.length() > MAX_TELEFONO) {
             errori.add(new ErroreValidazione(CAMPO_TELEFONI, "Il numero di telefono \"" + numero

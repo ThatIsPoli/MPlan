@@ -13,8 +13,10 @@ import it.mpelettrica.mplan.api.ValidazioneException;
 import it.mpelettrica.mplan.core.dominio.Validatore;
 import it.mpelettrica.mplan.core.repository.ContattoRepository;
 import it.mpelettrica.mplan.core.repository.GestoreTransazioni;
+import java.text.Collator;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,12 +30,6 @@ import org.apache.logging.log4j.Logger;
 public class ContattoServiceImpl implements ContattoService {
 
     private static final Logger LOG = LogManager.getLogger(ContattoServiceImpl.class);
-
-    private static final Comparator<String> SENZA_MAIUSCOLE = String.CASE_INSENSITIVE_ORDER;
-
-    private static final Comparator<Contatto> PER_NOME_E_COGNOME = Comparator
-            .comparing(Contatto::nome, SENZA_MAIUSCOLE)
-            .thenComparing(Contatto::cognome, Comparator.nullsLast(SENZA_MAIUSCOLE));
 
     private final ContattoRepository contatti;
     private final GestoreTransazioni transazioni;
@@ -62,7 +58,19 @@ public class ContattoServiceImpl implements ContattoService {
      */
     @Override
     public List<Contatto> elenca() {
-        return contatti.tutti().stream().sorted(PER_NOME_E_COGNOME).toList();
+        return contatti.tutti().stream().sorted(perNomeECognome()).toList();
+    }
+
+    /**
+     * Crea un comparatore di testi per l'italiano, senza distinzione di maiuscole e con le
+     * lettere accentate vicine a quelle senza accento. Il {@code Collator} non è sicuro tra
+     * thread, quindi se ne crea uno nuovo a ogni uso.
+     */
+    private Comparator<Contatto> perNomeECognome() {
+        Collator collator = Collator.getInstance(Locale.ITALIAN);
+        collator.setStrength(Collator.SECONDARY);
+        return Comparator.comparing(Contatto::nome, collator)
+                .thenComparing(Contatto::cognome, Comparator.nullsLast(collator));
     }
 
     /**
@@ -162,6 +170,6 @@ public class ContattoServiceImpl implements ContattoService {
 
     private String codiceFiscaleMaiuscolo(String codiceFiscale) {
         String pulito = Testi.nullSeVuoto(codiceFiscale);
-        return pulito == null ? null : pulito.toUpperCase();
+        return pulito == null ? null : pulito.toUpperCase(Locale.ROOT);
     }
 }
