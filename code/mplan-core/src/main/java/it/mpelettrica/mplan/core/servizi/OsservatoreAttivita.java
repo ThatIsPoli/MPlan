@@ -5,40 +5,35 @@
 */
 package it.mpelettrica.mplan.core.servizi;
 
-import java.util.*;
-import java.time.*;
+import it.mpelettrica.mplan.api.Attivita;
+import it.mpelettrica.mplan.api.StatoAttivita;
 
-
-
-// ----------- << imports@AAAAAAGh0+DIwt8BXAA= >>
-// ----------- >>
-
-// ----------- << class.annotations@AAAAAAGh0+DIwt8BXAA= >>
-// ----------- >>
+/**
+ * Chi vuole essere avvisato dei cambiamenti delle attività (pattern Observer).
+ * Gli avvisi arrivano dentro la stessa transazione del salvataggio.
+ */
 public interface OsservatoreAttivita {
-    /**
-    * @param attivita
-    */
 
-    // ----------- << method.annotations@AAAAAAGh09+bf95cHLc= >>
-    // ----------- >>
+    /**
+     * Avvisa che i dati di un'attività sono stati modificati.
+     *
+     * @param attivita attività dopo la modifica
+     */
     void attivitaModificata(Attivita attivita);
-    /**
-    * @param attivita 
-    * @param precedente
-    */
 
-    // ----------- << method.annotations@AAAAAAGh09z7e9znRa4= >>
-    // ----------- >>
+    /**
+     * Avvisa che lo stato di un'attività è cambiato.
+     *
+     * @param attivita attività dopo il cambio di stato
+     * @param precedente stato che l'attività aveva prima
+     */
     void statoCambiato(Attivita attivita, StatoAttivita precedente);
-    /**
-    * @param attivita 
-    * @param motivo
-    */
 
-    // ----------- << method.annotations@AAAAAAGh0+EQUd8onyM= >>
-    // ----------- >>
+    /**
+     * Avvisa che un'attività è stata annullata.
+     *
+     * @param attivita attività dopo l'annullamento
+     * @param motivo motivo dell'annullamento
+     */
     void attivitaAnnullata(Attivita attivita, String motivo);
-// ----------- << interface.extras@AAAAAAGh0+DIwt8BXAA= >>
-// ----------- >>
 }

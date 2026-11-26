@@ -5,88 +5,83 @@
 */
 package it.mpelettrica.mplan.core.servizi;
 
-import java.util.*;
-import java.time.*;
-
-
+import it.mpelettrica.mplan.api.Attivita;
+import it.mpelettrica.mplan.api.StatoAttivita;
+import it.mpelettrica.mplan.core.dominio.TipoModifica;
+import it.mpelettrica.mplan.core.dominio.VoceRegistro;
 import it.mpelettrica.mplan.core.repository.RegistroRepository;
 import java.time.Clock;
-// ----------- << imports@AAAAAAGh09+CFN5LI1Y= >>
-// ----------- >>
+import java.time.LocalDateTime;
+import java.util.Objects;
+import java.util.UUID;
 
-// ----------- << class.annotations@AAAAAAGh09+CFN5LI1Y= >>
-// ----------- >>
+/**
+ * Osservatore che scrive nel registro delle modifiche (FUN.13) una voce per ogni modifica,
+ * cambio di stato e annullamento. La creazione di un'attività non viene registrata.
+ */
 public class RegistroModifiche implements OsservatoreAttivita {
-    // ----------- << attribute.annotations@AAAAAAGh09+65N5wfns= >>
-    // ----------- >>
-    private RegistroRepository registro;
 
-    // ----------- << attribute.annotations@AAAAAAGh09+Wcd5ZIuY= >>
-    // ----------- >>
-    private Clock clock;
-
-    private RegistroRepository getRegistro() {
-        return registro;
-    }
-
-    private Clock getClock() {
-        return clock;
-    }
-
-    private void setRegistro(RegistroRepository registro) {
-        this.registro = registro;
-    }
-
-    private void setClock(Clock clock) {
-        this.clock = clock;
-    }
+    private final RegistroRepository registro;
+    private final Clock clock;
 
     /**
-    * @param registro 
-    * @param clock
-    */
-
-    // ----------- << method.annotations@AAAAAAGh0+E9j99AYSg= >>
-    // ----------- >>
+     * Crea il registro.
+     *
+     * @param registro repository in cui scrivere le voci
+     * @param clock orologio da cui prendere data e ora delle voci
+     * @throws NullPointerException se un parametro è {@code null}
+     */
     public RegistroModifiche(RegistroRepository registro, Clock clock) {
-    // ----------- << method.body@AAAAAAGh0+E9j99AYSg= >>
-    // ----------- >>
+        this.registro = Objects.requireNonNull(registro, "registro");
+        this.clock = Objects.requireNonNull(clock, "clock");
     }
-    /**
-    * @param attivita
-    */
 
+    /**
+     * Registra una modifica dei dati dell'attività, senza motivo.
+     *
+     * @param attivita attività modificata
+     */
     @Override
-    // ----------- << method.annotations@AAAAAAGh091CIN0LvGc= >>
-    // ----------- >>
     public void attivitaModificata(Attivita attivita) {
-    // ----------- << method.body@AAAAAAGh091CIN0LvGc= >>
-    // ----------- >>
+        registra(TipoModifica.MODIFICA, attivita.id(), null);
     }
-    /**
-    * @param attivita 
-    * @param precedente
-    */
 
+    /**
+     * Registra un cambio di stato, descrivendo lo stato di partenza e quello di arrivo.
+     *
+     * @param attivita attività dopo il cambio di stato
+     * @param precedente stato precedente
+     */
     @Override
-    // ----------- << method.annotations@AAAAAAGh0+BlFt7JgEo= >>
-    // ----------- >>
     public void statoCambiato(Attivita attivita, StatoAttivita precedente) {
-    // ----------- << method.body@AAAAAAGh0+BlFt7JgEo= >>
-    // ----------- >>
+        registra(TipoModifica.CAMBIO_STATO, attivita.id(), descriviCambioStato(precedente, attivita.stato()));
     }
-    /**
-    * @param attivita 
-    * @param motivo
-    */
 
+    /**
+     * Registra un annullamento con il suo motivo.
+     *
+     * @param attivita attività annullata
+     * @param motivo motivo dell'annullamento
+     */
     @Override
-    // ----------- << method.annotations@AAAAAAGh09y8T9zByIM= >>
-    // ----------- >>
     public void attivitaAnnullata(Attivita attivita, String motivo) {
-    // ----------- << method.body@AAAAAAGh09y8T9zByIM= >>
-    // ----------- >>
+        registra(TipoModifica.ANNULLAMENTO, attivita.id(), motivo);
     }
-// ----------- << class.extras@AAAAAAGh09+CFN5LI1Y= >>
-// ----------- >>
+
+    private void registra(TipoModifica tipo, UUID idAttivita, String motivo) {
+        registro.aggiungi(new VoceRegistro(LocalDateTime.now(clock), idAttivita, tipo, motivo));
+    }
+
+    private String descriviCambioStato(StatoAttivita precedente, StatoAttivita attuale) {
+        return "Stato cambiato da " + nomeStato(precedente) + " a " + nomeStato(attuale);
+    }
+
+    private String nomeStato(StatoAttivita stato) {
+        return switch (stato) {
+            case DA_FARE -> "da fare";
+            case PARZIALE -> "parziale";
+            case COMPLETATA -> "completata";
+            case ANNULLATA -> "annullata";
+        };
+    }
 }

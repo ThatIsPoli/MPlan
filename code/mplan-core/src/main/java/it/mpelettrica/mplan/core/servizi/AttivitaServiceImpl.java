@@ -5,187 +5,294 @@
 */
 package it.mpelettrica.mplan.core.servizi;
 
-import java.util.*;
-import java.time.*;
-
-
+import it.mpelettrica.mplan.api.Attivita;
 import it.mpelettrica.mplan.api.AttivitaService;
+import it.mpelettrica.mplan.api.DatiAttivita;
+import it.mpelettrica.mplan.api.ErroreValidazione;
+import it.mpelettrica.mplan.api.StatoAttivita;
+import it.mpelettrica.mplan.api.ValidazioneException;
+import it.mpelettrica.mplan.core.dominio.OrdinamentoAttivita;
+import it.mpelettrica.mplan.core.dominio.RegoleStatoAttivita;
 import it.mpelettrica.mplan.core.dominio.Validatore;
 import it.mpelettrica.mplan.core.repository.AttivitaRepository;
 import it.mpelettrica.mplan.core.repository.ContattoRepository;
 import it.mpelettrica.mplan.core.repository.GestoreTransazioni;
 import java.time.Clock;
-// ----------- << imports@AAAAAAABvGiK9gjf588= >>
-// ----------- >>
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-// ----------- << class.annotations@AAAAAAABvGiK9gjf588= >>
-// ----------- >>
+/**
+ * Casi d'uso sulle attività: creazione, modifica, cambi di stato, annullamento e storico
+ * (FUN.4-FUN.9, FUN.12). Ogni scrittura avviene in una transazione; modifiche, cambi di stato
+ * e annullamenti vengono notificati agli osservatori nella stessa transazione, la creazione no.
+ */
 public class AttivitaServiceImpl extends OsservabileAttivita implements AttivitaService {
-    // ----------- << attribute.annotations@AAAAAAABTeniDAXsuqM= >>
-    // ----------- >>
-    private AttivitaRepository attivita;
 
-    // ----------- << attribute.annotations@AAAAAAABqNDTiODuvH4= >>
-    // ----------- >>
-    private GestoreTransazioni transazioni;
+    private static final Logger LOG = LogManager.getLogger(AttivitaServiceImpl.class);
 
-    // ----------- << attribute.annotations@AAAAAAABGlS/ydJgkts= >>
-    // ----------- >>
-    private Validatore validatore;
+    private static final String CAMPO_MOTIVO = "motivo";
+    private static final int MAX_MOTIVO = 1000;
 
-    // ----------- << attribute.annotations@AAAAAAABk8HZ3sZ8aBU= >>
-    // ----------- >>
-    private Clock clock;
+    private final AttivitaRepository attivita;
+    private final ContattoRepository contatti;
+    private final GestoreTransazioni transazioni;
+    private final Validatore<DatiAttivita> validatore;
+    private final Clock clock;
 
-    // ----------- << attribute.annotations@AAAAAAGh5GigqrqDueI= >>
-    // ----------- >>
-    private ContattoRepository contatti;
-
-    private AttivitaRepository getAttivita() {
-        return attivita;
-    }
-
-    private GestoreTransazioni getTransazioni() {
-        return transazioni;
-    }
-
-    private Validatore getValidatore() {
-        return validatore;
-    }
-
-    private Clock getClock() {
-        return clock;
-    }
-
-    private ContattoRepository getContatti() {
-        return contatti;
-    }
-
-    private void setAttivita(AttivitaRepository attivita) {
-        this.attivita = attivita;
-    }
-
-    private void setTransazioni(GestoreTransazioni transazioni) {
-        this.transazioni = transazioni;
-    }
-
-    private void setValidatore(Validatore validatore) {
-        this.validatore = validatore;
-    }
-
-    private void setClock(Clock clock) {
-        this.clock = clock;
-    }
-
-    private void setContatti(ContattoRepository contatti) {
-        this.contatti = contatti;
+    /**
+     * Crea il servizio.
+     *
+     * @param attivita repository delle attività
+     * @param contatti repository dei contatti
+     * @param transazioni gestore delle transazioni
+     * @param validatore validatore dei dati dell'attività
+     * @param clock orologio da cui prendere la data predefinita
+     * @throws NullPointerException se un parametro è {@code null}
+     */
+    public AttivitaServiceImpl(AttivitaRepository attivita, ContattoRepository contatti,
+            GestoreTransazioni transazioni, Validatore<DatiAttivita> validatore, Clock clock) {
+        this.attivita = Objects.requireNonNull(attivita, "attivita");
+        this.contatti = Objects.requireNonNull(contatti, "contatti");
+        this.transazioni = Objects.requireNonNull(transazioni, "transazioni");
+        this.validatore = Objects.requireNonNull(validatore, "validatore");
+        this.clock = Objects.requireNonNull(clock, "clock");
     }
 
     /**
-    * @param attivita 
-    * @param contatti 
-    * @param transazioni 
-    * @param validatore 
-    * @param clock
-    */
-
-    // ----------- << method.annotations@AAAAAAGh0+CMT97cL+o= >>
-    // ----------- >>
-    public AttivitaServiceImpl(AttivitaRepository attivita, ContattoRepository contatti, GestoreTransazioni transazioni, Validatore<DatiAttivita> validatore, Clock clock) {
-    // ----------- << method.body@AAAAAAGh0+CMT97cL+o= >>
-    // ----------- >>
-    }
-    /**
-    * @param id
-    */
-
+     * Cerca un'attività per identificativo.
+     *
+     * @param id identificativo dell'attività
+     * @return l'attività, o un {@code Optional} vuoto se non esiste
+     * @throws NullPointerException se {@code id} è {@code null}
+     */
     @Override
-    // ----------- << method.annotations@AAAAAAGh845vJE7tl6k= >>
-    // ----------- >>
     public Optional<Attivita> trova(UUID id) {
-    // ----------- << method.body@AAAAAAGh845vJE7tl6k= >>
-    // ----------- >>
+        return attivita.trova(Objects.requireNonNull(id, "id"));
     }
-    /**
-    * @param idContatto 
-    * @param dati
-    */
 
+    /**
+     * Crea un'attività con stato da fare. Se la data manca si usa quella di oggi.
+     * La creazione non viene registrata nel registro delle modifiche.
+     *
+     * @param idContatto contatto a cui appartiene l'attività
+     * @param dati dati scritti dall'utente
+     * @return l'attività salvata
+     * @throws ValidazioneException se i dati non sono validi
+     * @throws IllegalArgumentException se il contatto non esiste
+     * @throws NullPointerException se un parametro è {@code null}
+     */
     @Override
-    // ----------- << method.annotations@AAAAAAABn6X/+G8tb9g= >>
-    // ----------- >>
     public Attivita crea(UUID idContatto, DatiAttivita dati) {
-    // ----------- << method.body@AAAAAAABn6X/+G8tb9g= >>
-    // ----------- >>
+        Objects.requireNonNull(idContatto, "idContatto");
+        DatiAttivita completi = esigiValidi(dati);
+        Attivita creata = transazioni.inTransazione(() -> {
+            esigiContattoEsistente(idContatto);
+            Attivita nuova = daDati(UUID.randomUUID(), idContatto, completi, StatoAttivita.DA_FARE, null);
+            attivita.aggiungi(nuova);
+            return nuova;
+        });
+        LOG.info("Attività creata: {}", creata.id());
+        return creata;
     }
-    /**
-    * @param id 
-    * @param dati
-    */
 
+    /**
+     * Modifica titolo, data, orario, descrizione e note, lasciando invariati stato e motivo.
+     * Si può modificare anche un'attività completata (FUN.5.1), non una annullata.
+     *
+     * @param id identificativo dell'attività
+     * @param dati nuovi dati scritti dall'utente
+     * @return l'attività aggiornata
+     * @throws ValidazioneException se i dati non sono validi
+     * @throws IllegalArgumentException se l'attività non esiste
+     * @throws IllegalStateException se l'attività è annullata
+     * @throws NullPointerException se un parametro è {@code null}
+     */
     @Override
-    // ----------- << method.annotations@AAAAAAABKtMhmwyrt7w= >>
-    // ----------- >>
     public Attivita modifica(UUID id, DatiAttivita dati) {
-    // ----------- << method.body@AAAAAAABKtMhmwyrt7w= >>
-    // ----------- >>
+        Objects.requireNonNull(id, "id");
+        DatiAttivita completi = esigiValidi(dati);
+        Attivita aggiornata = transazioni.inTransazione(() -> {
+            Attivita attuale = carica(id);
+            if (!RegoleStatoAttivita.modificabile(attuale.stato())) {
+                throw new IllegalStateException("L'attività è annullata e non si può modificare: " + id);
+            }
+            Attivita nuova = daDati(id, attuale.idContatto(), completi, attuale.stato(),
+                    attuale.motivoAnnullamento());
+            attivita.aggiorna(nuova);
+            notificaModifica(nuova);
+            return nuova;
+        });
+        LOG.info("Attività modificata: {}", id);
+        return aggiornata;
     }
-    /**
-    * @param id
-    */
 
+    /**
+     * Segna l'attività come parziale.
+     *
+     * @param id identificativo dell'attività
+     * @return l'attività aggiornata
+     * @throws IllegalArgumentException se l'attività non esiste
+     * @throws IllegalStateException se la transizione non è ammessa
+     * @throws NullPointerException se {@code id} è {@code null}
+     */
     @Override
-    // ----------- << method.annotations@AAAAAAABtinVOgXtmNE= >>
-    // ----------- >>
     public Attivita segnaParziale(UUID id) {
-    // ----------- << method.body@AAAAAAABtinVOgXtmNE= >>
-    // ----------- >>
+        return cambiaStato(id, StatoAttivita.PARZIALE);
     }
-    /**
-    * @param id
-    */
 
+    /**
+     * Segna l'attività come completata.
+     *
+     * @param id identificativo dell'attività
+     * @return l'attività aggiornata
+     * @throws IllegalArgumentException se l'attività non esiste
+     * @throws IllegalStateException se la transizione non è ammessa
+     * @throws NullPointerException se {@code id} è {@code null}
+     */
     @Override
-    // ----------- << method.annotations@AAAAAAABu/nupfnKTy4= >>
-    // ----------- >>
     public Attivita segnaCompletata(UUID id) {
-    // ----------- << method.body@AAAAAAABu/nupfnKTy4= >>
-    // ----------- >>
+        return cambiaStato(id, StatoAttivita.COMPLETATA);
     }
-    /**
-    * @param id 
-    * @param motivo
-    */
 
+    /**
+     * Annulla un'attività da fare o parziale indicando il motivo. L'attività resta nello storico.
+     *
+     * @param id identificativo dell'attività
+     * @param motivo motivo dell'annullamento, obbligatorio e di al massimo 1000 caratteri
+     * @return l'attività annullata
+     * @throws IllegalArgumentException se l'attività non esiste
+     * @throws IllegalStateException se la transizione non è ammessa
+     * @throws ValidazioneException se il motivo è vuoto o troppo lungo
+     * @throws NullPointerException se {@code id} è {@code null}
+     */
     @Override
-    // ----------- << method.annotations@AAAAAAAB+Yojl+2aZso= >>
-    // ----------- >>
     public Attivita annulla(UUID id, String motivo) {
-    // ----------- << method.body@AAAAAAAB+Yojl+2aZso= >>
-    // ----------- >>
+        Objects.requireNonNull(id, "id");
+        Attivita annullata = transazioni.inTransazione(() -> {
+            Attivita attuale = carica(id);
+            esigiTransizione(attuale, StatoAttivita.ANNULLATA);
+            String pulito = esigiMotivoValido(motivo);
+            Attivita nuova = copiaConStato(attuale, StatoAttivita.ANNULLATA, pulito);
+            attivita.aggiorna(nuova);
+            notificaAnnullamento(nuova, pulito);
+            return nuova;
+        });
+        LOG.info("Attività annullata: {}", id);
+        return annullata;
     }
-    /**
-    * @param idContatto
-    */
 
+    /**
+     * Restituisce tutte le attività di un contatto, dalla più vecchia alla più recente.
+     *
+     * @param idContatto identificativo del contatto
+     * @return le attività del contatto, non modificabile
+     * @throws NullPointerException se {@code idContatto} è {@code null}
+     */
     @Override
-    // ----------- << method.annotations@AAAAAAAB4ZIaufMdGXw= >>
-    // ----------- >>
     public List<Attivita> storico(UUID idContatto) {
-    // ----------- << method.body@AAAAAAAB4ZIaufMdGXw= >>
-    // ----------- >>
+        return attivita.perContatto(Objects.requireNonNull(idContatto, "idContatto")).stream()
+                .sorted(OrdinamentoAttivita.PER_STORICO)
+                .toList();
     }
-    /**
-    * @param dati
-    */
 
+    /**
+     * Controlla i dati senza salvare. Se la data manca si considera quella di oggi.
+     *
+     * @param dati dati scritti dall'utente
+     * @return gli errori per campo; lista vuota se i dati sono validi
+     * @throws NullPointerException se {@code dati} è {@code null}
+     */
     @Override
-    // ----------- << method.annotations@AAAAAAABsY2CTFU6aLQ= >>
-    // ----------- >>
     public List<ErroreValidazione> valida(DatiAttivita dati) {
-    // ----------- << method.body@AAAAAAABsY2CTFU6aLQ= >>
-    // ----------- >>
+        return validatore.valida(conDataPredefinita(dati));
     }
-// ----------- << class.extras@AAAAAAABvGiK9gjf588= >>
-// ----------- >>
+
+    private Attivita cambiaStato(UUID id, StatoAttivita nuovoStato) {
+        Objects.requireNonNull(id, "id");
+        Attivita aggiornata = transazioni.inTransazione(() -> {
+            Attivita attuale = carica(id);
+            esigiTransizione(attuale, nuovoStato);
+            Attivita nuova = copiaConStato(attuale, nuovoStato, attuale.motivoAnnullamento());
+            attivita.aggiorna(nuova);
+            notificaCambioStato(nuova, attuale.stato());
+            return nuova;
+        });
+        LOG.info("Stato dell'attività {} cambiato in {}", id, nuovoStato);
+        return aggiornata;
+    }
+
+    private Attivita carica(UUID id) {
+        return attivita.trova(id).orElseThrow(
+                () -> new IllegalArgumentException("Attività inesistente: " + id));
+    }
+
+    private void esigiContattoEsistente(UUID idContatto) {
+        if (contatti.trova(idContatto).isEmpty()) {
+            throw new IllegalArgumentException("Contatto inesistente: " + idContatto);
+        }
+    }
+
+    private void esigiTransizione(Attivita attuale, StatoAttivita nuovoStato) {
+        if (!RegoleStatoAttivita.puoPassareA(attuale.stato(), nuovoStato)) {
+            throw new IllegalStateException("Transizione non ammessa da " + attuale.stato()
+                    + " a " + nuovoStato + " per l'attività " + attuale.id());
+        }
+    }
+
+    private DatiAttivita esigiValidi(DatiAttivita dati) {
+        DatiAttivita completi = conDataPredefinita(dati);
+        List<ErroreValidazione> errori = validatore.valida(completi);
+        if (!errori.isEmpty()) {
+            throw new ValidazioneException(errori);
+        }
+        return completi;
+    }
+
+    private String esigiMotivoValido(String motivo) {
+        String pulito = Testi.nullSeVuoto(motivo);
+        if (pulito == null) {
+            throw new ValidazioneException(
+                    List.of(new ErroreValidazione(CAMPO_MOTIVO, "Il motivo è obbligatorio")));
+        }
+        if (pulito.length() > MAX_MOTIVO) {
+            throw new ValidazioneException(List.of(new ErroreValidazione(CAMPO_MOTIVO,
+                    "Il motivo non può superare i " + MAX_MOTIVO + " caratteri")));
+        }
+        return pulito;
+    }
+
+    private DatiAttivita conDataPredefinita(DatiAttivita dati) {
+        Objects.requireNonNull(dati, "dati");
+        if (dati.getData() != null) {
+            return dati;
+        }
+        DatiAttivita copia = new DatiAttivita();
+        copia.setTitolo(dati.getTitolo());
+        copia.setData(LocalDate.now(clock));
+        copia.setOra(dati.getOra());
+        copia.setDescrizione(dati.getDescrizione());
+        copia.setNote(dati.getNote());
+        return copia;
+    }
+
+    private Attivita daDati(UUID id, UUID idContatto, DatiAttivita dati, StatoAttivita stato, String motivo) {
+        return new Attivita(id, idContatto,
+                Testi.pulisci(dati.getTitolo()),
+                dati.getData(),
+                dati.getOra(),
+                Testi.nullSeVuoto(dati.getDescrizione()),
+                Testi.nullSeVuoto(dati.getNote()),
+                stato,
+                motivo);
+    }
+
+    private Attivita copiaConStato(Attivita origine, StatoAttivita stato, String motivo) {
+        return new Attivita(origine.id(), origine.idContatto(), origine.titolo(), origine.data(),
+                origine.ora(), origine.descrizione(), origine.note(), stato, motivo);
+    }
 }
