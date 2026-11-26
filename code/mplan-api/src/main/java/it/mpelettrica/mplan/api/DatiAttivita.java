@@ -5,81 +5,117 @@
 */
 package it.mpelettrica.mplan.api;
 
-import java.util.*;
-import java.time.*;
-
-
-
-// ----------- << imports@AAAAAAAB9Rmk1zIHKHI= >>
-// ----------- >>
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 /**
-* Riferimento: contratto di mplan-api, da completare nel class diagram di mplan-api. Firme provvisorie.
-*/
-
-// ----------- << class.annotations@AAAAAAAB9Rmk1zIHKHI= >>
-// ----------- >>
+ * Dati di un'attività scritti dall'utente nel form, anche se non validi.
+ *
+ * <p>Non contengono lo stato, che cambia solo con {@link AttivitaService#segnaParziale},
+ * {@link AttivitaService#segnaCompletata} e {@link AttivitaService#annulla}, né il contatto,
+ * che si passa a parte in {@link AttivitaService#crea}. I campi facoltativi vuoti sono
+ * {@code null}.
+ */
 public class DatiAttivita {
-    // ----------- << attribute.annotations@AAAAAAABnudqAV1a8MQ= >>
-    // ----------- >>
+
     private String titolo;
-
-    // ----------- << attribute.annotations@AAAAAAAB6DWjxX58v9w= >>
-    // ----------- >>
     private LocalDate data;
-
-    // ----------- << attribute.annotations@AAAAAAABea8jeXRktfs= >>
-    // ----------- >>
     private LocalTime ora;
-
-    // ----------- << attribute.annotations@AAAAAAABRRpt4475VTI= >>
-    // ----------- >>
     private String descrizione;
-
-    // ----------- << attribute.annotations@AAAAAAABOQ82QEldj9o= >>
-    // ----------- >>
     private String note;
 
-    private String getTitolo() {
+    /** Crea dati vuoti. */
+    public DatiAttivita() {
+        // Nessuna inizializzazione: i valori arrivano dai setter.
+    }
+
+    /**
+     * Restituisce il titolo.
+     *
+     * @return il titolo, può essere {@code null}
+     */
+    public String getTitolo() {
         return titolo;
     }
 
-    private LocalDate getData() {
-        return data;
-    }
-
-    private LocalTime getOra() {
-        return ora;
-    }
-
-    private String getDescrizione() {
-        return descrizione;
-    }
-
-    private String getNote() {
-        return note;
-    }
-
-    private void setTitolo(String titolo) {
+    /**
+     * Imposta il titolo.
+     *
+     * @param titolo il titolo
+     */
+    public void setTitolo(String titolo) {
         this.titolo = titolo;
     }
 
-    private void setData(LocalDate data) {
+    /**
+     * Restituisce la data.
+     *
+     * @return la data; se è {@code null} i servizi usano la data di oggi
+     */
+    public LocalDate getData() {
+        return data;
+    }
+
+    /**
+     * Imposta la data.
+     *
+     * @param data la data
+     */
+    public void setData(LocalDate data) {
         this.data = data;
     }
 
-    private void setOra(LocalTime ora) {
+    /**
+     * Restituisce l'orario indicativo di inizio.
+     *
+     * @return l'ora, {@code null} se non indicata
+     */
+    public LocalTime getOra() {
+        return ora;
+    }
+
+    /**
+     * Imposta l'orario indicativo di inizio.
+     *
+     * @param ora l'ora
+     */
+    public void setOra(LocalTime ora) {
         this.ora = ora;
     }
 
-    private void setDescrizione(String descrizione) {
+    /**
+     * Restituisce la descrizione.
+     *
+     * @return la descrizione, può essere {@code null}
+     */
+    public String getDescrizione() {
+        return descrizione;
+    }
+
+    /**
+     * Imposta la descrizione.
+     *
+     * @param descrizione la descrizione
+     */
+    public void setDescrizione(String descrizione) {
         this.descrizione = descrizione;
     }
 
-    private void setNote(String note) {
-        this.note = note;
+    /**
+     * Restituisce le note.
+     *
+     * @return le note, possono essere {@code null}
+     */
+    public String getNote() {
+        return note;
     }
 
-// ----------- << class.extras@AAAAAAAB9Rmk1zIHKHI= >>
-// ----------- >>
+    /**
+     * Imposta le note.
+     *
+     * @param note le note
+     */
+    public void setNote(String note) {
+        this.note = note;
+    }
 }
