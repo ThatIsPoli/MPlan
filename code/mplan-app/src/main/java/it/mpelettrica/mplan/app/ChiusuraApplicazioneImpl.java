@@ -5,47 +5,64 @@
 */
 package it.mpelettrica.mplan.app;
 
-import java.util.*;
-import java.time.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import it.mpelettrica.mplan.api.ChiusuraApplicazione;
-import org.springframework.context.ConfigurableApplicationContext;
-// ----------- << imports@AAAAAAGh83vUCaAD3tc= >>
-// ----------- >>
 
-// ----------- << class.annotations@AAAAAAGh83vUCaAD3tc= >>
-// ----------- >>
+/**
+ * Chiude MPlan spegnendo il contesto di Spring e quindi il server web (Tabella 8.2).
+ * <p>
+ * La chiusura avviene in un thread separato, così la richiesta del browser che
+ * ha chiesto di chiudere riceve la risposta prima dello spegnimento del server.
+ */
 public class ChiusuraApplicazioneImpl implements ChiusuraApplicazione {
-    // ----------- << attribute.annotations@AAAAAAGh83wr66A4wlc= >>
-    // ----------- >>
-    private ConfigurableApplicationContext contesto;
 
-    private ConfigurableApplicationContext getContesto() {
-        return contesto;
-    }
+    private static final Logger LOGGER = LogManager.getLogger(ChiusuraApplicazioneImpl.class);
 
-    private void setContesto(ConfigurableApplicationContext contesto) {
+    /** Pausa, in millisecondi, prima dello spegnimento, per far arrivare la risposta al browser. */
+    private static final long RITARDO_CHIUSURA_MS = 500;
+
+    private final ConfigurableApplicationContext contesto;
+
+    private final AtomicBoolean chiusuraAvviata = new AtomicBoolean(false);
+
+    /**
+     * Crea l'oggetto di chiusura per il contesto indicato.
+     *
+     * @param contesto contesto di Spring da spegnere
+     */
+    public ChiusuraApplicazioneImpl(ConfigurableApplicationContext contesto) {
         this.contesto = contesto;
     }
 
     /**
-    * @param contesto
-    */
-
-    // ----------- << method.annotations@AAAAAAGh83wY16AuKVM= >>
-    // ----------- >>
-    public ChiusuraApplicazioneImpl(ConfigurableApplicationContext contesto) {
-    // ----------- << method.body@AAAAAAGh83wY16AuKVM= >>
-    // ----------- >>
-    }
+     * Avvia la chiusura dell'applicazione in un thread separato e torna subito.
+     * Le chiamate successive alla prima non hanno effetto.
+     */
     @Override
-    // ----------- << method.annotations@AAAAAAGh83wc26Aw3uY= >>
-    // ----------- >>
     public void chiudi() {
-    // ----------- << method.body@AAAAAAGh83wc26Aw3uY= >>
-    // ----------- >>
+        if (chiusuraAvviata.compareAndSet(false, true)) {
+            new Thread(this::spegni, "chiusura-mplan").start();
+        }
     }
-// ----------- << class.extras@AAAAAAGh83vUCaAD3tc= >>
-// ----------- >>
+
+    private void spegni() {
+        attendi();
+        LOGGER.info("Chiusura di MPlan");
+        int codice = SpringApplication.exit(contesto);
+        System.exit(codice);
+    }
+
+    private void attendi() {
+        try {
+            Thread.sleep(RITARDO_CHIUSURA_MS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
 }

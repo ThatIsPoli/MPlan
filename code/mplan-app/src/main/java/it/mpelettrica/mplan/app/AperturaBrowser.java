@@ -5,45 +5,59 @@
 */
 package it.mpelettrica.mplan.app;
 
-import java.util.*;
-import java.time.*;
+import java.awt.Desktop;
+import java.io.IOException;
+import java.net.URI;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 
-
-// ----------- << imports@AAAAAAGh83vVSqAETHI= >>
-// ----------- >>
-
-// ----------- << class.annotations@AAAAAAGh83vVSqAETHI= >>
-// ----------- >>
+/**
+ * Apre il browser predefinito di Windows sull'indirizzo locale di MPlan (D7, Q6).
+ * <p>
+ * Se il browser non si può aprire, scrive l'indirizzo nel log così che
+ * l'utente possa aprirlo a mano.
+ */
 public class AperturaBrowser {
-    // ----------- << attribute.annotations@AAAAAAGh83wenKAxJm8= >>
-    // ----------- >>
-    private URI indirizzo;
 
-    private URI getIndirizzo() {
-        return indirizzo;
-    }
+    private static final Logger LOGGER = LogManager.getLogger(AperturaBrowser.class);
 
-    private void setIndirizzo(URI indirizzo) {
+    private final URI indirizzo;
+
+    /**
+     * Crea l'apertura del browser per un indirizzo.
+     *
+     * @param indirizzo indirizzo locale da aprire, per esempio {@code http://127.0.0.1:8642}
+     */
+    public AperturaBrowser(URI indirizzo) {
         this.indirizzo = indirizzo;
     }
 
     /**
-    * @param indirizzo
-    */
-
-    // ----------- << method.annotations@AAAAAAGh83wh9aAyiIQ= >>
-    // ----------- >>
-    public AperturaBrowser(URI indirizzo) {
-    // ----------- << method.body@AAAAAAGh83wh9aAyiIQ= >>
-    // ----------- >>
-    }
-    // ----------- << method.annotations@AAAAAAGh83wkxKA0LFg= >>
-    // ----------- >>
+     * Apre il browser sull'indirizzo. Spring la chiama quando l'avvio è finito
+     * e il server è pronto; se l'apertura non riesce, scrive l'indirizzo nel log.
+     */
+    @EventListener(ApplicationReadyEvent.class)
     public void apri() {
-    // ----------- << method.body@AAAAAAGh83wkxKA0LFg= >>
-    // ----------- >>
+        if (!browserDisponibile()) {
+            segnalaIndirizzo();
+            return;
+        }
+        try {
+            Desktop.getDesktop().browse(indirizzo);
+        } catch (IOException | SecurityException | UnsupportedOperationException e) {
+            LOGGER.warn("Apertura del browser non riuscita", e);
+            segnalaIndirizzo();
+        }
     }
-// ----------- << class.extras@AAAAAAGh83vVSqAETHI= >>
-// ----------- >>
+
+    private boolean browserDisponibile() {
+        return Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE);
+    }
+
+    private void segnalaIndirizzo() {
+        LOGGER.warn("Impossibile aprire il browser: aprire a mano l'indirizzo {}", indirizzo);
+    }
 }
