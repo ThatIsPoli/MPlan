@@ -96,7 +96,7 @@ public class SchedaContattoView extends VerticalLayout implements BeforeEnterObs
         idContatto = id.get();
         if (!caricaScheda()) {
             Notification.show("Il contatto richiesto non esiste.", DURATA_NOTIFICA_MS,
-                    Notification.Position.MIDDLE);
+                    Notification.Position.TOP_CENTER);
             evento.forwardTo(HomeView.class);
         }
     }
@@ -116,7 +116,7 @@ public class SchedaContattoView extends VerticalLayout implements BeforeEnterObs
      * nessuno il riquadro viene nascosto.
      */
     private void mostraDatiContatto(Contatto contatto) {
-        titolo.setText(contatto.cognome() == null ? contatto.nome() : contatto.nome() + " " + contatto.cognome());
+        titolo.setText(HomeView.nomeCompleto(contatto));
         grigliaDati.removeAll();
         aggiungiSeCompilato("Tipo", HomeView.nomeTipo(contatto.tipo()));
         aggiungiSeCompilato("Indirizzo", contatto.indirizzo());

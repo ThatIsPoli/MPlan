@@ -56,7 +56,7 @@ import it.mpelettrica.mplan.ui.navigazione.Navigatore;
  */
 @Route(Navigatore.ROTTA_NUOVO_CONTATTO)
 @RouteAlias(Navigatore.ROTTA_MODIFICA_CONTATTO)
-@PageTitle("MPlan – Contatto")
+@PageTitle("MPlan – Form contatto")
 public class FormContattoView extends VerticalLayout implements BeforeEnterObserver {
 
     private static final long serialVersionUID = 1L;
@@ -128,7 +128,7 @@ public class FormContattoView extends VerticalLayout implements BeforeEnterObser
         }
         Optional<Contatto> contatto = contattoService.trova(idContatto);
         if (contatto.isEmpty()) {
-            Notification.show("Il contatto richiesto non esiste.", DURATA_NOTIFICA_MS, Notification.Position.MIDDLE);
+            Notification.show("Il contatto richiesto non esiste.", DURATA_NOTIFICA_MS, Notification.Position.TOP_CENTER);
             evento.forwardTo(HomeView.class);
             return;
         }
@@ -162,7 +162,7 @@ public class FormContattoView extends VerticalLayout implements BeforeEnterObser
             daEvidenziare.focus();
         }
         if (!senzaCampo.isEmpty()) {
-            Notification.show(String.join(" ", senzaCampo), DURATA_NOTIFICA_MS, Notification.Position.MIDDLE)
+            Notification.show(String.join(" ", senzaCampo), DURATA_NOTIFICA_MS, Notification.Position.TOP_CENTER)
                     .addThemeVariants(NotificationVariant.ERROR);
         }
     }
@@ -245,7 +245,7 @@ public class FormContattoView extends VerticalLayout implements BeforeEnterObser
             mostraErrori(e.getErrori());
             return;
         }
-        Notification.show("Contatto salvato.", DURATA_NOTIFICA_MS, Notification.Position.BOTTOM_START);
+        Notification.show("Contatto salvato.", DURATA_NOTIFICA_MS, Notification.Position.TOP_CENTER);
         navigatore.indietro();
     }
 

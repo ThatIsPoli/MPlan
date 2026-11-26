@@ -7,7 +7,6 @@ package it.mpelettrica.mplan.ui.schermate;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -36,6 +35,7 @@ import it.mpelettrica.mplan.api.ChiusuraApplicazione;
 import it.mpelettrica.mplan.api.Contatto;
 import it.mpelettrica.mplan.api.ContattoService;
 import it.mpelettrica.mplan.api.TipoContatto;
+import it.mpelettrica.mplan.ui.componenti.LocalizzazioneDate;
 import it.mpelettrica.mplan.ui.navigazione.Navigatore;
 
 /**
@@ -47,14 +47,12 @@ import it.mpelettrica.mplan.ui.navigazione.Navigatore;
  * con le frecce e premendo Invio o Spazio (GUI.2.3).
  */
 @Route(Navigatore.ROTTA_HOME)
-@PageTitle("MPlan – Contatti")
+@PageTitle("MPlan – Home")
 public class HomeView extends VerticalLayout implements BeforeEnterObserver {
 
     private static final long serialVersionUID = 1L;
 
     private static final int DURATA_NOTIFICA_MS = 5000;
-
-    private static final Locale ITALIANO = Locale.ITALY;
 
     private static final Comparator<String> ORDINE_TESTO =
             Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER);
@@ -126,7 +124,7 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
     }
 
     private void filtraContatti(String testo) {
-        String cercato = testo == null ? "" : testo.strip().toLowerCase(ITALIANO);
+        String cercato = testo == null ? "" : testo.strip().toLowerCase(LocalizzazioneDate.ITALIANO);
         if (cercato.isEmpty()) {
             tabellaContatti.getListDataView().removeFilters();
             return;
@@ -140,7 +138,7 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
                                 contatto.codiceFiscale(), contatto.partitaIva()),
                         contatto.telefoni().stream())
                 .filter(Objects::nonNull)
-                .anyMatch(valore -> valore.toLowerCase(ITALIANO).contains(cercato));
+                .anyMatch(valore -> valore.toLowerCase(LocalizzazioneDate.ITALIANO).contains(cercato));
     }
 
     private void apriAgenda() {
@@ -149,7 +147,7 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
 
     private void chiudiApplicazione() {
         Notification.show("MPlan si sta chiudendo: puoi chiudere questa scheda del browser.",
-                DURATA_NOTIFICA_MS, Notification.Position.MIDDLE);
+                DURATA_NOTIFICA_MS, Notification.Position.TOP_CENTER);
         chiusuraApplicazione.chiudi();
     }
 
@@ -167,7 +165,7 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
     }
 
     private HorizontalLayout creaIntestazione() {
-        H1 titolo = new H1("Contatti");
+        H1 titolo = new H1("Rubrica");
         titolo.addClassName("mplan-titolo-pagina");
 
         Button agenda = new Button("Agenda giornaliera", VaadinIcon.CALENDAR.create(), evento -> apriAgenda());
@@ -239,7 +237,14 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
         return contatto.telefoni().isEmpty() ? "" : contatto.telefoni().getFirst();
     }
 
-    private static String nomeCompleto(Contatto contatto) {
+    /**
+     * Restituisce il nome completo di un contatto, cioe' nome e cognome se il cognome c'e';
+     * usato anche dalla scheda del contatto e dal form dell'attivita'.
+     *
+     * @param contatto il contatto; non {@code null}
+     * @return il nome completo, ad esempio "Mario Rossi"
+     */
+    static String nomeCompleto(Contatto contatto) {
         return contatto.cognome() == null ? contatto.nome() : contatto.nome() + " " + contatto.cognome();
     }
 }

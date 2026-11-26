@@ -25,7 +25,7 @@ import com.vaadin.flow.data.converter.Converter;
 public final class LocalizzazioneDate {
 
     /** Formato delle date mostrato e accettato dai selettori. */
-    public static final String FORMATO_DATA = "dd/MM/yyyy";
+    private static final String FORMATO_DATA = "dd/MM/yyyy";
 
     /** Locale italiano usato in tutta l'interfaccia. */
     public static final Locale ITALIANO = Locale.ITALY;

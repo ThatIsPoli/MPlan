@@ -36,7 +36,7 @@ import it.mpelettrica.mplan.ui.navigazione.Navigatore;
  * all'agenda da un'attivita' si ritrova lo stesso giorno.
  */
 @Route(Navigatore.ROTTA_AGENDA)
-@PageTitle("MPlan – Agenda")
+@PageTitle("MPlan – Agenda giornaliera")
 public class AgendaGiornalieraView extends VerticalLayout implements BeforeEnterObserver {
 
     private static final long serialVersionUID = 1L;

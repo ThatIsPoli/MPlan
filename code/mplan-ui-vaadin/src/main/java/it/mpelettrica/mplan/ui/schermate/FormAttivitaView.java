@@ -36,6 +36,8 @@ import com.vaadin.flow.router.RouteParameters;
 import it.mpelettrica.mplan.api.AgendaService;
 import it.mpelettrica.mplan.api.Attivita;
 import it.mpelettrica.mplan.api.AttivitaService;
+import it.mpelettrica.mplan.api.Contatto;
+import it.mpelettrica.mplan.api.ContattoService;
 import it.mpelettrica.mplan.api.DatiAttivita;
 import it.mpelettrica.mplan.api.ErroreValidazione;
 import it.mpelettrica.mplan.api.StatoAttivita;
@@ -49,14 +51,16 @@ import it.mpelettrica.mplan.ui.navigazione.Navigatore;
  * con i campi di DAT.2 divisi in tre sezioni: quando, cosa e note.
  * <p>
  * Per un'attivita' esistente mostra anche la barra dello stato (GUI.5.2) con l'annullamento (GUI.6).
- * Un'attivita' annullata e' in sola lettura; una completata resta modificabile nei testi (FUN.5.1).
+ * Un'attivita' annullata e' in sola lettura (FUN.6.2); una completata resta modificabile nei testi
+ * (Tabella 8.1). Il titolo riporta il nome del contatto, cosi' si capisce di chi e' l'attivita'
+ * anche aprendola dall'agenda.
  * La data proposta e' oggi (DAT.2.2); una data o un'ora scritte male bloccano il salvataggio con un
  * messaggio sul campo (DAT.2.3, DAT.5). Dopo il salvataggio, o con "Indietro", si torna alla
  * schermata di provenienza (Tabella 8.2).
  */
 @Route(Navigatore.ROTTA_NUOVA_ATTIVITA)
 @RouteAlias(Navigatore.ROTTA_ATTIVITA)
-@PageTitle("MPlan – Attività")
+@PageTitle("MPlan – Form attività")
 public class FormAttivitaView extends VerticalLayout implements BeforeEnterObserver {
 
     private static final long serialVersionUID = 1L;
@@ -89,6 +93,8 @@ public class FormAttivitaView extends VerticalLayout implements BeforeEnterObser
 
     private final AttivitaService attivitaService;
 
+    private final ContattoService contattoService;
+
     private final AgendaService agendaService;
 
     private final Navigatore navigatore;
@@ -103,11 +109,14 @@ public class FormAttivitaView extends VerticalLayout implements BeforeEnterObser
      * Crea il form dell'attivita'; i dati vengono caricati all'ingresso nella schermata.
      *
      * @param attivitaService servizio che valida e salva l'attivita' e ne cambia lo stato
+     * @param contattoService servizio che fornisce il contatto dell'attivita'
      * @param agendaService   servizio che fornisce la data di oggi
      * @param navigatore      navigatore tra le schermate
      */
-    public FormAttivitaView(AttivitaService attivitaService, AgendaService agendaService, Navigatore navigatore) {
+    public FormAttivitaView(AttivitaService attivitaService, ContattoService contattoService,
+            AgendaService agendaService, Navigatore navigatore) {
         this.attivitaService = attivitaService;
+        this.contattoService = contattoService;
         this.agendaService = agendaService;
         this.navigatore = navigatore;
         this.barraStato = new BarraStatoAttivita(attivitaService, this::aggiornaDopoCambioStato);
@@ -122,7 +131,8 @@ public class FormAttivitaView extends VerticalLayout implements BeforeEnterObser
 
     /**
      * Prepara il form: per una nuova attivita' con la data di oggi, per un'attivita' esistente
-     * con i suoi dati e il suo stato. Se l'attivita' non esiste torna alla schermata principale.
+     * con i suoi dati e il suo stato. Se l'attivita' o il contatto non esistono torna alla
+     * schermata principale con un avviso.
      *
      * @param evento l'evento di navigazione
      */
@@ -134,17 +144,20 @@ public class FormAttivitaView extends VerticalLayout implements BeforeEnterObser
         if (attivita.isPresent()) {
             if (!caricaAttivita(attivita.get())) {
                 Notification.show("L'attività richiesta non esiste.", DURATA_NOTIFICA_MS,
-                        Notification.Position.MIDDLE);
+                        Notification.Position.TOP_CENTER);
                 evento.forwardTo(HomeView.class);
             }
             return;
         }
         Optional<UUID> contatto = parametri.get(Navigatore.PARAMETRO_CONTATTO).map(UUID::fromString);
-        if (contatto.isEmpty()) {
+        Optional<Contatto> trovato = contatto.flatMap(contattoService::trova);
+        if (trovato.isEmpty()) {
+            Notification.show("Il contatto richiesto non esiste.", DURATA_NOTIFICA_MS,
+                    Notification.Position.TOP_CENTER);
             evento.forwardTo(HomeView.class);
             return;
         }
-        preparaNuovaAttivita(contatto.get());
+        preparaNuovaAttivita(trovato.get());
     }
 
     private boolean caricaAttivita(UUID id) {
@@ -155,23 +168,33 @@ public class FormAttivitaView extends VerticalLayout implements BeforeEnterObser
         Attivita attivita = trovata.get();
         idAttivita = attivita.id();
         idContatto = attivita.idContatto();
-        titoloPagina.setText("Attività");
+        titoloPagina.setText(conContatto("Attività", idContatto));
         binder.readBean(copiaInDati(attivita));
         mostraStato(attivita);
         return true;
     }
 
-    private void preparaNuovaAttivita(UUID contatto) {
-        idContatto = contatto;
+    private void preparaNuovaAttivita(Contatto contatto) {
+        idContatto = contatto.id();
         idAttivita = null;
         statoCorrente = StatoAttivita.DA_FARE;
-        titoloPagina.setText("Nuova attività");
+        titoloPagina.setText("Nuova attività – " + HomeView.nomeCompleto(contatto));
         DatiAttivita dati = new DatiAttivita();
         dati.setData(agendaService.oggi());
         binder.readBean(dati);
         barraStato.setVisible(false);
         riquadroMotivo.setVisible(false);
         aggiornaModificabilitaCampi();
+        campoTitolo.focus();
+    }
+
+    /**
+     * Aggiunge al titolo il nome del contatto, se il contatto esiste ancora.
+     */
+    private String conContatto(String titolo, UUID contatto) {
+        return contattoService.trova(contatto)
+                .map(trovato -> titolo + " – " + HomeView.nomeCompleto(trovato))
+                .orElse(titolo);
     }
 
     /**
@@ -233,7 +256,7 @@ public class FormAttivitaView extends VerticalLayout implements BeforeEnterObser
             FormContattoView.mostraErroriSuiCampi(campiPerNome, e.getErrori());
             return;
         }
-        Notification.show("Attività salvata.", DURATA_NOTIFICA_MS, Notification.Position.BOTTOM_START);
+        Notification.show("Attività salvata.", DURATA_NOTIFICA_MS, Notification.Position.TOP_CENTER);
         tornaIndietro();
     }
 
