@@ -40,7 +40,7 @@ public final class LocalizzazioneDate {
             DateTimeFormatter.ofPattern("HH:mm", ITALIANO);
 
     /** Messaggio mostrato per un orario scritto male o fuori scala (DAT.2.3, DAT.5). */
-    public static final String ORA_NON_VALIDA = "Ora non valida: usa il formato hh:mm, ad esempio 08:30.";
+    private static final String ORA_NON_VALIDA = "Ora non valida: usa il formato hh:mm, ad esempio 08:30.";
 
     /** Ore da 0 a 23 e minuti da 00 a 59, separati da due punti o da un punto. */
     private static final Pattern FORMATO_ORA_SCRITTA = Pattern.compile("([01]?[0-9]|2[0-3])[:.]([0-5][0-9])");
@@ -88,7 +88,7 @@ public final class LocalizzazioneDate {
     /**
      * Restituisce il convertitore tra il testo dell'orario e l'orario: un testo vuoto vale
      * "nessun orario"; un testo fuori formato o fuori scala (ad esempio {@code 25:99}) e' un errore
-     * con il messaggio {@link #ORA_NON_VALIDA}, invece di essere corretto in silenzio.
+     * con il messaggio "Ora non valida: usa il formato hh:mm", invece di essere corretto in silenzio.
      *
      * @return il convertitore da usare nel {@code Binder}
      */

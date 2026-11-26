@@ -17,7 +17,7 @@ Confronto tra il codice di `code/` (branch `80-implementazione-completa-del-codi
 | mplan-core | Conforme, più 2 classi di supporto package-private |
 | mplan-persistence | Conforme |
 | mplan-app | Conforme, più 1 metodo package-private e un'interfaccia di Vaadin |
-| mplan-ui-vaadin | 3 classi in più e alcune firme cambiate (sotto) |
+| mplan-ui-vaadin | 3 classi in più, membri aggiunti, un membro tolto e alcune firme cambiate, compreso il costruttore pubblico di `FormAttivitaView` (sotto) |
 
 Già allineati al diagramma, quindi **non** sono differenze:
 - i record `Contatto`, `Attivita`, `ErroreValidazione`, `VoceAgenda` e `VoceRegistro` (nel modello hanno lo stereotipo «record»);
@@ -34,7 +34,7 @@ Già allineati al diagramma, quindi **non** sono differenze:
 |---|---|---|---|
 | `core.dominio.ControlliTesto` | package-private, `final` | Controlli comuni ai due validatori: obbligatorietà, lunghezza massima, formato. Evita codice duplicato. | Facoltativa: classe di utilità del package `dominio`, usata da `ValidatoreContatto` e `ValidatoreAttivita`. |
 | `core.servizi.Testi` | package-private, `final` | Normalizzazione dei testi comune ai servizi (`pulisci`, `nullSeVuoto`). | Facoltativa, come sopra, nel package `servizi`. |
-| `ui.componenti.LocalizzazioneDate` | public, `final` | Imposta formato e testi in italiano di `DatePicker` e `TimePicker` e formatta date e ore negli elenchi, in un solo punto. | Da aggiungere: la usano `FormAttivitaView`, `AgendaGiornalieraView` ed `ElencoAttivita`. |
+| `ui.componenti.LocalizzazioneDate` | public, `final` | Imposta formato e testi in italiano del `DatePicker` e del campo dell'ora (`TextField` con convertitore `hh:mm`) e formatta date e ore negli elenchi, in un solo punto. | Da aggiungere: la usano `FormAttivitaView`, `AgendaGiornalieraView`, `ElencoAttivita` e `HomeView`. |
 | `ui.infrastruttura.VistaErrore` | public | Pagina d'errore dell'applicazione (`extends VerticalLayout implements HasErrorParameter<Exception>`). Mostra il messaggio e il codice dell'errore al posto della pagina predefinita di Vaadin. Sostituisce i `try/catch` ripetuti nelle schermate. | Da aggiungere: usa `GestoreErroriUI`. |
 | `ui.infrastruttura.VistaPaginaNonTrovata` | public | Pagina "Pagina non trovata" in italiano per gli indirizzi inesistenti (`extends VerticalLayout implements HasErrorParameter<NotFoundException>`). Serve perché Vaadin usa sempre la pagina d'errore più specifica: per `NotFoundException` la sua `RouteNotFoundError`, in inglese, vinceva su `VistaErrore`. Una classe non può gestire due tipi di eccezione con `HasErrorParameter`. | Da aggiungere accanto a `VistaErrore`: usa `Navigatore`. |
 
@@ -94,6 +94,7 @@ Sono dettagli normali in un class diagram di progetto; si riportano per complete
     - `ConfigurazioneMPlan` → `PersistenzaException`, che avvolge gli errori di avvio del database;
     - `FormAttivitaView` → `ContattoService`, vedi il costruttore nella sezione 3;
     - `FormAttivitaView` → `FormContattoView`, per le parti comuni dei form;
+    - `FormAttivitaView`, `FormContattoView` e `SchedaContattoView` → `HomeView`, per `nomeCompleto` e `nomeTipo`. Le schermate usano `HomeView` anche per rimandare alla Home con `forwardTo(HomeView.class)`;
   - nel diagramma e non nel codice: `BarraStatoAttivita` → `ValidazioneException`. L'errore del motivo lo gestisce `DialogoAnnullamento`.
 - **Getter e setter**: quelli di `DatiContatto` e `DatiAttivita`. Nel diagramma i campi sono privati e i metodi d'accesso sono sottintesi.
 - **Membri privati di supporto**: costanti `LOGGER` e metodi privati di supporto in quasi tutte le classi. L'elenco è nelle note di ogni modulo (`mplan-*.md` in questa cartella).
@@ -102,15 +103,15 @@ Sono dettagli normali in un class diagram di progetto; si riportano per complete
 
 ## Cosa conviene riportare nel diagramma
 
-Elenco completo delle modifiche a `mplan.mdj` perché il diagramma rispecchi il codice, in ordine di importanza. Il codice della GUI è ancora in lavorazione: conviene fare queste modifiche quando è definitivo e ricontrollare prima le firme.
+Elenco completo delle modifiche a `mplan.mdj` perché il diagramma rispecchi il codice, in ordine di importanza. Il codice è completo e l'elenco è stato ricontrollato il 26/11/2026 con un nuovo confronto automatico sulle classi compilate. Se il codice cambia ancora, conviene ricontrollare le firme prima di modificare il diagramma.
 
 **Da fare**
 
 1. **Classi nuove** nel package `ui`, con i membri pubblici e le relazioni:
    - `VistaErrore` in `infrastruttura`, che usa `GestoreErroriUI`;
    - `VistaPaginaNonTrovata` in `infrastruttura`, che usa `Navigatore`;
-   - `LocalizzazioneDate` in `componenti`, con `ITALIANO` e i sei metodi statici della sezione 2, usata da `FormAttivitaView`, `AgendaGiornalieraView` ed `ElencoAttivita`.
-2. **Costruttore di `FormAttivitaView`**: `+ FormAttivitaView(AttivitaService, ContattoService, AgendaService, Navigatore)`, nell'ordine del codice, più la dipendenza `FormAttivitaView → ContattoService`.
+   - `LocalizzazioneDate` in `componenti`, con `ITALIANO` e i sei metodi statici della sezione 2, usata da `FormAttivitaView`, `AgendaGiornalieraView`, `ElencoAttivita` e `HomeView`.
+2. **Costruttore di `FormAttivitaView`**: `+ FormAttivitaView(AttivitaService, ContattoService, AgendaService, Navigatore)`, nell'ordine del codice, più l'associazione `- contattoService: ContattoService`, disegnata come quelle verso gli altri servizi.
 3. **Firme private**:
    - `FormAttivitaView`: `validaCampi(DatiAttivita): List<ErroreValidazione>` e `caricaAttivita(UUID): boolean`;
    - `FormContattoView`: `validaCampi(DatiContatto): List<ErroreValidazione>`;
@@ -120,7 +121,7 @@ Elenco completo delle modifiche a `mplan.mdj` perché il diagramma rispecchi il 
 5. **Membro da togliere**: `FormAttivitaView.mostraErrori(List<ErroreValidazione>)` (sezione 2bis).
 6. **`Navigatore`**: le dieci costanti pubbliche e il metodo `+ indietroOppureScheda(UUID): void` (sezione 2).
 7. **Dipendenze**:
-   - da aggiungere: `BarraStatoAttivita → ElencoAttivita`, `GestoreErroriUI → ValidazioneException`, `ConfigurazioneMPlan → PersistenzaException`, `FormAttivitaView → FormContattoView`;
+   - da aggiungere: `BarraStatoAttivita → ElencoAttivita`, `GestoreErroriUI → ValidazioneException`, `ConfigurazioneMPlan → PersistenzaException`, `FormAttivitaView → FormContattoView`, `FormAttivitaView`/`FormContattoView`/`SchedaContattoView → HomeView`;
    - da togliere: `BarraStatoAttivita → ValidazioneException`, che c'è nel diagramma ma non nel codice.
 
 **Facoltativo**
