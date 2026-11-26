@@ -5,71 +5,76 @@
 */
 package it.mpelettrica.mplan.persistence.infrastruttura;
 
-import java.util.*;
-import java.time.*;
-
+import java.util.function.Supplier;
 
 import org.jooq.DSLContext;
-// ----------- << imports@AAAAAAdZnkgiZ/1nj+Zp >>
-// ----------- >>
 
-// ----------- << class.annotations@AAAAAAdZnkgiZ/1nj+Zp >>
-// ----------- >>
+/**
+ * Fornisce il canale jOOQ da usare in ogni momento: quello della transazione
+ * aperta sul thread corrente, se esiste, altrimenti quello di base.
+ */
 public class ContestoTransazione {
-    // ----------- << attribute.annotations@AAAAAAFDq9QRi16GD82FtJ >>
-    // ----------- >>
-    private ThreadLocal<DSLContext> corrente;
 
-    // ----------- << attribute.annotations@AAAAAAfOIa9TT8C+GUFd >>
-    // ----------- >>
-    private DSLContext dslBase;
+    private final ThreadLocal<DSLContext> corrente = new ThreadLocal<>();
 
-    private ThreadLocal<DSLContext> getCorrente() {
-        return corrente;
-    }
-
-    private DSLContext getDslBase() {
-        return dslBase;
-    }
+    private final DSLContext dslBase;
 
     /**
-    * @param dslBase
-    */
-
-    // ----------- << method.annotations@AAAAAAepWNk1Rv3YVk7S >>
-    // ----------- >>
+     * Crea il contesto.
+     *
+     * @param dslBase canale da usare quando non c'è una transazione attiva
+     */
     public ContestoTransazione(DSLContext dslBase) {
-    // ----------- << method.body@AAAAAAepWNk1Rv3YVk7S >>
-    // ----------- >>
+        this.dslBase = dslBase;
     }
-    // ----------- << method.annotations@AAAAAAep82BLfMfu30XF >>
-    // ----------- >>
+
+    /**
+     * Restituisce il canale da usare ora.
+     *
+     * @return il canale transazionale del thread corrente, se presente, altrimenti quello di base
+     */
     public DSLContext dslCorrente() {
-    // ----------- << method.body@AAAAAAep82BLfMfu30XF >>
-    // ----------- >>
+        DSLContext dsl = corrente.get();
+        return dsl != null ? dsl : dslBase;
     }
-    /**
-    * @param dsl 
-    * @param operazione
-    */
 
-    // ----------- << method.annotations@AAAAAAeWu32fozmm7eVx >>
-    // ----------- >>
+    /**
+     * Esegue un'operazione che non restituisce nulla con il canale indicato come corrente.
+     *
+     * @param dsl canale da usare durante l'operazione
+     * @param operazione operazione da eseguire
+     */
     public void eseguiConContesto(DSLContext dsl, Runnable operazione) {
-    // ----------- << method.body@AAAAAAeWu32fozmm7eVx >>
-    // ----------- >>
+        eseguiConContesto(dsl, () -> {
+            operazione.run();
+            return null;
+        });
     }
-    /**
-    * @param dsl 
-    * @param operazione
-    */
 
-    // ----------- << method.annotations@AAAAAAepkABo/BFqBIwN >>
-    // ----------- >>
-    public T eseguiConContesto(DSLContext dsl, Supplier<T> operazione) {
-    // ----------- << method.body@AAAAAAepkABo/BFqBIwN >>
-    // ----------- >>
+    /**
+     * Esegue un'operazione con il canale indicato come corrente e al termine
+     * ripristina il canale precedente, anche in caso di eccezione.
+     *
+     * @param <T> tipo del risultato
+     * @param dsl canale da usare durante l'operazione
+     * @param operazione operazione da eseguire
+     * @return il risultato dell'operazione
+     */
+    public <T> T eseguiConContesto(DSLContext dsl, Supplier<T> operazione) {
+        DSLContext precedente = corrente.get();
+        corrente.set(dsl);
+        try {
+            return operazione.get();
+        } finally {
+            ripristina(precedente);
+        }
     }
-// ----------- << class.extras@AAAAAAdZnkgiZ/1nj+Zp >>
-// ----------- >>
+
+    private void ripristina(DSLContext precedente) {
+        if (precedente == null) {
+            corrente.remove();
+        } else {
+            corrente.set(precedente);
+        }
+    }
 }

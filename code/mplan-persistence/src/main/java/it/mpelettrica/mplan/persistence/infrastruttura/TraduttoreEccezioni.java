@@ -5,27 +5,35 @@
 */
 package it.mpelettrica.mplan.persistence.infrastruttura;
 
-import java.util.*;
-import java.time.*;
-
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jooq.ExecuteContext;
 import org.jooq.ExecuteListener;
-// ----------- << imports@AAAAAAeJsVAHwsYVXnF2 >>
-// ----------- >>
 
-// ----------- << class.annotations@AAAAAAeJsVAHwsYVXnF2 >>
-// ----------- >>
+import it.mpelettrica.mplan.api.PersistenzaException;
+
+/**
+ * Intercettore di jOOQ che trasforma ogni errore di accesso ai dati in una
+ * {@link PersistenzaException}, registrando il dettaglio tecnico nel log.
+ */
 public class TraduttoreEccezioni implements ExecuteListener {
-    /**
-    * @param ctx
-    */
 
-    // ----------- << method.annotations@AAAAAAe1XWxVaVtS6A7G >>
-    // ----------- >>
+    private static final Logger LOG = LogManager.getLogger(TraduttoreEccezioni.class);
+
+    /**
+     * Sostituisce l'eccezione di jOOQ con una {@link PersistenzaException} che
+     * ne conserva la causa. Se l'eccezione è già una {@link PersistenzaException}
+     * non fa nulla.
+     *
+     * @param ctx contesto dell'esecuzione fallita
+     */
+    @Override
     public void exception(ExecuteContext ctx) {
-    // ----------- << method.body@AAAAAAe1XWxVaVtS6A7G >>
-    // ----------- >>
+        RuntimeException originale = ctx.exception();
+        if (originale instanceof PersistenzaException) {
+            return;
+        }
+        LOG.error("Errore di accesso ai dati durante l'istruzione: {}", ctx.sql(), originale);
+        ctx.exception(new PersistenzaException("Errore di accesso ai dati", originale));
     }
-// ----------- << class.extras@AAAAAAeJsVAHwsYVXnF2 >>
-// ----------- >>
 }
