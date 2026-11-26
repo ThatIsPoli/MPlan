@@ -38,14 +38,14 @@ it.mpelettrica.mplan.ui/
 In accordo con la **FSM di Navigazione GUI (Sezione 8.2 dei requisiti)** e gli schemi a blocchi GUI (Sezioni 8.3 e 8.4 della Specifica Requisiti), la UI è articolata in **5 schermate separate**, ciascuna implementata come classe che estende `VerticalLayout` e realizza l'interfaccia `BeforeEnterObserver` di Vaadin Flow.
 
 ### 3.1. `HomeView`
-- **Responsabilità:** Schermata di ingresso dell'applicazione (`Route("")`). Mostra l'elenco riassuntivo dei contatti in una tabella (`Grid<Contatto>`), la barra di ricerca filtrante per nome/cognome (`FUN.3.1`) e la barra dei comandi principali (`+ Nuovo contatto`, `Agenda Giornaliera`, `Chiudi applicazione`).
+- **Responsabilità:** Schermata di ingresso dell'applicazione (`Route("")`). Mostra l'elenco riassuntivo dei contatti in una tabella (`Grid<Contatto>`), la barra di ricerca filtrante per nome/cognome (`FUN.3.1`) e i pulsanti dei comandi principali, sempre visibili: `+ Nuovo contatto` (`GUI.2.1`), `Agenda giornaliera` (`GUI.2.2`) e `Chiudi applicazione` (evento `chiudi` dalla Home, Tabella 8.2).
 - **Attributi principali:**
   - `tuttiContatti: List<Contatto>` (cache locale dei contatti caricati per filtraggio istantaneo client-side/in-memory).
   - `campoRicerca: TextField` (input con debounce per ricerca incrementale).
   - `tabellaContatti: Grid<Contatto>` (griglia con colonne `Nome`, `Cognome`, `Tipo`, `Telefoni`; doppio clic o clic riga apre la scheda contatto).
 - **Associazioni e Collaborazioni:**
   - `contattoService: ContattoService` (caricamento iniziale dell'elenco contatti).
-  - `chiusuraApplicazione: ChiusuraApplicazione` (chiusura controllata del contesto Spring e arresto JVM, requisito `GUI.1.4`).
+  - `chiusuraApplicazione: ChiusuraApplicazione` (chiusura controllata del contesto Spring e arresto JVM, evento `chiudi` dalla Home nella Tabella 8.2).
   - `navigatore: Navigatore` (transizione verso `FormContattoView`, `SchedaContattoView` e `AgendaGiornalieraView`).
 - **Ciclo di vita:** Il metodo `beforeEnter(BeforeEnterEvent)` invoca `aggiornaElenco()` ricaricando i dati freschi ad ogni ingresso o ritorno sulla schermata.
 
@@ -90,7 +90,7 @@ In accordo con la **FSM di Navigazione GUI (Sezione 8.2 dei requisiti)** e gli s
   - In fase di creazione nuova attività, la data predefinita non è ottenuta da un generico `LocalDate.now()` di sistema, ma tramite `agendaService.oggi()`, garantendo determinismo e testabilità rispetto al `Clock` configurato nel core.
 
 ### 3.5. `AgendaGiornalieraView`
-- **Responsabilità:** Schermata di consultazione dell'agenda giornaliera delle attività (`GUI.2`).
+- **Responsabilità:** Schermata di consultazione dell'agenda giornaliera delle attività (`GUI.7`, `FUN.10`).
 - **Controlli di Navigazione Temporale:**
   - Intestazione con data corrente formattata in italiano (`etichettaGiorno: Span`).
   - Tasti rapidi di scorrimento: `[< Giorno precedente]`, `[Giorno successivo >]`.
@@ -105,7 +105,7 @@ In accordo con la **FSM di Navigazione GUI (Sezione 8.2 dei requisiti)** e gli s
 Per rispettare il principio di singola responsabilità (SRP) e massimizzare la leggibilità del codice, porzioni grafiche complesse e comportamenti specialistici sono stati estratti in componenti autonomi.
 
 ### 4.1. `EditorTelefoni`
-- **Ruolo:** Gestisce l'elenco dinamico dei numeri di telefono all'interno del form contatto (`GUI.3.2`).
+- **Ruolo:** Gestisce l'elenco dinamico dei numeri di telefono all'interno del form contatto (`DAT.1.4`).
 - **Struttura:** Estende `VerticalLayout`. Mantiene una lista `campiNumero: List<TextField>`.
 - **Comportamento Dinamico:**
   - Ogni riga presenta un campo di testo per il numero, un pulsante `[-] Rimuovi` e, in coda, il pulsante `[+ Aggiungi recapito]`.
