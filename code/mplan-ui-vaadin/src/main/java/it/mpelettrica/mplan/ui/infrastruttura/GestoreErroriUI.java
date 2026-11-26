@@ -105,8 +105,12 @@ public class GestoreErroriUI implements VaadinServiceInitListener, ErrorHandler 
             return "Dati non validi: " + String.join("; ", validazione.get().getErrori().stream()
                     .map(e -> e.motivo()).toList()) + ".";
         }
+        // Il core lancia IllegalStateException per una transizione di stato non ammessa, per la modifica
+        // di un'attivita' annullata o per un contatto sparito: la UI impedisce gia' queste operazioni,
+        // quindi se accadono i dati sono cambiati nel frattempo. Il messaggio vale per tutti i casi.
         if (trovaCausa(errore, IllegalStateException.class).isPresent()) {
-            return "Operazione non consentita nello stato attuale dell'attività.";
+            return "Operazione non consentita: i dati potrebbero essere cambiati nel frattempo. "
+                    + "Torna alla schermata precedente e riprova.";
         }
         if (trovaCausa(errore, IllegalArgumentException.class).isPresent()) {
             return "L'elemento richiesto non esiste più.";

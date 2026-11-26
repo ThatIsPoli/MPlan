@@ -3,10 +3,14 @@ package it.mpelettrica.mplan.ui.infrastruttura;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.card.Card;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.ErrorParameter;
@@ -44,7 +48,7 @@ public class VistaPaginaNonTrovata extends VerticalLayout implements HasErrorPar
         addClassName("mplan-pagina");
         setPadding(false);
         setSpacing(false);
-        add(creaTitolo(), creaTesto(), creaPulsanteHome());
+        add(creaRiquadro(creaIcona(), creaTitolo(), creaTesto(), creaPulsanteHome()));
     }
 
     /**
@@ -58,6 +62,19 @@ public class VistaPaginaNonTrovata extends VerticalLayout implements HasErrorPar
     public int setErrorParameter(BeforeEnterEvent evento, ErrorParameter<NotFoundException> parametro) {
         LOG.warn("Pagina non trovata: {}", evento.getLocation().getPath());
         return NON_TROVATA;
+    }
+
+    private static Card creaRiquadro(Component... contenuto) {
+        Card riquadro = new Card();
+        riquadro.addClassName("mplan-errore-card");
+        riquadro.add(contenuto);
+        return riquadro;
+    }
+
+    private static Icon creaIcona() {
+        Icon icona = VaadinIcon.SEARCH.create();
+        icona.addClassName("mplan-errore-icona");
+        return icona;
     }
 
     private static H1 creaTitolo() {

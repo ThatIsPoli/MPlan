@@ -3,11 +3,15 @@ package it.mpelettrica.mplan.ui.infrastruttura;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.card.Card;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.ErrorParameter;
@@ -52,7 +56,7 @@ public class VistaErrore extends VerticalLayout implements HasErrorParameter<Exc
         addClassName("mplan-pagina");
         setPadding(false);
         setSpacing(false);
-        add(creaTitolo(), testo, codice, creaPulsanteHome());
+        add(creaRiquadro(creaIcona(), creaTitolo(), testo, codice, creaPulsanteHome()));
     }
 
     /**
@@ -70,6 +74,19 @@ public class VistaErrore extends VerticalLayout implements HasErrorParameter<Exc
         testo.setText(GestoreErroriUI.messaggioPer(parametro.getCaughtException()));
         codice.setText("Codice errore: " + codiceErrore);
         return ERRORE_INTERNO;
+    }
+
+    private static Card creaRiquadro(Component... contenuto) {
+        Card riquadro = new Card();
+        riquadro.addClassName("mplan-errore-card");
+        riquadro.add(contenuto);
+        return riquadro;
+    }
+
+    private static Icon creaIcona() {
+        Icon icona = VaadinIcon.WARNING.create();
+        icona.addClassName("mplan-errore-icona");
+        return icona;
     }
 
     private static H1 creaTitolo() {
