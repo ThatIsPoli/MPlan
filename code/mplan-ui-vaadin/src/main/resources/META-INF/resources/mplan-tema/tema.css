@@ -1,0 +1,563 @@
+/*
+ * MPlan - tema grafico centralizzato.
+ *
+ * Unico foglio di stile dell'applicazione. Si carica DOPO il tema base Aura
+ * (MPlanApplication: @StyleSheet(Aura.STYLESHEET) poi @StyleSheet("mplan-tema/tema.css")).
+ *
+ * Organizzazione:
+ *   1. Font locale (nessuna richiesta a Internet: NFR.6).
+ *   2. Token di progetto (--mplan-*), ricavati da docs/designAndArchitecture/DESIGN.md.
+ *   3. Mappatura dei token sulle proprieta' di Aura e sulle proprieta' --vaadin-* dei componenti.
+ *   4. Regole sui componenti Vaadin.
+ *   5. Classi semantiche "mplan-*" usate dal codice Java.
+ *
+ * Per cambiare l'aspetto dell'applicazione basta modificare il blocco 2:
+ * il codice Java usa solo nomi di classe, mai colori o font.
+ */
+
+/* ------------------------------------------------------------------ */
+/* 1. Font locale                                                      */
+/* ------------------------------------------------------------------ */
+
+@font-face {
+  font-family: "Inter";
+  src: url("fonts/inter/InterVariable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ------------------------------------------------------------------ */
+/* 2. Token di progetto                                                */
+/* ------------------------------------------------------------------ */
+
+html {
+  /* Colori */
+  --mplan-colore-primario: #024ad8;
+  --mplan-colore-primario-scuro: #0e3191;
+  --mplan-colore-primario-chiaro: #296ef9;
+  --mplan-colore-primario-tenue: #c9e0fc;
+  --mplan-colore-inchiostro: #1a1a1a;
+  --mplan-colore-inchiostro-tenue: #292929;
+  --mplan-colore-carbone: #3d3d3d;
+  --mplan-colore-grafite: #636363;
+  --mplan-colore-acciaio: #c2c2c2;
+  --mplan-colore-nebbia: #e8e8e8;
+  --mplan-colore-nuvola: #f7f7f7;
+  --mplan-colore-tela: #ffffff;
+  --mplan-colore-errore: #b3262b;
+  --mplan-colore-errore-tenue: #f9d4d2;
+  --mplan-colore-tempesta: #356373;
+  --mplan-colore-tempesta-tenue: #8ebdce;
+  --mplan-colore-hairline: var(--mplan-colore-nebbia);
+
+  /* Tipografia */
+  --mplan-font: "Forma DJR Micro", Inter, Arial, sans-serif;
+  --mplan-testo-titolo: 32px;
+  --mplan-testo-sottotitolo: 24px;
+  --mplan-testo-sezione: 20px;
+  --mplan-testo-corpo: 16px;
+  --mplan-testo-didascalia: 14px;
+  --mplan-testo-piccolo: 12px;
+  --mplan-interlinea-corpo: 1.4;
+  --mplan-interlinea-didascalia: 1.5;
+  --mplan-interlinea-titolo: 1.17;
+  --mplan-peso-normale: 400;
+  --mplan-peso-medio: 500;
+  --mplan-peso-semigrassetto: 600;
+  --mplan-peso-grassetto: 700;
+  --mplan-spaziatura-pulsante: 0.7px;
+
+  /* Raggi */
+  --mplan-raggio-controllo: 4px;
+  --mplan-raggio-badge: 8px;
+  --mplan-raggio-card: 16px;
+
+  /* Spaziatura (scala 4/8/12/16/20/24/32/80) */
+  --mplan-spazio-1: 4px;
+  --mplan-spazio-2: 8px;
+  --mplan-spazio-3: 12px;
+  --mplan-spazio-4: 16px;
+  --mplan-spazio-5: 20px;
+  --mplan-spazio-6: 24px;
+  --mplan-spazio-7: 32px;
+  --mplan-spazio-8: 80px;
+
+  /* Dimensioni */
+  --mplan-altezza-controllo: 44px;
+  --mplan-altezza-barra: 64px;
+  --mplan-larghezza-contenuto: 1200px;
+  --mplan-larghezza-form: 880px;
+
+  /* Ombre */
+  --mplan-ombra-lift: 0 2px 8px rgba(26, 26, 26, 0.08);
+  --mplan-ombra-modale: 0 8px 24px rgba(26, 26, 26, 0.12);
+
+  /* Movimento */
+  --mplan-transizione: 150ms ease;
+}
+
+/* ------------------------------------------------------------------ */
+/* 3. Mappatura su Aura e sulle proprieta' dei componenti              */
+/* ------------------------------------------------------------------ */
+
+html {
+  color-scheme: light;
+  --aura-accent-color-light: var(--mplan-colore-primario);
+  --aura-accent-color-dark: var(--mplan-colore-primario-chiaro);
+  --aura-background-color-light: var(--mplan-colore-tela);
+  --aura-neutral-light: var(--mplan-colore-inchiostro);
+  --aura-red: var(--mplan-colore-errore);
+  --aura-app-layout-inset: 0px;
+  --aura-surface-opacity: 1;
+  --aura-overlay-surface-opacity: 1;
+  --aura-font-family: var(--mplan-font);
+  --aura-base-font-size: 16;
+  --aura-shadow-s: var(--mplan-ombra-lift);
+  --aura-overlay-shadow: var(--mplan-ombra-modale);
+
+  /* Raggi impostati direttamente: Aura limiterebbe quelli derivati */
+  --vaadin-radius-s: var(--mplan-raggio-controllo);
+  --vaadin-radius-m: var(--mplan-raggio-controllo);
+  --vaadin-radius-l: var(--mplan-raggio-card);
+
+  --vaadin-focus-ring-color: var(--mplan-colore-inchiostro);
+
+  /* Campi di input */
+  --vaadin-input-field-background: var(--mplan-colore-tela);
+  --vaadin-input-field-border-color: var(--mplan-colore-acciaio);
+  --vaadin-input-field-border-width: 1px;
+  --vaadin-input-field-border-radius: var(--mplan-raggio-controllo);
+  --vaadin-input-field-value-color: var(--mplan-colore-inchiostro);
+  --vaadin-input-field-label-color: var(--mplan-colore-carbone);
+  --vaadin-input-field-placeholder-color: var(--mplan-colore-grafite);
+  --vaadin-input-field-error-color: var(--mplan-colore-errore);
+
+  /* Pulsanti */
+  --vaadin-button-height: var(--mplan-altezza-controllo);
+  --vaadin-button-padding: var(--mplan-spazio-3) var(--mplan-spazio-6);
+  --vaadin-button-font-size: var(--mplan-testo-didascalia);
+  --vaadin-button-font-weight: var(--mplan-peso-semigrassetto);
+  --vaadin-button-border-radius: var(--mplan-raggio-controllo);
+  --vaadin-button-shadow: none;
+
+  /* Badge */
+  --vaadin-badge-border-radius: var(--mplan-raggio-badge);
+  --vaadin-badge-font-size: var(--mplan-testo-piccolo);
+  --vaadin-badge-font-weight: var(--mplan-peso-grassetto);
+  --vaadin-badge-padding: var(--mplan-spazio-1) var(--mplan-spazio-2);
+
+  /* Card */
+  --vaadin-card-background: var(--mplan-colore-tela);
+  --vaadin-card-border-color: var(--mplan-colore-hairline);
+  --vaadin-card-border-width: 1px;
+  --vaadin-card-border-radius: var(--mplan-raggio-card);
+  --vaadin-card-shadow: var(--mplan-ombra-lift);
+  --vaadin-card-padding: var(--mplan-spazio-6);
+
+  /* Dialog */
+  --vaadin-dialog-border-radius: var(--mplan-raggio-card);
+  --vaadin-dialog-shadow: var(--mplan-ombra-modale);
+  --vaadin-dialog-title-font-size: var(--mplan-testo-sezione);
+  --vaadin-dialog-title-font-weight: var(--mplan-peso-medio);
+}
+
+/* ------------------------------------------------------------------ */
+/* 4. Componenti Vaadin                                                */
+/* ------------------------------------------------------------------ */
+
+body {
+  background: var(--mplan-colore-tela);
+  color: var(--mplan-colore-inchiostro);
+  font-family: var(--mplan-font);
+  font-size: var(--mplan-testo-corpo);
+  line-height: var(--mplan-interlinea-corpo);
+}
+
+/* Pulsanti: etichetta maiuscola con spaziatura, come da DESIGN.md */
+vaadin-button {
+  text-transform: uppercase;
+  letter-spacing: var(--mplan-spaziatura-pulsante);
+  transition: background-color var(--mplan-transizione), border-color var(--mplan-transizione);
+}
+
+/* Pulsante secondario: contorno inchiostro su fondo bianco */
+vaadin-button:not([theme~="primary"], [theme~="tertiary"], [theme~="error"]) {
+  --vaadin-button-background: var(--mplan-colore-tela);
+  --vaadin-button-border-color: var(--mplan-colore-inchiostro);
+  --vaadin-button-border-width: 1px;
+  --vaadin-button-text-color: var(--mplan-colore-inchiostro);
+}
+
+vaadin-button:not([theme~="primary"], [theme~="tertiary"], [theme~="error"]):hover {
+  --vaadin-button-background: var(--mplan-colore-nuvola);
+}
+
+/* Pulsante primario: blu pieno, piu' scuro al passaggio del mouse */
+vaadin-button[theme~="primary"] {
+  --vaadin-button-background: var(--mplan-colore-primario);
+  --vaadin-button-text-color: var(--mplan-colore-tela);
+  --vaadin-button-border-color: var(--mplan-colore-primario);
+}
+
+vaadin-button[theme~="primary"]:hover {
+  --vaadin-button-background: var(--mplan-colore-primario-scuro);
+  --vaadin-button-border-color: var(--mplan-colore-primario-scuro);
+}
+
+/* Pulsante di errore (annullamento): rosso */
+vaadin-button[theme~="error"]:not([theme~="primary"]) {
+  --vaadin-button-background: var(--mplan-colore-tela);
+  --vaadin-button-border-color: var(--mplan-colore-errore);
+  --vaadin-button-border-width: 1px;
+  --vaadin-button-text-color: var(--mplan-colore-errore);
+}
+
+vaadin-button[theme~="error"][theme~="primary"] {
+  --vaadin-button-background: var(--mplan-colore-errore);
+  --vaadin-button-border-color: var(--mplan-colore-errore);
+  --vaadin-button-text-color: var(--mplan-colore-tela);
+}
+
+/* Pulsante terziario: solo testo */
+vaadin-button[theme~="tertiary"] {
+  --vaadin-button-text-color: var(--mplan-colore-primario);
+}
+
+vaadin-button[disabled] {
+  --vaadin-button-background: var(--mplan-colore-nuvola);
+  --vaadin-button-border-color: var(--mplan-colore-nebbia);
+  --vaadin-button-text-color: var(--mplan-colore-grafite);
+}
+
+/* Campi: bordo inchiostro al focus, nessun alone */
+:is(vaadin-text-field, vaadin-text-area, vaadin-select, vaadin-date-picker, vaadin-time-picker)[focused] {
+  --vaadin-input-field-border-color: var(--mplan-colore-inchiostro);
+}
+
+:is(vaadin-text-field, vaadin-text-area, vaadin-select, vaadin-date-picker, vaadin-time-picker)[invalid] {
+  --vaadin-input-field-border-color: var(--mplan-colore-errore);
+}
+
+/* Tabella dei contatti: righe separate da hairline, intestazione in didascalia */
+vaadin-grid {
+  --vaadin-grid-border-width: 0;
+  --vaadin-grid-border-color: var(--mplan-colore-hairline);
+  --vaadin-grid-row-border-width: 1px;
+  --vaadin-grid-background: var(--mplan-colore-tela);
+  --vaadin-grid-header-font-size: var(--mplan-testo-didascalia);
+  --vaadin-grid-header-font-weight: var(--mplan-peso-grassetto);
+  --vaadin-grid-header-text-color: var(--mplan-colore-carbone);
+  --vaadin-grid-row-hover-background-color: var(--mplan-colore-nuvola);
+}
+
+/* ------------------------------------------------------------------ */
+/* 5. Classi semantiche                                                */
+/* ------------------------------------------------------------------ */
+
+/* Pagina e intestazione */
+.mplan-pagina {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--mplan-larghezza-contenuto);
+  margin: 0 auto;
+  padding: var(--mplan-spazio-6) var(--mplan-spazio-7);
+  gap: var(--mplan-spazio-6);
+}
+
+.mplan-toolbar {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--mplan-altezza-barra);
+  padding-bottom: var(--mplan-spazio-3);
+  border-bottom: 1px solid var(--mplan-colore-hairline);
+  align-items: center;
+  gap: var(--mplan-spazio-3);
+  flex-wrap: wrap;
+}
+
+.mplan-toolbar-azioni {
+  margin-left: auto;
+  align-items: center;
+  gap: var(--mplan-spazio-2);
+  flex-wrap: wrap;
+}
+
+.mplan-titolo-pagina {
+  margin: 0;
+  font-size: var(--mplan-testo-titolo);
+  font-weight: var(--mplan-peso-medio);
+  line-height: var(--mplan-interlinea-titolo);
+  color: var(--mplan-colore-inchiostro);
+}
+
+.mplan-titolo-sezione {
+  margin: 0;
+  font-size: var(--mplan-testo-sezione);
+  font-weight: var(--mplan-peso-medio);
+  line-height: var(--mplan-interlinea-titolo);
+  color: var(--mplan-colore-inchiostro);
+}
+
+/* Home */
+.mplan-ricerca {
+  width: 100%;
+  max-width: 480px;
+}
+
+.mplan-tabella-contatti {
+  width: 100%;
+  flex-grow: 1;
+}
+
+.mplan-menu {
+  min-width: 220px;
+}
+
+/* Scheda contatto */
+.mplan-card-dati {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.mplan-dati-contatto {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--mplan-spazio-4) var(--mplan-spazio-6);
+  width: 100%;
+}
+
+.mplan-coppia {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mplan-spazio-1);
+  min-width: 0;
+}
+
+.mplan-etichetta {
+  font-size: var(--mplan-testo-didascalia);
+  line-height: var(--mplan-interlinea-didascalia);
+  color: var(--mplan-colore-grafite);
+}
+
+.mplan-valore {
+  font-size: var(--mplan-testo-corpo);
+  line-height: var(--mplan-interlinea-corpo);
+  color: var(--mplan-colore-inchiostro);
+  overflow-wrap: anywhere;
+}
+
+/* Form */
+.mplan-form {
+  width: 100%;
+  max-width: var(--mplan-larghezza-form);
+}
+
+.mplan-pulsanti {
+  width: 100%;
+  max-width: var(--mplan-larghezza-form);
+  justify-content: flex-end;
+  gap: var(--mplan-spazio-2);
+}
+
+.mplan-editor-telefoni {
+  padding: 0;
+  gap: var(--mplan-spazio-2);
+}
+
+.mplan-telefoni-titolo {
+  font-size: var(--mplan-testo-didascalia);
+  font-weight: var(--mplan-peso-medio);
+  color: var(--mplan-colore-carbone);
+}
+
+.mplan-telefoni-riga {
+  width: 100%;
+  align-items: baseline;
+  gap: var(--mplan-spazio-2);
+}
+
+.mplan-telefoni-campo {
+  flex-grow: 1;
+}
+
+.mplan-errore-telefoni {
+  font-size: var(--mplan-testo-didascalia);
+  line-height: var(--mplan-interlinea-didascalia);
+  color: var(--mplan-colore-errore);
+}
+
+.mplan-motivo-annullamento {
+  width: 100%;
+  max-width: var(--mplan-larghezza-form);
+  box-sizing: border-box;
+  padding: var(--mplan-spazio-3) var(--mplan-spazio-4);
+  border-radius: var(--mplan-raggio-controllo);
+  background: var(--mplan-colore-errore-tenue);
+  color: var(--mplan-colore-inchiostro);
+  font-size: var(--mplan-testo-didascalia);
+  line-height: var(--mplan-interlinea-didascalia);
+}
+
+/* Barra dello stato dell'attivita' */
+.mplan-barra-stato {
+  padding: 0;
+  gap: var(--mplan-spazio-3);
+}
+
+.mplan-barra-stato-pulsanti {
+  gap: var(--mplan-spazio-2);
+  flex-wrap: wrap;
+}
+
+/* Elenchi di attivita' (storico e agenda) */
+.mplan-elenco-attivita {
+  width: 100%;
+  flex-grow: 1;
+  min-height: 240px;
+  padding: 0;
+  gap: 0;
+}
+
+.mplan-elenco-lista {
+  width: 100%;
+  flex-grow: 1;
+  border-top: 1px solid var(--mplan-colore-hairline);
+}
+
+.mplan-elenco-vuoto {
+  padding: var(--mplan-spazio-6) 0;
+  color: var(--mplan-colore-grafite);
+  font-size: var(--mplan-testo-didascalia);
+}
+
+.mplan-riga {
+  display: flex;
+  align-items: center;
+  gap: var(--mplan-spazio-4);
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--mplan-altezza-controllo);
+  padding: var(--mplan-spazio-3) var(--mplan-spazio-4);
+  border-bottom: 1px solid var(--mplan-colore-hairline);
+  cursor: pointer;
+  transition: background-color var(--mplan-transizione);
+}
+
+.mplan-riga:hover {
+  background: var(--mplan-colore-nuvola);
+}
+
+.mplan-riga:focus-visible {
+  outline: 2px solid var(--mplan-colore-inchiostro);
+  outline-offset: -2px;
+}
+
+.mplan-riga-data {
+  flex: 0 0 auto;
+  min-width: 96px;
+  font-size: var(--mplan-testo-didascalia);
+  color: var(--mplan-colore-carbone);
+}
+
+.mplan-riga-ora {
+  flex: 0 0 auto;
+  min-width: 88px;
+  font-size: var(--mplan-testo-didascalia);
+  font-weight: var(--mplan-peso-grassetto);
+  color: var(--mplan-colore-carbone);
+}
+
+.mplan-riga-contatto {
+  flex: 0 1 220px;
+  min-width: 0;
+  color: var(--mplan-colore-carbone);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mplan-riga-titolo {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-weight: var(--mplan-peso-medio);
+  color: var(--mplan-colore-inchiostro);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Attivita' annullate (GUI.8): testo grigio e titolo barrato */
+.mplan-attivita-annullata .mplan-riga-titolo {
+  color: var(--mplan-colore-grafite);
+  text-decoration: line-through;
+}
+
+.mplan-attivita-annullata :is(.mplan-riga-data, .mplan-riga-ora, .mplan-riga-contatto) {
+  color: var(--mplan-colore-grafite);
+}
+
+/* Badge di stato */
+.mplan-stato-badge {
+  flex: 0 0 auto;
+  text-transform: uppercase;
+  letter-spacing: var(--mplan-spaziatura-pulsante);
+}
+
+.mplan-stato-badge.mplan-stato-da-fare {
+  --vaadin-badge-background: var(--mplan-colore-nebbia);
+  --vaadin-badge-text-color: var(--mplan-colore-carbone);
+}
+
+.mplan-stato-badge.mplan-stato-parziale {
+  --vaadin-badge-background: var(--mplan-colore-primario-tenue);
+  --vaadin-badge-text-color: var(--mplan-colore-primario-scuro);
+}
+
+.mplan-stato-badge.mplan-stato-completata {
+  --vaadin-badge-background: var(--mplan-colore-tempesta-tenue);
+  --vaadin-badge-text-color: var(--mplan-colore-tempesta);
+}
+
+.mplan-stato-badge.mplan-stato-annullata {
+  --vaadin-badge-background: var(--mplan-colore-errore-tenue);
+  --vaadin-badge-text-color: var(--mplan-colore-errore);
+}
+
+/* Agenda giornaliera */
+.mplan-giorno {
+  width: 100%;
+  align-items: center;
+  gap: var(--mplan-spazio-2);
+  flex-wrap: wrap;
+}
+
+.mplan-etichetta-giorno {
+  min-width: 260px;
+  font-size: var(--mplan-testo-sottotitolo);
+  font-weight: var(--mplan-peso-medio);
+  line-height: var(--mplan-interlinea-titolo);
+  color: var(--mplan-colore-inchiostro);
+  text-align: center;
+}
+
+.mplan-vai-a {
+  margin-left: auto;
+}
+
+/* Dialogo di annullamento */
+.mplan-dialogo-campo {
+  width: min(480px, 80vw);
+}
+
+/* Pagina di errore */
+.mplan-errore-testo {
+  margin: 0;
+  max-width: 640px;
+  color: var(--mplan-colore-carbone);
+}
+
+.mplan-errore-codice {
+  font-size: var(--mplan-testo-piccolo);
+  color: var(--mplan-colore-grafite);
+}
