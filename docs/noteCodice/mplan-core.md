@@ -13,7 +13,7 @@ Nei file generati da Javazzar sono stati tolti i marcatori, le annotazioni segna
 | `Validatore<T>` | Aggiunti import e Javadoc |
 | `ValidatoreContatto` | `implements Validatore<DatiContatto>`. Nome obbligatorio (100); cognome (100), indirizzo (200) facoltativi; ogni telefono non vuoto, al massimo 20 caratteri e senza doppioni (come la chiave primaria di `TELEFONO_CONTATTO`); codice fiscale di 16 caratteri alfanumerici o 11 cifre; partita IVA di 11 cifre. Il tipo non genera errori |
 | `ValidatoreAttivita` | `implements Validatore<DatiAttivita>`. Titolo obbligatorio (100); data obbligatoria; descrizione e note facoltative (5000). L'ora non genera errori |
-| `RegoleStatoAttivita` | Classe `final` con costruttore privato. Tabella delle transizioni in una `EnumMap`: da fare verso parziale, completata e annullata; parziale verso completata e annullata; tutto il resto vietato. `modificabile` è falso solo per annullata: la completata si modifica nei testi (FUN.5.1) |
+| `RegoleStatoAttivita` | Classe `final` con costruttore privato. Tabella delle transizioni in una `EnumMap`: da fare verso parziale, completata e annullata; parziale verso completata e annullata; tutto il resto vietato. `modificabile` è falso solo per annullata: la completata si modifica nei testi (Tabella 8.1) |
 | `OrdinamentoAttivita` | `PER_AGENDA` e `PER_STORICO` come `public static final Comparator<Attivita>`. Ordine per ora con le attività senza ora prima; lo storico ordina prima per data. In fondo c'è uno spareggio per `id`, così l'ordine è identico tra due letture |
 | `VoceRegistro` | Da classe a record; i campi obbligatori sono controllati con `Objects.requireNonNull`, il motivo può essere `null` |
 | `TipoModifica` | Solo Javadoc |
@@ -42,6 +42,8 @@ Solo import, Javadoc e `<T>` davanti a `inTransazione(Supplier<T>)`. Documentato
 - **Normalizzazione.** Il validatore non modifica i dati. Il servizio, quando crea l'entità, toglie gli spazi, trasforma in `null` i facoltativi vuoti e scrive il codice fiscale in maiuscolo. Il validatore valuta lo stesso testo già privato degli spazi.
 - **Motivo di annullamento.** Controllato in un metodo privato di `AttivitaServiceImpl` (obbligatorio, al massimo 1000 caratteri): `ControlliTesto` sta in `dominio` ed è visibile solo lì.
 - **Registro.** Nessuna voce alla creazione. La notifica avviene nella stessa transazione, quindi attività e voce si salvano insieme o non si salvano.
+- **Messaggi di errore.** I messaggi dei testi hanno una forma che non dipende da genere e numero del campo: "Note: al massimo 5000 caratteri", "Nome: campo obbligatorio".
+- **Modifica senza cambiamenti.** `modifica` salva sempre, ma notifica il registro solo se l'attività risultante è diversa da quella letta (confronto tra record). Un Salva senza cambiamenti non scrive voci (FUN.13).
 - **Lunghezza dei testi.** Si conta con `String.length()`, cioè in unità UTF-16: un carattere fuori dal piano base, come un'emoji, vale 2. È un limite noto, non corretto.
 - **Storico.** `storico` non controlla che il contatto esista: restituisce una lista vuota.
 - **Log.** Logger di log4j-api nei tre servizi; si scrivono solo gli identificativi, mai nomi, telefoni o codici fiscali.
