@@ -55,6 +55,7 @@ public class MPlanApplication implements AppShellConfigurator {
     public static void main(String[] args) {
         SpringApplication app = new SpringApplication(MPlanApplication.class);
         app.setHeadless(false);
+        // Classe anonima e non lambda: Spring non ricava il tipo dell'evento dal tipo generico di una lambda
         app.addListeners(new ApplicationListener<ApplicationEnvironmentPreparedEvent>() {
             @Override
             public void onApplicationEvent(ApplicationEnvironmentPreparedEvent evento) {

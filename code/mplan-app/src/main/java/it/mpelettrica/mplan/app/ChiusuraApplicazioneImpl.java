@@ -54,8 +54,16 @@ public class ChiusuraApplicazioneImpl implements ChiusuraApplicazione {
     private void spegni() {
         attendi();
         LOGGER.info("Chiusura di MPlan");
-        int codice = SpringApplication.exit(contesto);
-        System.exit(codice);
+        System.exit(chiudiContesto());
+    }
+
+    private int chiudiContesto() {
+        try {
+            return SpringApplication.exit(contesto);
+        } catch (RuntimeException e) {
+            LOGGER.error("Chiusura di MPlan non riuscita: il programma termina comunque", e);
+            return 1;
+        }
     }
 
     private void attendi() {

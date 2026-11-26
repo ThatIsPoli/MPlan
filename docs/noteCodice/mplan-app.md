@@ -24,6 +24,8 @@ Nei quattro file generati da Javazzar sono stati tolti i marcatori, i getter e i
 - **Log.** Nella cartella `MPlan` dell'utente accanto al database, così non dipendono dalla cartella da cui si lancia il programma (design 2.6).
 - **Icona.** `MPlanApplication` implementa `configurePage` dell'`AppShellConfigurator` e aggiunge l'icona `mplan-tema/icona.svg` (del modulo ui) con `addFavIcon`. Verificato: l'HTML contiene `<link rel="icon">` e il file risponde 200.
 - **Chiusura.** Il thread separato e la pausa di 500 ms servono a far arrivare al browser la risposta al clic su `chiudi` prima dello spegnimento del server.
+- **Errori nella chiusura.** Se lo spegnimento di Spring lancia un'eccezione, viene scritta nel log a livello ERROR e il programma termina comunque con codice 1: il thread non muore in silenzio e la chiusura dalla Home non resta bloccata.
+- **Listener del secondo avvio.** È una classe anonima e non una lambda, perché Spring non riesce a ricavare il tipo dell'evento dal tipo generico di una lambda.
 
 ## Deviazioni dal diagramma
 
