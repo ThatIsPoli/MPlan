@@ -45,6 +45,9 @@ Le quattro classi iniziali sono state approvate prima dell'implementazione; `Vis
 | Classe | Membro | Motivo |
 |---|---|---|
 | `ui.navigazione.Navigatore` | `public static final String PARAMETRO_CONTATTO`, `PARAMETRO_ATTIVITA`, `FORMATO_UUID` | Nomi e formato dei parametri delle rotte, usati nelle annotazioni `@Route` delle schermate. Le annotazioni accettano solo costanti. |
+| `ui.navigazione.Navigatore` | `public static final String ROTTA_HOME`, `ROTTA_SCHEDA_CONTATTO`, `ROTTA_NUOVO_CONTATTO`, `ROTTA_MODIFICA_CONTATTO`, `ROTTA_NUOVA_ATTIVITA`, `ROTTA_ATTIVITA`, `ROTTA_AGENDA` | Modelli delle rotte, usati nelle `@Route` delle schermate e dal `Navigatore`, che naviga per indirizzo. Così `ui.navigazione` non importa più `ui.schermate` e sparisce il ciclo tra i due package. |
+| `ui.navigazione.Navigatore` | `public void indietroOppureScheda(UUID)` | "Indietro" dal Form attività aperto da indirizzo diretto, senza schermata di provenienza: torna alla Scheda del contatto dell'attività e non alla Home. |
+| `ui.schermate.FormContattoView` | `static` package-private `mostraErroriSuiCampi`, `pulisciErroriSuiCampi`, `creaTitoloSezione`, `creaSezione`, `creaRiquadroForm` | Parti comuni ai due form, riusate da `FormAttivitaView` invece di ripeterle. Non serve una classe nuova. |
 | `ui.schermate.HomeView` | `static String nomeTipo(TipoContatto)` (package-private) | Testo in italiano del tipo di contatto, riusato da scheda e form contatto. |
 | `ui.componenti.ElencoAttivita` | `static Badge creaBadgeStato(StatoAttivita)` (package-private) | Badge colorato dello stato, riusato da `BarraStatoAttivita`. |
 | `ui.infrastruttura.GestoreErroriUI` | `static String nuovoCodice()`, `static String messaggioPer(Throwable)` (package-private) | Codice dell'errore e messaggio per l'utente, condivisi con `VistaErrore`. |
@@ -67,6 +70,7 @@ Il diagramma è già allineato: il campo è stato tolto anche da `mplan.mdj`.
 | `ui.schermate.FormContattoView` | `- validaCampi(): List<ErroreValidazione>` | `- validaCampi(DatiContatto): List<ErroreValidazione>` | Come sopra. |
 | `ui.schermate.FormAttivitaView` | `- caricaAttivita(UUID): void` | `- caricaAttivita(UUID): boolean` | Restituisce `false` se l'attività non esiste, così `beforeEnter` rimanda alla Home senza costruire la schermata. |
 | `ui.schermate.SchedaContattoView` | `- caricaScheda(): void` | `- caricaScheda(): boolean` | Come sopra, per il contatto. |
+| `ui.schermate.FormAttivitaView` | `- campoOra: TimePicker` | `- campoOra: TextField` | Con un'ora fuori scala, ad esempio "25:99", il `TimePicker` di Vaadin 25.3 mostra un altro orario mentre il valore resta vuoto, così l'attività si salverebbe senza ora. Un `TextField` con un convertitore `hh:mm` dà un errore sul campo (DAT.5). |
 | `ui.schermate.SchedaContattoView` | `- riquadroDati: Div` | `- riquadroDati: Card` | `Card` è il componente di Vaadin 25 per i riquadri: dà già bordo, ombra e raggio del tema, senza stile scritto a mano. |
 
 ### 4. Elementi non rappresentati nel diagramma
@@ -84,6 +88,7 @@ Sono dettagli normali in un class diagram di progetto; si riportano per complete
     - `BarraStatoAttivita` → `ElencoAttivita`, per il badge dello stato;
     - `GestoreErroriUI` → `ValidazioneException`, per mostrare gli errori sui campi;
     - `ConfigurazioneMPlan` → `PersistenzaException`, che avvolge gli errori di avvio del database;
+    - `FormAttivitaView` → `FormContattoView`, per le parti comuni dei form;
   - nel diagramma e non nel codice: `BarraStatoAttivita` → `ValidazioneException`. L'errore del motivo lo gestisce `DialogoAnnullamento`.
 - **Getter e setter**: quelli di `DatiContatto` e `DatiAttivita`. Nel diagramma i campi sono privati e i metodi d'accesso sono sottintesi.
 - **Membri privati di supporto**: costanti `LOGGER` e metodi privati di supporto in quasi tutte le classi. L'elenco è nelle note di ogni modulo (`mplan-*.md` in questa cartella).
