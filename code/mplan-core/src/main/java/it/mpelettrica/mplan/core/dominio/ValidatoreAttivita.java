@@ -46,7 +46,7 @@ public class ValidatoreAttivita implements Validatore<DatiAttivita> {
 
     private void controllaData(List<ErroreValidazione> errori, DatiAttivita dati) {
         if (dati.getData() == null) {
-            errori.add(new ErroreValidazione(CAMPO_DATA, "La data è obbligatoria"));
+            errori.add(new ErroreValidazione(CAMPO_DATA, "Data: campo obbligatorio"));
         }
     }
 }

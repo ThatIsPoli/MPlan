@@ -69,23 +69,23 @@ public class ValidatoreContatto implements Validatore<DatiContatto> {
 
     private void controllaNumero(List<ErroreValidazione> errori, String numero, Set<String> visti) {
         if (numero.isEmpty()) {
-            errori.add(new ErroreValidazione(CAMPO_TELEFONI, "Il numero di telefono non può essere vuoto"));
+            errori.add(new ErroreValidazione(CAMPO_TELEFONI, "Telefono: il numero non può essere vuoto"));
         } else if (numero.length() > MAX_TELEFONO) {
-            errori.add(new ErroreValidazione(CAMPO_TELEFONI, "Il numero di telefono \"" + numero
-                    + "\" non può superare i " + MAX_TELEFONO + " caratteri"));
+            errori.add(new ErroreValidazione(CAMPO_TELEFONI, "Telefono \"" + numero
+                    + "\": al massimo " + MAX_TELEFONO + " caratteri"));
         } else if (!visti.add(numero)) {
             errori.add(new ErroreValidazione(CAMPO_TELEFONI,
-                    "Il numero di telefono \"" + numero + "\" è ripetuto"));
+                    "Telefono \"" + numero + "\": numero ripetuto"));
         }
     }
 
     private void controllaCodiceFiscale(List<ErroreValidazione> errori, String codiceFiscale) {
         ControlliTesto.formato(errori, CAMPO_CODICE_FISCALE, codiceFiscale, FORMATO_CODICE_FISCALE,
-                "Il codice fiscale deve avere 16 caratteri alfanumerici oppure 11 cifre");
+                "Codice fiscale: 16 caratteri alfanumerici oppure 11 cifre");
     }
 
     private void controllaPartitaIva(List<ErroreValidazione> errori, String partitaIva) {
         ControlliTesto.formato(errori, CAMPO_PARTITA_IVA, partitaIva, FORMATO_PARTITA_IVA,
-                "La partita IVA deve avere 11 cifre");
+                "Partita IVA: 11 cifre");
     }
 }

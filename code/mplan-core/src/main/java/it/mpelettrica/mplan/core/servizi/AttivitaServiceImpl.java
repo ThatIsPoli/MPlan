@@ -267,10 +267,10 @@ public class AttivitaServiceImpl extends OsservabileAttivita implements Attivita
 
     private String problemaDelMotivo(String pulito) {
         if (pulito == null) {
-            return "Il motivo è obbligatorio";
+            return "Motivo: campo obbligatorio";
         }
         if (pulito.length() > MAX_MOTIVO) {
-            return "Il motivo non può superare i " + MAX_MOTIVO + " caratteri";
+            return "Motivo: al massimo " + MAX_MOTIVO + " caratteri";
         }
         return null;
     }
