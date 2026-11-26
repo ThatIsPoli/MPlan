@@ -207,7 +207,8 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
         TextField ricerca = new TextField();
         ricerca.addClassName("mplan-ricerca");
         ricerca.setAriaLabel("Cerca contatti");
-        ricerca.setPlaceholder("Cerca per nome, telefono, codice fiscale o partita IVA");
+        ricerca.setPlaceholder("Cerca contatti");
+        ricerca.setHelperText("Cerca per nome, telefono, codice fiscale o partita IVA.");
         ricerca.setPrefixComponent(VaadinIcon.SEARCH.create());
         ricerca.setClearButtonVisible(true);
         ricerca.setValueChangeMode(ValueChangeMode.LAZY);

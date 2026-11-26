@@ -572,3 +572,44 @@ vaadin-grid {
   font-size: var(--mplan-testo-piccolo);
   color: var(--mplan-colore-grafite);
 }
+
+/* ------------------------------------------------------------------ */
+/* Finestre strette: la pagina non esce dallo schermo                  */
+/* (MPlan e' pensata per il PC; qui si evita solo lo scorrimento       */
+/* orizzontale della pagina, la tabella scorre al proprio interno)     */
+/* ------------------------------------------------------------------ */
+
+@media (max-width: 600px) {
+  .mplan-pagina {
+    padding: var(--mplan-spazio-4);
+  }
+
+  .mplan-toolbar-azioni {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .mplan-menu {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  /* Il giorno va su una riga propria, sopra frecce, "Oggi" e "Vai a…" */
+  .mplan-etichetta-giorno {
+    order: -1;
+    flex: 1 1 100%;
+    min-width: 0;
+    text-align: left;
+  }
+
+  .mplan-tabella-contatti,
+  .mplan-ricerca,
+  .mplan-elenco-attivita {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .mplan-vai-a {
+    margin-left: 0;
+  }
+}
