@@ -30,4 +30,10 @@ Nessuna firma pubblica cambia. Il diagramma non mostra: le annotazioni, le costa
 
 ## Verifica
 
-Il codice è scritto ma non ancora compilato né avviato: la compilazione e le prove (avvio, secondo avvio, chiusura) si fanno quando gli altri moduli e i `pom.xml` sono pronti. Non ci sono test automatici in questo modulo (D8: la GUI e l'assemblaggio si collaudano a mano con le prove d'uso della specifica).
+Compilazione e pacchetto con `mvn -pl mplan-app -am package` (compresa la fase `build-frontend` di Vaadin): riusciti. Il jar eseguibile è stato avviato con un database di prova fuori dal repository.
+
+- Avvio in circa 2 secondi, risposta HTTP 200 su `http://127.0.0.1:8642`, pagina con tema chiaro.
+- Il file del database è stato creato con le tabelle `CONTATTO`, `TELEFONO_CONTATTO`, `ATTIVITA`, `VOCE_REGISTRO` e i tre indici.
+- Secondo avvio con la porta occupata: scrive nel log che MPlan è già aperto, apre il browser e termina con codice 0.
+- Il log è scritto in `MPlan/logs/mplan.log` nella cartella dell'utente. Nei log di avvio non compare Logback.
+- Non provato: il comando `chiudi` dalla Home (si prova a mano con le prove d'uso). Non ci sono test automatici in questo modulo (D8).
