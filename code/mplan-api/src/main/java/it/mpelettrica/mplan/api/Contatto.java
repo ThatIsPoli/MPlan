@@ -5,85 +5,42 @@
 */
 package it.mpelettrica.mplan.api;
 
-import java.util.*;
-import java.time.*;
-
-
-
-// ----------- << imports@AAAAAAABzCe4C6zPb8Q= >>
-// ----------- >>
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
-* Riferimento: contratto di mplan-api, da completare nel class diagram di mplan-api. Firme provvisorie. [DA COMPLETARE] altri campi anagrafici (DAT.1).
-*/
+ * Contatto della rubrica, cliente o cantiere (DAT.1). I dati non cambiano dopo la creazione.
+ *
+ * @param id identificativo del contatto, mai {@code null}
+ * @param nome nome o denominazione, mai {@code null}
+ * @param cognome cognome, {@code null} se assente
+ * @param indirizzo indirizzo, {@code null} se assente
+ * @param telefoni numeri di telefono: lista immutabile, mai {@code null}, vuota se non ce ne sono
+ * @param codiceFiscale codice fiscale, {@code null} se assente
+ * @param partitaIva partita IVA, {@code null} se assente
+ * @param tipo tipo del contatto, {@code null} se non indicato
+ */
+public record Contatto(
+        UUID id,
+        String nome,
+        String cognome,
+        String indirizzo,
+        List<String> telefoni,
+        String codiceFiscale,
+        String partitaIva,
+        TipoContatto tipo) {
 
-// ----------- << class.annotations@AAAAAAABzCe4C6zPb8Q= >>
-// ----------- >>
-public class Contatto {
-    // ----------- << attribute.annotations@AAAAAAABMIEf3Uoti/A= >>
-    // ----------- >>
-    private UUID id;
-
-    // ----------- << attribute.annotations@AAAAAAABk851LLZMVZ0= >>
-    // ----------- >>
-    private String nome;
-
-    // ----------- << attribute.annotations@AAAAAAGh5Gh0TrpptDI= >>
-    // ----------- >>
-    private String cognome;
-
-    // ----------- << attribute.annotations@AAAAAAGh5Gh1arpqI9c= >>
-    // ----------- >>
-    private String indirizzo;
-
-    // ----------- << attribute.annotations@AAAAAAGh5Gh3DrprMSE= >>
-    // ----------- >>
-    private List<String> telefoni;
-
-    // ----------- << attribute.annotations@AAAAAAGh5Gh3Mrps1iQ= >>
-    // ----------- >>
-    private String codiceFiscale;
-
-    // ----------- << attribute.annotations@AAAAAAGh5Gh4X7ptiwM= >>
-    // ----------- >>
-    private String partitaIva;
-
-    // ----------- << attribute.annotations@AAAAAAGh5Gh687puPEA= >>
-    // ----------- >>
-    private TipoContatto tipo;
-
-    private UUID getId() {
-        return id;
+    /**
+     * Crea un contatto e ne copia la lista dei telefoni in una lista immutabile.
+     *
+     * @throws NullPointerException se {@code id}, {@code nome} o {@code telefoni} sono
+     *     {@code null}, oppure se un numero di telefono è {@code null}
+     */
+    public Contatto {
+        Objects.requireNonNull(id, "id obbligatorio");
+        Objects.requireNonNull(nome, "nome obbligatorio");
+        Objects.requireNonNull(telefoni, "telefoni obbligatorio");
+        telefoni = List.copyOf(telefoni);
     }
-
-    private String getNome() {
-        return nome;
-    }
-
-    private String getCognome() {
-        return cognome;
-    }
-
-    private String getIndirizzo() {
-        return indirizzo;
-    }
-
-    private List<String> getTelefoni() {
-        return telefoni;
-    }
-
-    private String getCodiceFiscale() {
-        return codiceFiscale;
-    }
-
-    private String getPartitaIva() {
-        return partitaIva;
-    }
-
-    private TipoContatto getTipo() {
-        return tipo;
-    }
-
-// ----------- << class.extras@AAAAAAABzCe4C6zPb8Q= >>
-// ----------- >>
 }

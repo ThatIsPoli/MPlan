@@ -5,37 +5,24 @@
 */
 package it.mpelettrica.mplan.api;
 
-import java.util.*;
-import java.time.*;
+import java.util.Objects;
 
+/**
+ * Riga dell'agenda giornaliera: un'attività con il nome del suo contatto (GUI.7.1).
+ *
+ * @param nomeContatto nome del contatto, composto da nome e cognome (se presente) separati da
+ *     uno spazio; mai {@code null}
+ * @param attivita attività della riga, mai {@code null}
+ */
+public record VoceAgenda(String nomeContatto, Attivita attivita) {
 
-
-// ----------- << imports@AAAAAAGh5GiJo7p1HYM= >>
-// ----------- >>
-
-// ----------- << class.annotations@AAAAAAGh5GiJo7p1HYM= >>
-// ----------- >>
-public class VoceAgenda {
-    // ----------- << attribute.annotations@AAAAAAGh5GiNcbp3CDQ= >>
-    // ----------- >>
-    private String nomeContatto;
-
-    // ----------- << attribute.annotations@AAAAAAGh845/Lk733ao= >>
-    // ----------- >>
-    private Attivita attivita;
-
-    private String getNomeContatto() {
-        return nomeContatto;
+    /**
+     * Crea una riga dell'agenda.
+     *
+     * @throws NullPointerException se {@code nomeContatto} o {@code attivita} sono {@code null}
+     */
+    public VoceAgenda {
+        Objects.requireNonNull(nomeContatto, "nomeContatto obbligatorio");
+        Objects.requireNonNull(attivita, "attivita obbligatoria");
     }
-
-    private Attivita getAttivita() {
-        return attivita;
-    }
-
-    private void setAttivita(Attivita attivita) {
-        this.attivita = attivita;
-    }
-
-// ----------- << class.extras@AAAAAAGh5GiJo7p1HYM= >>
-// ----------- >>
 }

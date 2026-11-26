@@ -5,26 +5,23 @@
 */
 package it.mpelettrica.mplan.api;
 
-import java.util.*;
-import java.time.*;
-
-
-
-// ----------- << imports@AAAAAAABmenuwOXVK4g= >>
-// ----------- >>
-
 /**
-* Riferimento: contratto di mplan-api, da completare nel class diagram di mplan-api. Firme provvisorie.
-*/
-
-// ----------- << class.annotations@AAAAAAABmenuwOXVK4g= >>
-// ----------- >>
+ * Stato di avanzamento di un'attività (FUN.6, DAT.3).
+ *
+ * <p>Le transizioni ammesse tra gli stati non sono definite qui: sono una regola
+ * applicata dal modulo core.
+ */
 public enum StatoAttivita {
-    DA_FARE,
-    PARZIALE,
-    COMPLETATA,
-    ANNULLATA;
 
-// ----------- << enum.extras@AAAAAAABmenuwOXVK4g= >>
-// ----------- >>
+    /** Attività creata e non ancora iniziata: è lo stato iniziale. */
+    DA_FARE,
+
+    /** Attività iniziata ma non ancora conclusa. */
+    PARZIALE,
+
+    /** Attività conclusa. */
+    COMPLETATA,
+
+    /** Attività annullata in modo permanente, con il motivo dell'annullamento. */
+    ANNULLATA
 }

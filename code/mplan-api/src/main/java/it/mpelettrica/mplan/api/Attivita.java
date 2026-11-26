@@ -5,93 +5,48 @@
 */
 package it.mpelettrica.mplan.api;
 
-import java.util.*;
-import java.time.*;
-
-
-
-// ----------- << imports@AAAAAAABxruMipu/nMc= >>
-// ----------- >>
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
-* Riferimento: contratto di mplan-api, da completare nel class diagram di mplan-api. Firme provvisorie.
-*/
+ * Attività svolta o da svolgere per un contatto (DAT.2, DAT.3). I dati non cambiano dopo la
+ * creazione: ogni modifica passa da un metodo di {@link AttivitaService}.
+ *
+ * @param id identificativo dell'attività, mai {@code null}
+ * @param idContatto identificativo del contatto a cui appartiene, mai {@code null}
+ * @param titolo titolo, mai {@code null}
+ * @param data giorno dell'attività, mai {@code null}
+ * @param ora orario indicativo di inizio, {@code null} se non indicato (DAT.2.3)
+ * @param descrizione descrizione, {@code null} se assente
+ * @param note note e materiali, {@code null} se assenti
+ * @param stato stato corrente, mai {@code null}
+ * @param motivoAnnullamento motivo dell'annullamento, {@code null} finché l'attività non è
+ *     annullata (DAT.3.1)
+ */
+public record Attivita(
+        UUID id,
+        UUID idContatto,
+        String titolo,
+        LocalDate data,
+        LocalTime ora,
+        String descrizione,
+        String note,
+        StatoAttivita stato,
+        String motivoAnnullamento) {
 
-// ----------- << class.annotations@AAAAAAABxruMipu/nMc= >>
-// ----------- >>
-public class Attivita {
-    // ----------- << attribute.annotations@AAAAAAAB57Sgo9PttXk= >>
-    // ----------- >>
-    private UUID id;
-
-    // ----------- << attribute.annotations@AAAAAAABNOeEVCBjJvw= >>
-    // ----------- >>
-    private UUID idContatto;
-
-    // ----------- << attribute.annotations@AAAAAAABkokabvlE7sc= >>
-    // ----------- >>
-    private String titolo;
-
-    // ----------- << attribute.annotations@AAAAAAAB3YouilfCIeY= >>
-    // ----------- >>
-    private LocalDate data;
-
-    // ----------- << attribute.annotations@AAAAAAABkg0yRrw9DdA= >>
-    // ----------- >>
-    private LocalTime ora;
-
-    // ----------- << attribute.annotations@AAAAAAABta696l9y7Nk= >>
-    // ----------- >>
-    private String descrizione;
-
-    // ----------- << attribute.annotations@AAAAAAABkxMCKXqdLBA= >>
-    // ----------- >>
-    private String note;
-
-    // ----------- << attribute.annotations@AAAAAAABr2DO8hUOiFk= >>
-    // ----------- >>
-    private StatoAttivita stato;
-
-    // ----------- << attribute.annotations@AAAAAAABUrhx/DaHYWg= >>
-    // ----------- >>
-    private String motivoAnnullamento;
-
-    private UUID getId() {
-        return id;
+    /**
+     * Crea un'attività controllando solo i campi obbligatori; nessuna regola di dominio.
+     *
+     * @throws NullPointerException se {@code id}, {@code idContatto}, {@code titolo},
+     *     {@code data} o {@code stato} sono {@code null}
+     */
+    public Attivita {
+        Objects.requireNonNull(id, "id obbligatorio");
+        Objects.requireNonNull(idContatto, "idContatto obbligatorio");
+        Objects.requireNonNull(titolo, "titolo obbligatorio");
+        Objects.requireNonNull(data, "data obbligatoria");
+        Objects.requireNonNull(stato, "stato obbligatorio");
     }
-
-    private UUID getIdContatto() {
-        return idContatto;
-    }
-
-    private String getTitolo() {
-        return titolo;
-    }
-
-    private LocalDate getData() {
-        return data;
-    }
-
-    private LocalTime getOra() {
-        return ora;
-    }
-
-    private String getDescrizione() {
-        return descrizione;
-    }
-
-    private String getNote() {
-        return note;
-    }
-
-    private StatoAttivita getStato() {
-        return stato;
-    }
-
-    private String getMotivoAnnullamento() {
-        return motivoAnnullamento;
-    }
-
-// ----------- << class.extras@AAAAAAABxruMipu/nMc= >>
-// ----------- >>
 }
