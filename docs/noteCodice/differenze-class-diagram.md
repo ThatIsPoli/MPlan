@@ -49,6 +49,8 @@ Le quattro classi iniziali sono state approvate prima dell'implementazione; `Vis
 | `ui.navigazione.Navigatore` | `public void indietroOppureScheda(UUID)` | "Indietro" dal Form attività aperto da indirizzo diretto, senza schermata di provenienza: torna alla Scheda del contatto dell'attività e non alla Home. |
 | `ui.schermate.FormContattoView` | `static` package-private `mostraErroriSuiCampi`, `pulisciErroriSuiCampi`, `creaTitoloSezione`, `creaSezione`, `creaRiquadroForm` | Parti comuni ai due form, riusate da `FormAttivitaView` invece di ripeterle. Non serve una classe nuova. |
 | `ui.schermate.HomeView` | `static String nomeTipo(TipoContatto)` (package-private) | Testo in italiano del tipo di contatto, riusato da scheda e form contatto. |
+| `ui.schermate.HomeView` | `static String nomeCompleto(Contatto)` (package-private) | Nome e cognome del contatto in un solo punto, usato da Home, scheda e form attività. |
+| `ui.componenti.LocalizzazioneDate` | `public static final Locale ITALIANO` | Lingua italiana usata da date, ore e ricerca della Home, senza ridefinirla altrove. |
 | `ui.componenti.ElencoAttivita` | `static Badge creaBadgeStato(StatoAttivita)` (package-private) | Badge colorato dello stato, riusato da `BarraStatoAttivita`. |
 | `ui.infrastruttura.GestoreErroriUI` | `static String nuovoCodice()`, `static String messaggioPer(Throwable)` (package-private) | Codice dell'errore e messaggio per l'utente, condivisi con `VistaErrore`. |
 | `app.MPlanApplication` | `static URI costruisciUri(String, int)` (package-private) | Indirizzo locale dell'app, usato sia al primo sia al secondo avvio. |
@@ -70,6 +72,7 @@ Il diagramma è già allineato: il campo è stato tolto anche da `mplan.mdj`.
 | `ui.schermate.FormContattoView` | `- validaCampi(): List<ErroreValidazione>` | `- validaCampi(DatiContatto): List<ErroreValidazione>` | Come sopra. |
 | `ui.schermate.FormAttivitaView` | `- caricaAttivita(UUID): void` | `- caricaAttivita(UUID): boolean` | Restituisce `false` se l'attività non esiste, così `beforeEnter` rimanda alla Home senza costruire la schermata. |
 | `ui.schermate.SchedaContattoView` | `- caricaScheda(): void` | `- caricaScheda(): boolean` | Come sopra, per il contatto. |
+| `ui.schermate.FormAttivitaView` | `+ FormAttivitaView(AttivitaService, AgendaService, Navigatore)` | `+ FormAttivitaView(AttivitaService, AgendaService, ContattoService, Navigatore)` | Serve il contatto dell'attività: per controllare che esista quando si apre "Nuova attività" da indirizzo diretto e per mostrarne il nome nel titolo del form. Nessun servizio dell'api restituisce il contatto a partire dall'attività. Spring inietta il servizio in più senza altre modifiche. Il costruttore è pubblico, quindi va aggiornato nel diagramma. |
 | `ui.schermate.FormAttivitaView` | `- campoOra: TimePicker` | `- campoOra: TextField` | Con un'ora fuori scala, ad esempio "25:99", il `TimePicker` di Vaadin 25.3 mostra un altro orario mentre il valore resta vuoto, così l'attività si salverebbe senza ora. Un `TextField` con un convertitore `hh:mm` dà un errore sul campo (DAT.5). |
 | `ui.schermate.SchedaContattoView` | `- riquadroDati: Div` | `- riquadroDati: Card` | `Card` è il componente di Vaadin 25 per i riquadri: dà già bordo, ombra e raggio del tema, senza stile scritto a mano. |
 
@@ -88,6 +91,7 @@ Sono dettagli normali in un class diagram di progetto; si riportano per complete
     - `BarraStatoAttivita` → `ElencoAttivita`, per il badge dello stato;
     - `GestoreErroriUI` → `ValidazioneException`, per mostrare gli errori sui campi;
     - `ConfigurazioneMPlan` → `PersistenzaException`, che avvolge gli errori di avvio del database;
+    - `FormAttivitaView` → `ContattoService`, vedi il costruttore nella sezione 3;
     - `FormAttivitaView` → `FormContattoView`, per le parti comuni dei form;
   - nel diagramma e non nel codice: `BarraStatoAttivita` → `ValidazioneException`. L'errore del motivo lo gestisce `DialogoAnnullamento`.
 - **Getter e setter**: quelli di `DatiContatto` e `DatiAttivita`. Nel diagramma i campi sono privati e i metodi d'accesso sono sottintesi.
