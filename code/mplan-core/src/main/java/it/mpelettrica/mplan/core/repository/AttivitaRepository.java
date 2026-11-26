@@ -5,56 +5,54 @@
 */
 package it.mpelettrica.mplan.core.repository;
 
-import java.util.*;
-import java.time.*;
-
-
-
-// ----------- << imports@AAAAAAABQuziJSq9ZKk= >>
-// ----------- >>
+import it.mpelettrica.mplan.api.Attivita;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
-* Implementata da mplan-persistence. Nessun metodo di eliminazione (FUN.12.2).
-*/
-
-// ----------- << class.annotations@AAAAAAABQuziJSq9ZKk= >>
-// ----------- >>
+ * Salvataggio e lettura delle attività. Implementata da mplan-persistence.
+ * Non ha nessun metodo di eliminazione: le attività non si cancellano mai (FUN.12.2).
+ * Le liste restituite non sono ordinate: l'ordine lo decide il core.
+ */
 public interface AttivitaRepository {
-    /**
-    * @param id
-    */
 
-    // ----------- << method.annotations@AAAAAAABO3etu9lERXs= >>
-    // ----------- >>
+    /**
+     * Cerca un'attività per identificativo.
+     *
+     * @param id identificativo dell'attività
+     * @return l'attività, o un {@code Optional} vuoto se non esiste
+     */
     Optional<Attivita> trova(UUID id);
-    /**
-    * @param idContatto
-    */
 
-    // ----------- << method.annotations@AAAAAAABf+ozdUzdDz0= >>
-    // ----------- >>
+    /**
+     * Restituisce tutte le attività di un contatto, di qualunque stato e data.
+     *
+     * @param idContatto identificativo del contatto
+     * @return le attività del contatto; vuota se non ce ne sono
+     */
     List<Attivita> perContatto(UUID idContatto);
-    /**
-    * @param giorno
-    */
 
-    // ----------- << method.annotations@AAAAAAABEWWpVlemAII= >>
-    // ----------- >>
+    /**
+     * Restituisce le attività di tutti i contatti in un giorno.
+     *
+     * @param giorno giorno richiesto
+     * @return le attività del giorno; vuota se non ce ne sono
+     */
     List<Attivita> perGiorno(LocalDate giorno);
-    /**
-    * @param attivita
-    */
 
-    // ----------- << method.annotations@AAAAAAAB85QQ/kQZxII= >>
-    // ----------- >>
+    /**
+     * Salva un'attività nuova.
+     *
+     * @param attivita attività da salvare
+     */
     void aggiungi(Attivita attivita);
-    /**
-    * @param attivita
-    */
 
-    // ----------- << method.annotations@AAAAAAABFOLCpBpaKS0= >>
-    // ----------- >>
+    /**
+     * Aggiorna un'attività già salvata.
+     *
+     * @param attivita attività con i dati aggiornati
+     */
     void aggiorna(Attivita attivita);
-// ----------- << interface.extras@AAAAAAABQuziJSq9ZKk= >>
-// ----------- >>
 }

@@ -5,35 +5,29 @@
 */
 package it.mpelettrica.mplan.core.repository;
 
-import java.util.*;
-import java.time.*;
-
-
-
-// ----------- << imports@AAAAAAABHa4UCMBkJWo= >>
-// ----------- >>
+import java.util.function.Supplier;
 
 /**
-* Astrazione delle transazioni (D5). Implementata da mplan-persistence.
-*/
-
-// ----------- << class.annotations@AAAAAAABHa4UCMBkJWo= >>
-// ----------- >>
+ * Astrazione delle transazioni (D5). Implementata da mplan-persistence.
+ * Se l'operazione lancia un'eccezione non controllata, la transazione viene annullata
+ * e la stessa eccezione viene rilanciata invariata; solo i guasti del database diventano
+ * {@code PersistenzaException}.
+ */
 public interface GestoreTransazioni {
-    /**
-    * @param operazione
-    */
 
-    // ----------- << method.annotations@AAAAAAABBtjCFVN2bTY= >>
-    // ----------- >>
+    /**
+     * Esegue un'operazione senza risultato come blocco unico.
+     *
+     * @param operazione operazione da eseguire
+     */
     void inTransazione(Runnable operazione);
-    /**
-    * @param operazione
-    */
 
-    // ----------- << method.annotations@AAAAAAABaKr+OmVw/po= >>
-    // ----------- >>
-    T inTransazione(Supplier<T> operazione);
-// ----------- << interface.extras@AAAAAAABHa4UCMBkJWo= >>
-// ----------- >>
+    /**
+     * Esegue un'operazione con risultato come blocco unico.
+     *
+     * @param <T> tipo del risultato
+     * @param operazione operazione da eseguire
+     * @return il risultato dell'operazione
+     */
+    <T> T inTransazione(Supplier<T> operazione);
 }
