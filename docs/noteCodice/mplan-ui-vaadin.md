@@ -50,6 +50,7 @@ Le classi file per file:
 Classi nuove, approvate:
 
 - **`infrastruttura/VistaErrore`.** Implementa `HasErrorParameter<Exception>` e sostituisce la pagina d'errore di Vaadin, che mostrerebbe il testo dell'eccezione. Gestisce gli errori durante l'apertura di una schermata: messaggio comprensibile, codice per il log e pulsante "Torna alla Home".
+- **`infrastruttura/VistaPaginaNonTrovata`.** Implementa `HasErrorParameter<NotFoundException>` e sostituisce la pagina predefinita di Vaadin, in inglese, per gli indirizzi che non corrispondono a nessuna schermata. Serve una classe separata da `VistaErrore` perché Vaadin sceglie il gestore dell'eccezione più specifica: per `NotFoundException` vincerebbe `RouteNotFoundError` di Vaadin. Mostra "Pagina non trovata" e il pulsante "Torna alla Home", scrive nel log un WARN con il percorso e restituisce 404.
 - **`componenti/LocalizzazioneDate`.** Raccoglie la localizzazione italiana di `DatePicker` e `TimePicker`: mesi, giorni, lunedì come primo giorno, formato `gg/mm/aaaa`, passo di 15 minuti e messaggi per l'input non valido. Contiene anche la formattazione di date e ore.
 
 Tema grafico:
@@ -59,7 +60,10 @@ Tema grafico:
   2. i token `--mplan-*` presi da `DESIGN.md` (colori, tipografia, raggi 4/8/16 px, spaziatura 4–80 px, ombre);
   3. la mappatura sulle proprietà di Aura e sulle `--vaadin-*` di input, pulsanti, badge, card e dialog;
   4. le regole sui componenti: pulsanti maiuscoli alti 44 px, secondario con contorno, campi con bordo inchiostro al focus, tabella con hairline;
-  5. le classi semantiche `mplan-*`.
+  5. le classi semantiche `mplan-*`;
+  6. un blocco `@media (max-width: 600px)` per le finestre strette: padding ridotto, intestazioni che vanno a capo e nessun `min-width` fisso. La pagina non scorre più in orizzontale; la tabella dei contatti scorre al proprio interno.
+- **`mplan-tema/icona.svg`.** Icona dell'applicazione (quadrato blu primario con una "M" bianca), servita localmente. La attiva `MPlanApplication.configurePage` con `addFavIcon` (mplan-app).
+- Il segnaposto della ricerca nella Home è "Cerca contatti"; la spiegazione dei campi cercati è nel testo di aiuto (`setHelperText`).
 
 ## Scelte non ovvie
 
@@ -74,7 +78,7 @@ Tema grafico:
 
 ## Deviazioni dal diagramma
 
-- Classi aggiunte: `infrastruttura.VistaErrore` e `componenti.LocalizzazioneDate` (approvate).
+- Classi aggiunte: `infrastruttura.VistaErrore`, `infrastruttura.VistaPaginaNonTrovata` e `componenti.LocalizzazioneDate` (approvate).
 - Rispetto allo scheletro sono cambiati solo membri privati:
   - `ElencoAttivita.creaRiga(UUID, String, StatoAttivita)` è diventato `creaRiga(VoceElenco)` e restituisce un `Component`;
   - `SchedaContattoView.riquadroDati` passa da `Div` a `Card`;
@@ -89,4 +93,10 @@ Tema grafico:
 
 - Simboli Vaadin 25.3 verificati con il server MCP di Vaadin (javadoc 25.3.5): `Badge`, `Card`, `VirtualList`, `FormLayout`, `Binder`, i18n di `DatePicker` e `TimePicker`, `HasAriaRole`, `Focusable`, `Shortcuts`, `GridVariant`, `NotificationVariant`, `HasErrorParameter`, `StyleSheet`, `ColorScheme` e `Aura.STYLESHEET`.
 - Compilazione dei sorgenti con `javac --release 27` (JDK 27) sul classpath di Maven del modulo, più l'API servlet: nessun errore e nessun avviso di deprecazione.
+- Verifica a runtime (jar di mplan-app, database nella scratchpad, Edge headless con Playwright):
+  - `/pagina-che-non-esiste` mostra "Pagina non trovata" in italiano e "Torna alla Home" riporta a `/`;
+  - a 390 px Home, nuovo contatto e agenda hanno `scrollWidth` uguale alla larghezza della finestra, quindi nessuno scorrimento orizzontale;
+  - a 1280 px l'aspetto non cambia;
+  - `/mplan-tema/icona.svg` risponde 200 con tipo `image/svg+xml`.
+  - L'unico errore rimasto nella console è il 404 di `/favicon.ico`, che sparisce quando mplan-app aggiunge il `<link rel="icon">`.
 - Nessun test, come stabilito.
