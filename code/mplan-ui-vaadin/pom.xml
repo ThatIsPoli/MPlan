@@ -23,6 +23,17 @@
             <artifactId>mplan-api</artifactId>
         </dependency>
 
+        <!-- Vaadin Flow: componenti e tema Aura (Design D7); versione dal BOM del pom padre -->
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-core</artifactId>
+        </dependency>
+        <!-- Integrazione con Spring: @UIScope per il Navigatore e bean della GUI -->
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-spring</artifactId>
+        </dependency>
+
         <!-- Log4j API -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
