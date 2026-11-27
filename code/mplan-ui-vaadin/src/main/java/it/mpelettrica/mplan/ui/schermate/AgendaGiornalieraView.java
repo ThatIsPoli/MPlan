@@ -10,7 +10,6 @@ import java.time.LocalDate;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.card.Card;
-import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -25,29 +24,30 @@ import com.vaadin.flow.router.Route;
 import it.mpelettrica.mplan.api.AgendaService;
 import it.mpelettrica.mplan.ui.componenti.ElencoAttivita;
 import it.mpelettrica.mplan.ui.componenti.LocalizzazioneDate;
+import it.mpelettrica.mplan.ui.componenti.SelettoreData;
+import it.mpelettrica.mplan.ui.infrastruttura.LayoutPrincipale;
 import it.mpelettrica.mplan.ui.navigazione.Navigatore;
 
 /**
  * Agenda giornaliera: le attivita' di tutti i contatti in un giorno (GUI.7, FUN.10, FUN.11).
  * <p>
  * Si apre sul giorno corrente (FUN.10.4); si passa al giorno precedente o successivo con le frecce
- * (FUN.10.1) o si salta a una data con "Vai a…", accanto alle frecce (GUI.7.3). Una data vuota o
- * scritta male mostra l'errore sul campo e lascia il giorno visualizzato (DAT.5). Tornando
- * all'agenda da un'attivita' si ritrova lo stesso giorno.
+ * (FUN.10.1) oppure si salta a una data con "Vai a…", scrivendola nel formato {@code gg/mm/aaaa}
+ * o scegliendola dal calendario a comparsa (GUI.7.3). Una data vuota o scritta male mostra
+ * l'errore sul campo e lascia il giorno visualizzato (DAT.5). Tornando all'agenda da un'attivita'
+ * si ritrova lo stesso giorno.
  */
-@Route(Navigatore.ROTTA_AGENDA)
+@Route(value = Navigatore.ROTTA_AGENDA, layout = LayoutPrincipale.class)
 @PageTitle("MPlan – Agenda giornaliera")
 public class AgendaGiornalieraView extends VerticalLayout implements BeforeEnterObserver {
 
     private static final long serialVersionUID = 1L;
 
-    private static final String DATA_NON_VALIDA = "Data non valida: usa il formato gg/mm/aaaa.";
-
     private LocalDate giornoCorrente;
 
     private final Span etichettaGiorno;
 
-    private final DatePicker selettoreData;
+    private final SelettoreData selettoreData;
 
     private final AgendaService agendaService;
 
@@ -69,7 +69,6 @@ public class AgendaGiornalieraView extends VerticalLayout implements BeforeEnter
         this.elencoAttivita = new ElencoAttivita(navigatore::vaiAApriAttivita);
         configuraPagina();
         add(creaIntestazione(), creaBarraGiorno(), elencoAttivita);
-        expand(elencoAttivita);
     }
 
     /**
@@ -107,7 +106,7 @@ public class AgendaGiornalieraView extends VerticalLayout implements BeforeEnter
     private void vaiAData() {
         LocalDate scelta = selettoreData.getValue();
         if (scelta == null) {
-            selettoreData.setErrorMessage(DATA_NON_VALIDA);
+            selettoreData.setErrorMessage(LocalizzazioneDate.DATA_NON_VALIDA);
             selettoreData.setInvalid(true);
             return;
         }
@@ -116,7 +115,6 @@ public class AgendaGiornalieraView extends VerticalLayout implements BeforeEnter
 
     private void configuraPagina() {
         addClassName("mplan-pagina");
-        setSizeFull();
         setPadding(false);
         setSpacing(false);
     }
@@ -140,16 +138,22 @@ public class AgendaGiornalieraView extends VerticalLayout implements BeforeEnter
         precedente.setAriaLabel("Giorno precedente");
         precedente.setTooltipText("Giorno precedente");
 
+        Button oggi = new Button("Oggi", evento -> caricaGiorno(agendaService.oggi()));
+
         Button successivo = new Button(VaadinIcon.ANGLE_RIGHT.create(), evento -> giornoSuccessivo());
         successivo.setAriaLabel("Giorno successivo");
         successivo.setTooltipText("Giorno successivo");
 
-        Button oggi = new Button("Oggi", evento -> caricaGiorno(agendaService.oggi()));
-        oggi.addThemeVariants(ButtonVariant.TERTIARY);
+        HorizontalLayout controlliGiorno = new HorizontalLayout(precedente, oggi, successivo);
+        controlliGiorno.addClassName("mplan-giorno-controlli");
+        controlliGiorno.setPadding(false);
+        controlliGiorno.setSpacing(false);
+        controlliGiorno.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        HorizontalLayout barra = new HorizontalLayout(precedente, etichettaGiorno, successivo, selettoreData, oggi);
+        HorizontalLayout barra = new HorizontalLayout(controlliGiorno, etichettaGiorno, selettoreData);
         barra.addClassName("mplan-giorno");
         barra.setSpacing(false);
+        barra.setAlignItems(FlexComponent.Alignment.CENTER);
         Card riquadro = new Card();
         riquadro.addClassName("mplan-card-giorno");
         riquadro.add(barra);
@@ -168,14 +172,11 @@ public class AgendaGiornalieraView extends VerticalLayout implements BeforeEnter
         return etichetta;
     }
 
-    private DatePicker creaSelettoreData() {
-        DatePicker selettore = new DatePicker();
+    private SelettoreData creaSelettoreData() {
+        SelettoreData selettore = new SelettoreData(agendaService::oggi);
         selettore.addClassName("mplan-vai-a");
-        selettore.setAriaLabel("Vai a una data");
-        selettore.setPrefixComponent(creaPrefissoVaiA());
-        LocalizzazioneDate.applica(selettore);
-        // La validazione la fa vaiAData: quella automatica toglierebbe l'errore di una data svuotata
-        selettore.setManualValidation(true);
+        selettore.impostaAriaLabel("Vai a una data");
+        selettore.impostaPrefisso(creaPrefissoVaiA());
         selettore.addValueChangeListener(evento -> {
             if (evento.isFromClient()) {
                 vaiAData();
