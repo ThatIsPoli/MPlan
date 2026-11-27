@@ -45,7 +45,7 @@ public class MPlanApplication implements AppShellConfigurator {
 
     private static final String PROPRIETA_PORTA = "server.port";
 
-    private static final String ICONA = "mplan-tema/icona.svg";
+    private static final String ICONA = "mplan-tema/icona.png";
 
     /**
      * Avvia MPlan. La grafica resta attiva, perché senza Java non può aprire il browser.
@@ -72,7 +72,7 @@ public class MPlanApplication implements AppShellConfigurator {
      */
     @Override
     public void configurePage(AppShellSettings impostazioni) {
-        impostazioni.addFavIcon("icon", ICONA, "any");
+        impostazioni.addFavIcon("icon", ICONA, "1254x1254");
     }
 
     /**
