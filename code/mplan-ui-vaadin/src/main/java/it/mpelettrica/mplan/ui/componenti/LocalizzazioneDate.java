@@ -3,8 +3,11 @@ package it.mpelettrica.mplan.ui.componenti;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,8 +18,8 @@ import com.vaadin.flow.data.binder.Result;
 import com.vaadin.flow.data.converter.Converter;
 
 /**
- * Raccoglie la localizzazione italiana del selettore di data, la lettura degli orari scritti
- * dall'utente e la formattazione delle date e degli orari mostrati nelle schermate.
+ * Raccoglie la localizzazione italiana del selettore di data, la lettura delle date e degli
+ * orari scritti dall'utente e la formattazione delle date e degli orari mostrati nelle schermate.
  * <p>
  * Evita di ripetere in ogni schermata i nomi dei mesi, dei giorni, i formati
  * {@code gg/mm/aaaa} e {@code hh:mm} e i messaggi per l'input non interpretabile (DAT.5).
@@ -24,14 +27,20 @@ import com.vaadin.flow.data.converter.Converter;
  */
 public final class LocalizzazioneDate {
 
-    /** Formato delle date mostrato e accettato dai selettori. */
+    /** Formato delle date mostrato dai selettori. */
     private static final String FORMATO_DATA = "dd/MM/yyyy";
+
+    /** Messaggio mostrato per una data scritta male o inesistente (DAT.2.2, DAT.5). */
+    public static final String DATA_NON_VALIDA = "Data non valida: usa il formato gg/mm/aaaa.";
 
     /** Locale italiano usato in tutta l'interfaccia. */
     public static final Locale ITALIANO = Locale.ITALY;
 
     private static final DateTimeFormatter FORMATO_DATA_BREVE =
             DateTimeFormatter.ofPattern(FORMATO_DATA, ITALIANO);
+
+    private static final DateTimeFormatter FORMATO_DATA_INPUT =
+            DateTimeFormatter.ofPattern("d/M/uuuu", ITALIANO).withResolverStyle(ResolverStyle.STRICT);
 
     private static final DateTimeFormatter FORMATO_DATA_ESTESA =
             DateTimeFormatter.ofPattern("EEEE dd/MM/yyyy", ITALIANO);
@@ -61,7 +70,7 @@ public final class LocalizzazioneDate {
     }
 
     /**
-     * Applica la localizzazione italiana a un selettore di data: nomi dei mesi e dei giorni,
+     * Applica la localizzazione italiana a un {@link DatePicker}: nomi dei mesi e dei giorni,
      * settimana che inizia il lunedi', formato {@code gg/mm/aaaa} e messaggio per una data
      * scritta male.
      *
@@ -71,6 +80,42 @@ public final class LocalizzazioneDate {
         selettore.setLocale(ITALIANO);
         selettore.setI18n(creaI18nData());
         selettore.setPlaceholder("gg/mm/aaaa");
+    }
+
+    /**
+     * Interpreta una data scritta dall'utente nel formato {@code gg/mm/aaaa} (accettando anche
+     * giorno o mese a una cifra).
+     *
+     * @param testo il testo digitato; puo' essere {@code null} o vuoto
+     * @return la data se valida, oppure vuoto se non interpretabile
+     */
+    public static Optional<LocalDate> parseData(String testo) {
+        if (testo == null || testo.isBlank()) {
+            return Optional.empty();
+        }
+        try {
+            return Optional.of(LocalDate.parse(testo.strip(), FORMATO_DATA_INPUT));
+        } catch (DateTimeParseException e) {
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Restituisce i nomi italiani dei mesi (da gennaio a dicembre).
+     *
+     * @return lista immutabile di 12 mesi
+     */
+    public static List<String> mesi() {
+        return MESI;
+    }
+
+    /**
+     * Restituisce le abbreviazioni italiane dei giorni della settimana (da domenica a sabato).
+     *
+     * @return lista immutabile di 7 abbreviazioni
+     */
+    public static List<String> giorniBrevi() {
+        return GIORNI_BREVI;
     }
 
     /**
@@ -137,7 +182,7 @@ public final class LocalizzazioneDate {
                 .setToday("Oggi")
                 .setCancel("Annulla")
                 .setDialogAccessibleName("Calendario")
-                .setBadInputErrorMessage("Data non valida: usa il formato gg/mm/aaaa.")
+                .setBadInputErrorMessage(DATA_NON_VALIDA)
                 .setRequiredErrorMessage("Inserisci una data.");
     }
 
