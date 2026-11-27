@@ -5,6 +5,7 @@
 */
 package it.mpelettrica.mplan.ui.schermate;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -25,17 +26,19 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import it.mpelettrica.mplan.api.Attivita;
 import it.mpelettrica.mplan.api.AttivitaService;
 import it.mpelettrica.mplan.api.Contatto;
 import it.mpelettrica.mplan.api.ContattoService;
 import it.mpelettrica.mplan.ui.componenti.ElencoAttivita;
+import it.mpelettrica.mplan.ui.infrastruttura.LayoutPrincipale;
 import it.mpelettrica.mplan.ui.navigazione.Navigatore;
 
 /**
  * Scheda di un contatto: in alto il nome e i soli dati compilati, subito sotto lo storico delle
  * attivita' (GUI.4, FUN.9), con i pulsanti per modificare il contatto o aggiungere un'attivita'.
  */
-@Route(Navigatore.ROTTA_SCHEDA_CONTATTO)
+@Route(value = Navigatore.ROTTA_SCHEDA_CONTATTO, layout = LayoutPrincipale.class)
 @PageTitle("MPlan – Scheda contatto")
 public class SchedaContattoView extends VerticalLayout implements BeforeEnterObserver {
 
@@ -59,6 +62,8 @@ public class SchedaContattoView extends VerticalLayout implements BeforeEnterObs
 
     private final ElencoAttivita elencoAttivita;
 
+    private final Span contatoreStorico;
+
     /**
      * Crea la scheda del contatto; i dati vengono caricati all'ingresso nella schermata.
      *
@@ -75,9 +80,9 @@ public class SchedaContattoView extends VerticalLayout implements BeforeEnterObs
         this.grigliaDati = creaGrigliaDati();
         this.riquadroDati = creaRiquadroDati();
         this.elencoAttivita = new ElencoAttivita(navigatore::vaiAApriAttivita);
+        this.contatoreStorico = creaContatoreStorico();
         configuraPagina();
-        add(creaIntestazione(), riquadroDati, creaTitoloStorico(), elencoAttivita);
-        expand(elencoAttivita);
+        add(creaIntestazione(), riquadroDati, creaIntestazioneStorico(), elencoAttivita);
     }
 
     /**
@@ -107,8 +112,20 @@ public class SchedaContattoView extends VerticalLayout implements BeforeEnterObs
             return false;
         }
         mostraDatiContatto(contatto.get());
-        elencoAttivita.mostraStorico(attivitaService.storico(idContatto));
+        List<Attivita> storico = attivitaService.storico(idContatto);
+        aggiornaContatoreStorico(storico.size());
+        elencoAttivita.mostraStorico(storico);
         return true;
+    }
+
+    private void aggiornaContatoreStorico(int totale) {
+        if (totale == 0) {
+            contatoreStorico.setVisible(false);
+            contatoreStorico.setText("");
+            return;
+        }
+        contatoreStorico.setVisible(true);
+        contatoreStorico.setText(totale == 1 ? "1 attività" : totale + " attività");
     }
 
     /**
@@ -142,7 +159,6 @@ public class SchedaContattoView extends VerticalLayout implements BeforeEnterObs
 
     private void configuraPagina() {
         addClassName("mplan-pagina");
-        setSizeFull();
         setPadding(false);
         setSpacing(false);
     }
@@ -189,9 +205,21 @@ public class SchedaContattoView extends VerticalLayout implements BeforeEnterObs
         return card;
     }
 
-    private static H2 creaTitoloStorico() {
+    private HorizontalLayout creaIntestazioneStorico() {
         H2 storico = new H2("Storico attività");
         storico.addClassName("mplan-titolo-sezione");
-        return storico;
+        HorizontalLayout intestazione = new HorizontalLayout(storico, contatoreStorico);
+        intestazione.addClassName("mplan-titolo-sezione-gruppo");
+        intestazione.setPadding(false);
+        intestazione.setSpacing(false);
+        intestazione.setAlignItems(FlexComponent.Alignment.CENTER);
+        return intestazione;
+    }
+
+    private static Span creaContatoreStorico() {
+        Span contatore = new Span();
+        contatore.addClassName("mplan-sezione-contatore");
+        contatore.setVisible(false);
+        return contatore;
     }
 }
