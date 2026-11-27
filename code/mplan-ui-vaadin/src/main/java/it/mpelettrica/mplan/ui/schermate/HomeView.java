@@ -20,7 +20,6 @@ import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -31,41 +30,41 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-import it.mpelettrica.mplan.api.ChiusuraApplicazione;
 import it.mpelettrica.mplan.api.Contatto;
 import it.mpelettrica.mplan.api.ContattoService;
 import it.mpelettrica.mplan.api.TipoContatto;
 import it.mpelettrica.mplan.ui.componenti.LocalizzazioneDate;
+import it.mpelettrica.mplan.ui.infrastruttura.LayoutPrincipale;
 import it.mpelettrica.mplan.ui.navigazione.Navigatore;
 
 /**
- * Schermata principale: la rubrica con la ricerca (GUI.2) e tre pulsanti sempre visibili:
- * "Nuovo contatto" (GUI.2.1), "Agenda giornaliera" (GUI.2.2) e "Chiudi applicazione", che
- * realizza l'evento {@code chiudi} dalla Home (Tabella 8.2).
+ * Schermata principale: la rubrica con la ricerca (GUI.2) e il pulsante per creare un nuovo
+ * contatto (GUI.2.1); la navigazione verso l'agenda e la chiusura dell'applicazione sono nella
+ * barra superiore condivisa ({@link LayoutPrincipale}).
  * <p>
  * Un contatto si apre con un clic sulla riga oppure, da tastiera, portando il focus sulla riga
  * con le frecce e premendo Invio o Spazio (GUI.2.3).
  */
-@Route(Navigatore.ROTTA_HOME)
-@PageTitle("MPlan – Home")
+@Route(value = Navigatore.ROTTA_HOME, layout = LayoutPrincipale.class)
+@PageTitle("MPlan – Rubrica")
 public class HomeView extends VerticalLayout implements BeforeEnterObserver {
 
     private static final long serialVersionUID = 1L;
 
-    private static final int DURATA_NOTIFICA_MS = 5000;
-
     private static final Comparator<String> ORDINE_TESTO =
             Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER);
+
+    private static final int SOGLIA_ALTEZZA_ADATTIVA = 15;
 
     private List<Contatto> tuttiContatti;
 
     private Contatto contattoConFocus;
 
+    private final Span contatoreContatti;
+
     private final TextField campoRicerca;
 
     private final Grid<Contatto> tabellaContatti;
-
-    private final ChiusuraApplicazione chiusuraApplicazione;
 
     private final ContattoService contattoService;
 
@@ -74,21 +73,18 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
     /**
      * Crea la schermata principale.
      *
-     * @param contattoService      servizio da cui leggere i contatti
-     * @param chiusuraApplicazione servizio che chiude l'applicazione
-     * @param navigatore           navigatore tra le schermate
+     * @param contattoService servizio da cui leggere i contatti
+     * @param navigatore      navigatore tra le schermate
      */
-    public HomeView(ContattoService contattoService, ChiusuraApplicazione chiusuraApplicazione,
-            Navigatore navigatore) {
+    public HomeView(ContattoService contattoService, Navigatore navigatore) {
         this.contattoService = contattoService;
-        this.chiusuraApplicazione = chiusuraApplicazione;
         this.navigatore = navigatore;
         this.tuttiContatti = List.of();
+        this.contatoreContatti = creaContatore();
         this.campoRicerca = creaRicerca();
         this.tabellaContatti = creaTabella();
         configuraPagina();
         add(creaIntestazione(), campoRicerca, tabellaContatti);
-        expand(tabellaContatti);
     }
 
     /**
@@ -127,9 +123,30 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
         String cercato = testo == null ? "" : testo.strip().toLowerCase(LocalizzazioneDate.ITALIANO);
         if (cercato.isEmpty()) {
             tabellaContatti.getListDataView().removeFilters();
+            aggiornaContatore(tuttiContatti.size(), tuttiContatti.size());
+            aggiornaAltezzaTabella(tuttiContatti.size());
             return;
         }
         tabellaContatti.getListDataView().setFilter(contatto -> corrisponde(contatto, cercato));
+        int visibili = tabellaContatti.getListDataView().getItemCount();
+        aggiornaContatore(visibili, tuttiContatti.size());
+        aggiornaAltezzaTabella(visibili);
+    }
+
+    private void aggiornaAltezzaTabella(int visibili) {
+        boolean adattaContenuto = visibili <= SOGLIA_ALTEZZA_ADATTIVA;
+        tabellaContatti.setAllRowsVisible(adattaContenuto);
+        tabellaContatti.setClassName("mplan-tabella-scroll-limitata", !adattaContenuto);
+    }
+
+    private void aggiornaContatore(int visibili, int totali) {
+        if (totali == 0) {
+            contatoreContatti.setText("Nessun contatto in rubrica");
+        } else if (visibili == totali) {
+            contatoreContatti.setText(totali == 1 ? "1 contatto in rubrica" : totali + " contatti in rubrica");
+        } else {
+            contatoreContatti.setText(visibili + " di " + totali + " contatti");
+        }
     }
 
     private static boolean corrisponde(Contatto contatto, String cercato) {
@@ -141,16 +158,6 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
                 .anyMatch(valore -> valore.toLowerCase(LocalizzazioneDate.ITALIANO).contains(cercato));
     }
 
-    private void apriAgenda() {
-        navigatore.vaiAAgenda();
-    }
-
-    private void chiudiApplicazione() {
-        Notification.show("MPlan si sta chiudendo: puoi chiudere questa scheda del browser.",
-                DURATA_NOTIFICA_MS, Notification.Position.TOP_CENTER);
-        chiusuraApplicazione.chiudi();
-    }
-
     private void apriContattoConFocus() {
         if (contattoConFocus != null) {
             navigatore.vaiASchedaContatto(contattoConFocus.id());
@@ -159,7 +166,6 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
 
     private void configuraPagina() {
         addClassName("mplan-pagina");
-        setSizeFull();
         setPadding(false);
         setSpacing(false);
     }
@@ -168,35 +174,36 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
         H1 titolo = new H1("Rubrica");
         titolo.addClassName("mplan-titolo-pagina");
 
-        Button agenda = new Button("Agenda giornaliera", VaadinIcon.CALENDAR.create(), evento -> apriAgenda());
+        Div gruppoTitolo = new Div(titolo, contatoreContatti);
+        gruppoTitolo.addClassName("mplan-titolo-gruppo");
 
         Button nuovoContatto = new Button("Nuovo contatto", VaadinIcon.PLUS.create(),
                 evento -> navigatore.vaiANuovoContatto());
         nuovoContatto.addThemeVariants(ButtonVariant.PRIMARY);
 
-        Button chiudi = new Button("Chiudi applicazione", VaadinIcon.POWER_OFF.create(),
-                evento -> chiudiApplicazione());
-        chiudi.addThemeVariants(ButtonVariant.ERROR);
-        chiudi.addClassName("mplan-pulsante-chiudi");
-
-        HorizontalLayout azioni = new HorizontalLayout(agenda, nuovoContatto, chiudi);
+        HorizontalLayout azioni = new HorizontalLayout(nuovoContatto);
         azioni.addClassName("mplan-toolbar-azioni");
         azioni.setSpacing(false);
         azioni.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        HorizontalLayout intestazione = new HorizontalLayout(titolo, azioni);
+        HorizontalLayout intestazione = new HorizontalLayout(gruppoTitolo, azioni);
         intestazione.addClassName("mplan-toolbar");
         intestazione.setSpacing(false);
         intestazione.setAlignItems(FlexComponent.Alignment.CENTER);
         return intestazione;
     }
 
+    private static Span creaContatore() {
+        Span contatore = new Span();
+        contatore.addClassName("mplan-sottotitolo-pagina");
+        return contatore;
+    }
+
     private TextField creaRicerca() {
         TextField ricerca = new TextField();
         ricerca.addClassName("mplan-ricerca");
         ricerca.setAriaLabel("Cerca contatti");
-        ricerca.setPlaceholder("Cerca contatti");
-        ricerca.setHelperText("Cerca per nome, telefono, codice fiscale o partita IVA.");
+        ricerca.setPlaceholder("Cerca per nome, telefono, codice fiscale o partita IVA…");
         ricerca.setPrefixComponent(VaadinIcon.SEARCH.create());
         ricerca.setClearButtonVisible(true);
         ricerca.setValueChangeMode(ValueChangeMode.LAZY);
@@ -213,14 +220,29 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
                 .setComparator(Comparator.comparing(Contatto::nome, ORDINE_TESTO));
         tabella.addColumn(Contatto::cognome).setHeader("Cognome")
                 .setComparator(Comparator.comparing(Contatto::cognome, ORDINE_TESTO));
-        tabella.addColumn(contatto -> nomeTipo(contatto.tipo())).setHeader("Tipo").setAutoWidth(true)
-                .setFlexGrow(0);
+        tabella.addComponentColumn(HomeView::creaTagTipo).setHeader("Tipo").setAutoWidth(true)
+                .setFlexGrow(0)
+                .setComparator(Comparator.comparing(contatto -> nomeTipo(contatto.tipo()), ORDINE_TESTO));
         tabella.addColumn(HomeView::telefonoPrincipale).setHeader("Telefono");
         tabella.addColumn(Contatto::indirizzo).setHeader("Indirizzo").setFlexGrow(2);
         tabella.addItemClickListener(evento -> navigatore.vaiASchedaContatto(evento.getItem().id()));
         tabella.addCellFocusListener(evento -> contattoConFocus = evento.getItem().orElse(null));
         Shortcuts.addShortcutListener(tabella, this::apriContattoConFocus, Key.ENTER).listenOn(tabella);
         return tabella;
+    }
+
+    private static Span creaTagTipo(Contatto contatto) {
+        if (contatto.tipo() == null) {
+            return new Span();
+        }
+        Span tag = new Span(nomeTipo(contatto.tipo()));
+        tag.addClassName("mplan-tipo-tag");
+        if (contatto.tipo() == TipoContatto.AZIENDA) {
+            tag.addClassName("mplan-tipo-azienda");
+        } else {
+            tag.addClassName("mplan-tipo-privato");
+        }
+        return tag;
     }
 
     private static Div creaStatoVuoto() {
