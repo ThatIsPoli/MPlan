@@ -17,6 +17,7 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.ErrorParameter;
 import com.vaadin.flow.router.HasErrorParameter;
 import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.ParentLayout;
 
 import it.mpelettrica.mplan.ui.navigazione.Navigatore;
 
@@ -29,6 +30,7 @@ import it.mpelettrica.mplan.ui.navigazione.Navigatore;
  * pulsante per tornare alla schermata principale. L'eccezione completa finisce nel log.
  * Gli errori durante l'uso dei pulsanti sono invece gestiti da {@link GestoreErroriUI}.
  */
+@ParentLayout(LayoutPrincipale.class)
 @PageTitle("MPlan – Errore")
 public class VistaErrore extends VerticalLayout implements HasErrorParameter<Exception> {
 

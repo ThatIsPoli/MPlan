@@ -17,6 +17,7 @@ import com.vaadin.flow.router.ErrorParameter;
 import com.vaadin.flow.router.HasErrorParameter;
 import com.vaadin.flow.router.NotFoundException;
 import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.ParentLayout;
 
 import it.mpelettrica.mplan.ui.navigazione.Navigatore;
 
@@ -27,6 +28,7 @@ import it.mpelettrica.mplan.ui.navigazione.Navigatore;
  * dell'eccezione piu' specifica, quindi {@link VistaErrore}, che gestisce {@link Exception},
  * non basterebbe per {@link NotFoundException}.
  */
+@ParentLayout(LayoutPrincipale.class)
 @PageTitle("MPlan – Pagina non trovata")
 public class VistaPaginaNonTrovata extends VerticalLayout implements HasErrorParameter<NotFoundException> {
 
