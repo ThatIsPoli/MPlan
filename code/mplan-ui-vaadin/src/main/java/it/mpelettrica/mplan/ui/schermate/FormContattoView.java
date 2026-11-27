@@ -21,6 +21,7 @@ import com.vaadin.flow.component.card.Card;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -42,6 +43,7 @@ import it.mpelettrica.mplan.api.ErroreValidazione;
 import it.mpelettrica.mplan.api.TipoContatto;
 import it.mpelettrica.mplan.api.ValidazioneException;
 import it.mpelettrica.mplan.ui.componenti.EditorTelefoni;
+import it.mpelettrica.mplan.ui.infrastruttura.LayoutPrincipale;
 import it.mpelettrica.mplan.ui.navigazione.Navigatore;
 
 /**
@@ -50,12 +52,13 @@ import it.mpelettrica.mplan.ui.navigazione.Navigatore;
  * <p>
  * Al salvataggio i dati vengono controllati dal servizio: ogni errore compare sotto il campo
  * a cui si riferisce e i dati inseriti restano nel form (DAT.5). Dopo il salvataggio si torna
- * alla schermata di provenienza; "Indietro" torna senza salvare (evento {@code chiudi},
- * Tabella 8.2). I campi non impongono limiti di lunghezza: un testo troppo lungo viene
- * segnalato dal servizio con il suo messaggio, invece di essere troncato in silenzio.
+ * alla schermata di provenienza; "Indietro" (presente sia nell'intestazione sia in fondo al form)
+ * torna senza salvare (evento {@code chiudi}, Tabella 8.2). I campi non impongono limiti di
+ * lunghezza: un testo troppo lungo viene segnalato dal servizio con il suo messaggio, invece di
+ * essere troncato in silenzio.
  */
-@Route(Navigatore.ROTTA_NUOVO_CONTATTO)
-@RouteAlias(Navigatore.ROTTA_MODIFICA_CONTATTO)
+@Route(value = Navigatore.ROTTA_NUOVO_CONTATTO, layout = LayoutPrincipale.class)
+@RouteAlias(value = Navigatore.ROTTA_MODIFICA_CONTATTO, layout = LayoutPrincipale.class)
 @PageTitle("MPlan – Form contatto")
 public class FormContattoView extends VerticalLayout implements BeforeEnterObserver {
 
@@ -330,8 +333,10 @@ public class FormContattoView extends VerticalLayout implements BeforeEnterObser
     }
 
     private HorizontalLayout creaIntestazione() {
+        Button indietro = new Button("Indietro", VaadinIcon.ARROW_LEFT.create(), evento -> navigatore.indietro());
+        indietro.addThemeVariants(ButtonVariant.TERTIARY);
         titolo.addClassName("mplan-titolo-pagina");
-        HorizontalLayout intestazione = new HorizontalLayout(titolo);
+        HorizontalLayout intestazione = new HorizontalLayout(indietro, titolo);
         intestazione.addClassName("mplan-toolbar");
         intestazione.setSpacing(false);
         intestazione.setAlignItems(FlexComponent.Alignment.CENTER);
