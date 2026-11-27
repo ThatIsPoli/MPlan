@@ -11,8 +11,8 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 import it.mpelettrica.mplan.api.AttivitaService;
 import it.mpelettrica.mplan.api.StatoAttivita;
@@ -24,7 +24,7 @@ import it.mpelettrica.mplan.api.StatoAttivita;
  * da "da fare" si passa a parziale, completata o annullata; da "parziale" a completata
  * o annullata; da completata o annullata non si cambia piu' stato.
  */
-public class BarraStatoAttivita extends VerticalLayout {
+public class BarraStatoAttivita extends HorizontalLayout {
 
     private static final long serialVersionUID = 1L;
 
@@ -59,13 +59,16 @@ public class BarraStatoAttivita extends VerticalLayout {
         this.attivitaService = attivitaService;
         this.alCambioStato = alCambioStato;
         this.contenitoreBadge = new Div();
+        this.contenitoreBadge.addClassName("mplan-barra-stato-badge");
         this.btnParziale = creaPulsante("Segna parziale", null);
         this.btnCompletata = creaPulsante("Segna completata", null);
         this.btnAnnulla = creaPulsante("Annulla attività", ButtonVariant.ERROR);
         this.pulsanti = creaPulsanti();
         addClassName("mplan-barra-stato");
+        setWidthFull();
         setPadding(false);
         setSpacing(false);
+        setAlignItems(FlexComponent.Alignment.CENTER);
         add(contenitoreBadge, pulsanti);
         aggiornaPulsanti();
     }
