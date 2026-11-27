@@ -5,56 +5,67 @@
 */
 package it.mpelettrica.mplan.persistence.infrastruttura;
 
-import java.util.*;
-import java.time.*;
+import java.util.function.Supplier;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jooq.exception.DataAccessException;
+import org.jooq.impl.DSL;
 
+import it.mpelettrica.mplan.api.PersistenzaException;
 import it.mpelettrica.mplan.core.repository.GestoreTransazioni;
-// ----------- << imports@AAAAAAdwvxgdBs2nPQzD >>
-// ----------- >>
 
-// ----------- << class.annotations@AAAAAAdwvxgdBs2nPQzD >>
-// ----------- >>
+/**
+ * Realizza {@link GestoreTransazioni} con le transazioni di jOOQ. In caso di
+ * eccezione esegue il rollback e rilancia invariate le eccezioni dell'operazione;
+ * solo gli errori di accesso ai dati diventano {@link PersistenzaException}.
+ * Le chiamate annidate usano l'annidamento nativo di jOOQ.
+ */
 public class GestoreTransazioniJooq implements GestoreTransazioni {
-    // ----------- << attribute.annotations@AAAAAAd+V4mdbN/7omE4 >>
-    // ----------- >>
-    private ContestoTransazione contesto;
 
-    private ContestoTransazione getContesto() {
-        return contesto;
-    }
+    private static final Logger LOG = LogManager.getLogger(GestoreTransazioniJooq.class);
+
+    private final ContestoTransazione contesto;
 
     /**
-    * @param contesto
-    */
-
-    // ----------- << method.annotations@AAAAAAffb+4l/knhBu5c >>
-    // ----------- >>
+     * Crea il gestore.
+     *
+     * @param contesto contesto che fornisce il canale corrente
+     */
     public GestoreTransazioniJooq(ContestoTransazione contesto) {
-    // ----------- << method.body@AAAAAAffb+4l/knhBu5c >>
-    // ----------- >>
+        this.contesto = contesto;
     }
-    /**
-    * @param operazione
-    */
 
+    /**
+     * Esegue l'operazione in una transazione, senza risultato.
+     *
+     * @param operazione operazione da eseguire
+     * @throws PersistenzaException se si verifica un errore di accesso ai dati
+     */
     @Override
-    // ----------- << method.annotations@AAAAAAcg+yTyaAMXVRlJ >>
-    // ----------- >>
     public void inTransazione(Runnable operazione) {
-    // ----------- << method.body@AAAAAAcg+yTyaAMXVRlJ >>
-    // ----------- >>
+        inTransazione(() -> {
+            operazione.run();
+            return null;
+        });
     }
-    /**
-    * @param operazione
-    */
 
-    // ----------- << method.annotations@AAAAAAeg3IyQP41b1RWt >>
-    // ----------- >>
-    public T inTransazione(Supplier<T> operazione) {
-    // ----------- << method.body@AAAAAAeg3IyQP41b1RWt >>
-    // ----------- >>
+    /**
+     * Esegue l'operazione in una transazione e ne restituisce il risultato.
+     *
+     * @param <T> tipo del risultato
+     * @param operazione operazione da eseguire
+     * @return il risultato dell'operazione
+     * @throws PersistenzaException se si verifica un errore di accesso ai dati
+     */
+    @Override
+    public <T> T inTransazione(Supplier<T> operazione) {
+        try {
+            return contesto.dslCorrente().transactionResult(
+                    cfg -> contesto.eseguiConContesto(DSL.using(cfg), operazione));
+        } catch (DataAccessException e) {
+            LOG.error("Errore tecnico durante la transazione", e);
+            throw new PersistenzaException("Errore durante la transazione", e);
+        }
     }
-// ----------- << class.extras@AAAAAAdwvxgdBs2nPQzD >>
-// ----------- >>
 }

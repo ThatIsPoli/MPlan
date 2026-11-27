@@ -5,75 +5,57 @@
 */
 package it.mpelettrica.mplan.core.servizi;
 
-import java.util.*;
-import java.time.*;
+import it.mpelettrica.mplan.api.Attivita;
+import it.mpelettrica.mplan.api.StatoAttivita;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-import com.fasterxml.jackson.annotation.*;
-
-
-// ----------- << imports@AAAAAAGh81rSy4g9ABA= >>
-// ----------- >>
-
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        property = "type"
-)
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = AttivitaServiceImpl.class, name = "attivitaServiceImpl")
-})
-// ----------- << class.annotations@AAAAAAGh81rSy4g9ABA= >>
-// ----------- >>
+/**
+ * Soggetto del pattern Observer per le attività: tiene la lista degli osservatori e li avvisa.
+ * Le eccezioni lanciate da un osservatore non vengono catturate, così la transazione in corso
+ * viene annullata.
+ */
 public abstract class OsservabileAttivita {
-    // ----------- << attribute.annotations@AAAAAAGh0+Gm9N9+k9M= >>
-    // ----------- >>
-    private List<OsservatoreAttivita> osservatori = new ArrayList<>();
 
-    private List<OsservatoreAttivita> getOsservatori() {
-        return osservatori;
-    }
+    private final List<OsservatoreAttivita> osservatori = new CopyOnWriteArrayList<>();
 
     /**
-    * @param osservatore
-    */
-
-    // ----------- << method.annotations@AAAAAAGh0+Buvt7NshI= >>
-    // ----------- >>
+     * Registra un osservatore.
+     *
+     * @param osservatore osservatore da avvisare dei cambiamenti
+     * @throws NullPointerException se {@code osservatore} è {@code null}
+     */
     public void aggiungiOsservatore(OsservatoreAttivita osservatore) {
-    // ----------- << method.body@AAAAAAGh0+Buvt7NshI= >>
-    // ----------- >>
+        osservatori.add(Objects.requireNonNull(osservatore, "osservatore"));
     }
-    /**
-    * @param attivita
-    */
 
-    // ----------- << method.annotations@AAAAAAGh81rT0Ig+pYQ= >>
-    // ----------- >>
+    /**
+     * Avvisa gli osservatori che un'attività è stata modificata.
+     *
+     * @param attivita attività dopo la modifica
+     */
     protected void notificaModifica(Attivita attivita) {
-    // ----------- << method.body@AAAAAAGh81rT0Ig+pYQ= >>
-    // ----------- >>
+        osservatori.forEach(o -> o.attivitaModificata(attivita));
     }
-    /**
-    * @param attivita 
-    * @param precedente
-    */
 
-    // ----------- << method.annotations@AAAAAAGh81rY9ohALrM= >>
-    // ----------- >>
+    /**
+     * Avvisa gli osservatori che lo stato di un'attività è cambiato.
+     *
+     * @param attivita attività dopo il cambio di stato
+     * @param precedente stato precedente
+     */
     protected void notificaCambioStato(Attivita attivita, StatoAttivita precedente) {
-    // ----------- << method.body@AAAAAAGh81rY9ohALrM= >>
-    // ----------- >>
+        osservatori.forEach(o -> o.statoCambiato(attivita, precedente));
     }
-    /**
-    * @param attivita 
-    * @param motivo
-    */
 
-    // ----------- << method.annotations@AAAAAAGh81rc7IhD4tQ= >>
-    // ----------- >>
+    /**
+     * Avvisa gli osservatori che un'attività è stata annullata.
+     *
+     * @param attivita attività dopo l'annullamento
+     * @param motivo motivo dell'annullamento
+     */
     protected void notificaAnnullamento(Attivita attivita, String motivo) {
-    // ----------- << method.body@AAAAAAGh81rc7IhD4tQ= >>
-    // ----------- >>
+        osservatori.forEach(o -> o.attivitaAnnullata(attivita, motivo));
     }
-// ----------- << class.extras@AAAAAAGh81rSy4g9ABA= >>
-// ----------- >>
 }

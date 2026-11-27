@@ -5,32 +5,87 @@
 */
 package it.mpelettrica.mplan.core.dominio;
 
-import java.util.*;
-import java.time.*;
-
-
-
-// ----------- << imports@AAAAAAABGwogl7Bh5HU= >>
-// ----------- >>
+import it.mpelettrica.mplan.api.DatiContatto;
+import it.mpelettrica.mplan.api.ErroreValidazione;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
-* Applica le regole di DAT.5 ai dati del contatto.
-*/
+ * Applica le regole di DAT.1 e DAT.5 ai dati del contatto. Il tipo (DAT.1.7) è facoltativo
+ * e non genera mai errori. Il campo {@code telefoni} può comparire più volte nella lista degli
+ * errori, uno per ogni numero non valido o ripetuto.
+ */
+public class ValidatoreContatto implements Validatore<DatiContatto> {
 
-// ----------- << class.annotations@AAAAAAABGwogl7Bh5HU= >>
-// ----------- >>
-public class ValidatoreContatto implements Validatore {
+    private static final String CAMPO_NOME = "nome";
+    private static final String CAMPO_COGNOME = "cognome";
+    private static final String CAMPO_INDIRIZZO = "indirizzo";
+    private static final String CAMPO_TELEFONI = "telefoni";
+    private static final String CAMPO_CODICE_FISCALE = "codiceFiscale";
+    private static final String CAMPO_PARTITA_IVA = "partitaIva";
+
+    private static final int MAX_NOME = 100;
+    private static final int MAX_COGNOME = 100;
+    private static final int MAX_INDIRIZZO = 200;
+    private static final int MAX_TELEFONO = 20;
+
+    private static final Pattern FORMATO_CODICE_FISCALE = Pattern.compile("[A-Za-z0-9]{16}|[0-9]{11}");
+    private static final Pattern FORMATO_PARTITA_IVA = Pattern.compile("[0-9]{11}");
+
     /**
-    * @param dati
-    */
-
+     * Controlla obbligatorietà, lunghezze e formati dei dati del contatto, compresi i numeri
+     * di telefono ripetuti.
+     *
+     * @param dati dati scritti dall'utente
+     * @return la lista degli errori; vuota se i dati sono validi
+     * @throws NullPointerException se {@code dati} è {@code null}
+     */
     @Override
-    // ----------- << method.annotations@AAAAAAABlPLTCu82GcQ= >>
-    // ----------- >>
     public List<ErroreValidazione> valida(DatiContatto dati) {
-    // ----------- << method.body@AAAAAAABlPLTCu82GcQ= >>
-    // ----------- >>
+        Objects.requireNonNull(dati, "dati");
+        List<ErroreValidazione> errori = new ArrayList<>();
+        ControlliTesto.obbligatorio(errori, CAMPO_NOME, "Nome", dati.getNome(), MAX_NOME);
+        ControlliTesto.facoltativo(errori, CAMPO_COGNOME, "Cognome", dati.getCognome(), MAX_COGNOME);
+        ControlliTesto.facoltativo(errori, CAMPO_INDIRIZZO, "Indirizzo", dati.getIndirizzo(), MAX_INDIRIZZO);
+        controllaTelefoni(errori, dati.getTelefoni());
+        controllaCodiceFiscale(errori, dati.getCodiceFiscale());
+        controllaPartitaIva(errori, dati.getPartitaIva());
+        return errori;
     }
-// ----------- << class.extras@AAAAAAABGwogl7Bh5HU= >>
-// ----------- >>
+
+    private void controllaTelefoni(List<ErroreValidazione> errori, List<String> telefoni) {
+        if (telefoni == null) {
+            return;
+        }
+        Set<String> visti = new HashSet<>();
+        for (String telefono : telefoni) {
+            controllaNumero(errori, ControlliTesto.pulisci(telefono), visti);
+        }
+    }
+
+    private void controllaNumero(List<ErroreValidazione> errori, String numero, Set<String> visti) {
+        if (numero.isEmpty()) {
+            errori.add(new ErroreValidazione(CAMPO_TELEFONI, "Telefono: il numero non può essere vuoto"));
+        } else if (numero.length() > MAX_TELEFONO) {
+            errori.add(new ErroreValidazione(CAMPO_TELEFONI, "Telefono \"" + numero
+                    + "\": al massimo " + MAX_TELEFONO + " caratteri"));
+        } else if (!visti.add(numero)) {
+            errori.add(new ErroreValidazione(CAMPO_TELEFONI,
+                    "Telefono \"" + numero + "\": numero ripetuto"));
+        }
+    }
+
+    private void controllaCodiceFiscale(List<ErroreValidazione> errori, String codiceFiscale) {
+        ControlliTesto.formato(errori, CAMPO_CODICE_FISCALE, codiceFiscale, FORMATO_CODICE_FISCALE,
+                "Codice fiscale: 16 caratteri alfanumerici oppure 11 cifre");
+    }
+
+    private void controllaPartitaIva(List<ErroreValidazione> errori, String partitaIva) {
+        ControlliTesto.formato(errori, CAMPO_PARTITA_IVA, partitaIva, FORMATO_PARTITA_IVA,
+                "Partita IVA: 11 cifre");
+    }
 }

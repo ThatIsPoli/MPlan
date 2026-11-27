@@ -4,7 +4,7 @@ MPlan è un sistema per la verifica delle attività e la gestione dei clienti pe
 
 Il progetto è sviluppato per il corso di Ingegneria del Software (Università degli Studi di Bergamo, A.A. 2026/27).
 
-> **Stato:** in sviluppo, fase di design.
+> **Stato:** in sviluppo, fase di implementazione.
 
 ## Cosa fa
 
@@ -54,7 +54,47 @@ I diagrammi UML sono in `docs/uml/` (file StarUML) e le immagini esportate in `d
 
 ## Come compilare ed eseguire
 
-**[DA COMPLETARE]** comandi per compilare, eseguire i test e avviare l'applicazione (si aggiungeranno quando il codice sarà pronto).
+Servono **Java 27** (JDK) e **Maven 3.9** o successivo. Non servono altri programmi: il database è un file SQLite creato al primo avvio e l'interfaccia funziona anche senza connessione a Internet.
+
+**Compilare** (dalla cartella `code/`):
+
+```
+mvn package
+```
+
+La prima compilazione scarica le dipendenze e prepara l'interfaccia Vaadin, quindi richiede qualche minuto. Il risultato è il file `code/mplan-app/target/mplan-app-0.0.1-SNAPSHOT.jar`.
+
+**Avviare** (dalla radice del repository):
+
+```
+java -jar code/mplan-app/target/mplan-app-0.0.1-SNAPSHOT.jar
+```
+
+- L'applicazione si apre nel browser all'indirizzo `http://127.0.0.1:8642` ed è raggiungibile solo dallo stesso PC.
+- Se l'applicazione è già aperta, un secondo avvio apre solo il browser sulla finestra esistente.
+- Per chiuderla si usa il pulsante "Chiudi applicazione" nella schermata iniziale.
+
+**Dove sono i dati**:
+
+- database: `%USERPROFILE%\MPlan\mplan.db`;
+- log: `%USERPROFILE%\MPlan\logs\`.
+
+Per provare l'applicazione senza toccare i propri dati si può indicare un altro file di database:
+
+```
+java -jar code/mplan-app/target/mplan-app-0.0.1-SNAPSHOT.jar --mplan.database=C:/percorso/prova.db
+```
+
+**Avviare da Eclipse**:
+
+1. Registrare il JDK 27 in *Window → Preferences → Java → Installed JREs*.
+2. *File → Import → Maven → Existing Maven Projects* e scegliere la cartella `code/`: si importano il progetto padre e i cinque moduli.
+3. La prima volta eseguire `mvn package` sul progetto padre (*Run As → Maven build…*, goal `package`), poi *Maven → Update Project*. Il comando genera le classi jOOQ di `mplan-persistence`.
+4. Avviare MPlan con la configurazione **MPlan**, già inclusa nel progetto (`code/mplan-app/MPlan.launch`): si trova tra i preferiti del pulsante *Run* oppure in *Run → Run Configurations… → Java Application → MPlan*. Usa `MPlanApplication` e passa a Java `--enable-native-access=ALL-UNNAMED`, che evita gli avvisi della libreria nativa di SQLite in console. Per usare un database di prova si aggiunge `--mplan.database=...` in *Arguments → Program arguments*.
+
+Da Eclipse Vaadin parte in modalità di sviluppo e mostra la sua barra degli strumenti in basso a destra. Il jar creato da `mvn package` parte invece in modalità di produzione.
+
+**Eseguire i test**: `mvn test` dalla cartella `code/`. I test JUnit sono ancora da scrivere.
 
 ## Come si lavora sul repository
 

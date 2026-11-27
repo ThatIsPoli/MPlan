@@ -5,76 +5,130 @@
 */
 package it.mpelettrica.mplan.persistence.repository;
 
-import java.util.*;
-import java.time.*;
+import static it.mpelettrica.mplan.persistence.jooq.Tables.CONTATTO;
+import static it.mpelettrica.mplan.persistence.jooq.Tables.TELEFONO_CONTATTO;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
+import org.jooq.DSLContext;
+import org.jooq.Field;
+import org.jooq.impl.DSL;
+
+import it.mpelettrica.mplan.api.Contatto;
 import it.mpelettrica.mplan.core.repository.ContattoRepository;
 import it.mpelettrica.mplan.persistence.infrastruttura.ContestoTransazione;
-// ----------- << imports@AAAAAAeNEWVSRFGiYwux >>
-// ----------- >>
+import it.mpelettrica.mplan.persistence.jooq.tables.records.ContattoRecord;
+import it.mpelettrica.mplan.persistence.mapping.ContattoMapper;
 
-// ----------- << class.annotations@AAAAAAeNEWVSRFGiYwux >>
-// ----------- >>
+/**
+ * Implementazione jOOQ di {@link ContattoRepository}. I numeri di telefono stanno
+ * nella tabella {@code TELEFONO_CONTATTO} e si leggono nell'ordine di inserimento.
+ */
 public class JooqContattoRepository implements ContattoRepository {
-    // ----------- << attribute.annotations@AAAAAAeHczx8hurxb+hA >>
-    // ----------- >>
-    private ContestoTransazione contesto;
 
-    private ContestoTransazione getContesto() {
-        return contesto;
-    }
+    private static final Field<Object> ORDINE_INSERIMENTO = DSL.field(DSL.name("rowid"));
+
+    private final ContestoTransazione contesto;
 
     /**
-    * @param contesto
-    */
-
-    // ----------- << method.annotations@AAAAAAeAg6Yr/g70Bj7N >>
-    // ----------- >>
+     * Crea il repository.
+     *
+     * @param contesto contesto che fornisce il canale jOOQ corrente
+     */
     public JooqContattoRepository(ContestoTransazione contesto) {
-    // ----------- << method.body@AAAAAAeAg6Yr/g70Bj7N >>
-    // ----------- >>
+        this.contesto = contesto;
     }
-    /**
-    * @param id
-    */
 
+    /**
+     * Cerca un contatto per identificativo.
+     *
+     * @param id identificativo del contatto
+     * @return il contatto, se esiste
+     */
     @Override
-    // ----------- << method.annotations@AAAAAAdXtw2EgLp15R0e >>
-    // ----------- >>
     public Optional<Contatto> trova(UUID id) {
-    // ----------- << method.body@AAAAAAdXtw2EgLp15R0e >>
-    // ----------- >>
+        DSLContext dsl = contesto.dslCorrente();
+        return dsl.selectFrom(CONTATTO)
+                .where(CONTATTO.ID.eq(id.toString()))
+                .fetchOptional()
+                .map(riga -> ContattoMapper.daRecord(riga, telefoniDi(dsl, riga.getId())));
     }
+
+    /**
+     * Restituisce tutti i contatti, senza ordine, con due sole query
+     * eseguite nella stessa transazione, per avere una lettura coerente.
+     *
+     * @return l'elenco dei contatti
+     */
     @Override
-    // ----------- << method.annotations@AAAAAAfQ1wLnJ7CquPwb >>
-    // ----------- >>
     public List<Contatto> tutti() {
-    // ----------- << method.body@AAAAAAfQ1wLnJ7CquPwb >>
-    // ----------- >>
+        return contesto.dslCorrente().transactionResult(cfg -> {
+            DSLContext dsl = DSL.using(cfg);
+            Map<String, List<String>> telefoni = telefoniPerContatto(dsl);
+            return leggiContatti(dsl, telefoni);
+        });
     }
-    /**
-    * @param contatto
-    */
 
+    /**
+     * Inserisce un contatto con i suoi numeri di telefono, in modo atomico.
+     *
+     * @param contatto contatto da inserire
+     */
     @Override
-    // ----------- << method.annotations@AAAAAAcdu81fWA3cxgq/ >>
-    // ----------- >>
     public void aggiungi(Contatto contatto) {
-    // ----------- << method.body@AAAAAAcdu81fWA3cxgq/ >>
-    // ----------- >>
+        contesto.dslCorrente().transaction(cfg -> {
+            DSLContext dsl = DSL.using(cfg);
+            dsl.executeInsert(ContattoMapper.aRecord(contatto));
+            inserisciTelefoni(dsl, contatto);
+        });
     }
-    /**
-    * @param contatto
-    */
 
+    /**
+     * Aggiorna i dati anagrafici e sostituisce i numeri di telefono, in modo atomico.
+     *
+     * @param contatto contatto con i dati aggiornati
+     * @throws IllegalArgumentException se il contatto non esiste
+     */
     @Override
-    // ----------- << method.annotations@AAAAAAefnMs3UZU2UugZ >>
-    // ----------- >>
     public void aggiorna(Contatto contatto) {
-    // ----------- << method.body@AAAAAAefnMs3UZU2UugZ >>
-    // ----------- >>
+        contesto.dslCorrente().transaction(cfg -> {
+            DSLContext dsl = DSL.using(cfg);
+            ContattoRecord riga = ContattoMapper.aRecord(contatto);
+            if (dsl.executeUpdate(riga) == 0) {
+                throw new IllegalArgumentException("Contatto inesistente: " + contatto.id());
+            }
+            dsl.deleteFrom(TELEFONO_CONTATTO)
+                    .where(TELEFONO_CONTATTO.ID_CONTATTO.eq(contatto.id().toString()))
+                    .execute();
+            inserisciTelefoni(dsl, contatto);
+        });
     }
-// ----------- << class.extras@AAAAAAeNEWVSRFGiYwux >>
-// ----------- >>
+
+    private Map<String, List<String>> telefoniPerContatto(DSLContext dsl) {
+        return dsl.select(TELEFONO_CONTATTO.ID_CONTATTO, TELEFONO_CONTATTO.NUMERO)
+                .from(TELEFONO_CONTATTO)
+                .orderBy(ORDINE_INSERIMENTO)
+                .fetchGroups(TELEFONO_CONTATTO.ID_CONTATTO, TELEFONO_CONTATTO.NUMERO);
+    }
+
+    private List<Contatto> leggiContatti(DSLContext dsl, Map<String, List<String>> telefoni) {
+        return dsl.selectFrom(CONTATTO)
+                .fetch(riga -> ContattoMapper.daRecord(riga, telefoni.getOrDefault(riga.getId(), List.of())));
+    }
+
+    private List<String> telefoniDi(DSLContext dsl, String idContatto) {
+        return dsl.select(TELEFONO_CONTATTO.NUMERO)
+                .from(TELEFONO_CONTATTO)
+                .where(TELEFONO_CONTATTO.ID_CONTATTO.eq(idContatto))
+                .orderBy(ORDINE_INSERIMENTO)
+                .fetch(TELEFONO_CONTATTO.NUMERO);
+    }
+
+    private void inserisciTelefoni(DSLContext dsl, Contatto contatto) {
+        ContattoMapper.aRecordTelefoni(contatto.id(), contatto.telefoni())
+                .forEach(dsl::executeInsert);
+    }
 }

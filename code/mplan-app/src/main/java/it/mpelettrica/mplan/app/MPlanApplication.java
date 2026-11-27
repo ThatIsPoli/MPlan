@@ -5,27 +5,107 @@
 */
 package it.mpelettrica.mplan.app;
 
-import java.util.*;
-import java.time.*;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.URI;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.core.env.Environment;
 
+import com.vaadin.flow.component.dependency.StyleSheet;
+import com.vaadin.flow.component.page.AppShellConfigurator;
+import com.vaadin.flow.component.page.ColorScheme;
+import com.vaadin.flow.server.AppShellSettings;
+import com.vaadin.flow.spring.annotation.EnableVaadin;
+import com.vaadin.flow.theme.aura.Aura;
 
-// ----------- << imports@AAAAAAGh83vQy6ABgc8= >>
-// ----------- >>
+/**
+ * Punto di avvio di MPlan (D7): avvia Spring Boot con il server web interno,
+ * in ascolto solo su {@code 127.0.0.1} (NFR.7), e configura il tema della GUI.
+ * <p>
+ * Se MPlan è già aperto (la porta è occupata), il nuovo avvio apre solo il
+ * browser sull'indirizzo dell'applicazione e termina, senza errori.
+ */
+@SpringBootApplication(scanBasePackages = {"it.mpelettrica.mplan.app", "it.mpelettrica.mplan.ui"})
+@EnableVaadin({"it.mpelettrica.mplan.app", "it.mpelettrica.mplan.ui"})
+@StyleSheet(Aura.STYLESHEET)
+@StyleSheet("mplan-tema/tema.css")
+@ColorScheme(ColorScheme.Value.LIGHT)
+public class MPlanApplication implements AppShellConfigurator {
 
-// ----------- << class.annotations@AAAAAAGh83vQy6ABgc8= >>
-// ----------- >>
-public class MPlanApplication {
+    private static final Logger LOGGER = LogManager.getLogger(MPlanApplication.class);
+
+    private static final String PROPRIETA_INDIRIZZO = "server.address";
+
+    private static final String PROPRIETA_PORTA = "server.port";
+
+    private static final String ICONA = "mplan-tema/icona.svg";
+
     /**
-    * @param args
-    */
-
-    // ----------- << method.annotations@AAAAAAGh83vYOKAFxfg= >>
-    // ----------- >>
+     * Avvia MPlan. La grafica resta attiva, perché senza Java non può aprire il browser.
+     *
+     * @param args argomenti della riga di comando, passati a Spring Boot
+     */
     public static void main(String[] args) {
-    // ----------- << method.body@AAAAAAGh83vYOKAFxfg= >>
-    // ----------- >>
+        SpringApplication app = new SpringApplication(MPlanApplication.class);
+        app.setHeadless(false);
+        // Classe anonima e non lambda: Spring non ricava il tipo dell'evento dal tipo generico di una lambda
+        app.addListeners(new ApplicationListener<ApplicationEnvironmentPreparedEvent>() {
+            @Override
+            public void onApplicationEvent(ApplicationEnvironmentPreparedEvent evento) {
+                verificaPrimoAvvio(evento.getEnvironment());
+            }
+        });
+        app.run(args);
     }
-// ----------- << class.extras@AAAAAAGh83vQy6ABgc8= >>
-// ----------- >>
+
+    /**
+     * Imposta l'icona dell'applicazione nella scheda del browser.
+     *
+     * @param impostazioni impostazioni della pagina
+     */
+    @Override
+    public void configurePage(AppShellSettings impostazioni) {
+        impostazioni.addFavIcon("icon", ICONA, "any");
+    }
+
+    /**
+     * Costruisce l'indirizzo locale dell'applicazione.
+     *
+     * @param indirizzo indirizzo del server
+     * @param porta porta del server
+     * @return l'indirizzo {@code http://indirizzo:porta}
+     */
+    static URI costruisciUri(String indirizzo, int porta) {
+        return URI.create("http://" + indirizzo + ":" + porta);
+    }
+
+    private static void verificaPrimoAvvio(Environment ambiente) {
+        String indirizzo = ambiente.getRequiredProperty(PROPRIETA_INDIRIZZO);
+        int porta = ambiente.getRequiredProperty(PROPRIETA_PORTA, Integer.class);
+        if (portaOccupata(indirizzo, porta)) {
+            gestisciSecondoAvvio(costruisciUri(indirizzo, porta));
+        }
+    }
+
+    private static boolean portaOccupata(String indirizzo, int porta) {
+        try (ServerSocket prova = new ServerSocket()) {
+            prova.bind(new InetSocketAddress(indirizzo, porta));
+            return false;
+        } catch (IOException e) {
+            return true;
+        }
+    }
+
+    private static void gestisciSecondoAvvio(URI uri) {
+        LOGGER.info("MPlan è già aperto su {}: apro solo il browser", uri);
+        new AperturaBrowser(uri).apri();
+        System.exit(0);
+    }
 }

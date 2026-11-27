@@ -5,105 +5,153 @@
 */
 package it.mpelettrica.mplan.api;
 
-import java.util.*;
-import java.time.*;
-
-
-
-// ----------- << imports@AAAAAAABaruOlIF1Ibg= >>
-// ----------- >>
+import java.util.List;
 
 /**
-* Riferimento: contratto di mplan-api, da completare nel class diagram di mplan-api. Firme provvisorie. [DA COMPLETARE] altri campi (DAT.1).
-*/
-
-// ----------- << class.annotations@AAAAAAABaruOlIF1Ibg= >>
-// ----------- >>
+ * Dati di un contatto scritti dall'utente nel form, anche se non validi.
+ *
+ * <p>Non è un record perché il form li compila un campo alla volta. I campi facoltativi
+ * vuoti sono {@code null}.
+ */
 public class DatiContatto {
-    // ----------- << attribute.annotations@AAAAAAABUGm61G8LdxM= >>
-    // ----------- >>
+
     private String nome;
-
-    // ----------- << attribute.annotations@AAAAAAGh5Gh9+bpvQYc= >>
-    // ----------- >>
     private String cognome;
-
-    // ----------- << attribute.annotations@AAAAAAGh5GiAI7pw3ow= >>
-    // ----------- >>
     private String indirizzo;
-
-    // ----------- << attribute.annotations@AAAAAAGh5GiDo7px3BQ= >>
-    // ----------- >>
-    private List<String> telefoni;
-
-    // ----------- << attribute.annotations@AAAAAAGh5GiF3LpytmM= >>
-    // ----------- >>
+    private List<String> telefoni = List.of();
     private String codiceFiscale;
-
-    // ----------- << attribute.annotations@AAAAAAGh5GiG/bpzbvs= >>
-    // ----------- >>
     private String partitaIva;
-
-    // ----------- << attribute.annotations@AAAAAAGh5GiI2Lp02Ao= >>
-    // ----------- >>
     private TipoContatto tipo;
 
-    private String getNome() {
+    /** Crea dati vuoti, con la lista dei telefoni vuota. */
+    public DatiContatto() {
+        // Nessuna inizializzazione: i valori arrivano dai setter.
+    }
+
+    /**
+     * Restituisce il nome o la denominazione.
+     *
+     * @return il nome, può essere {@code null}
+     */
+    public String getNome() {
         return nome;
     }
 
-    private String getCognome() {
-        return cognome;
-    }
-
-    private String getIndirizzo() {
-        return indirizzo;
-    }
-
-    private List<String> getTelefoni() {
-        return telefoni;
-    }
-
-    private String getCodiceFiscale() {
-        return codiceFiscale;
-    }
-
-    private String getPartitaIva() {
-        return partitaIva;
-    }
-
-    private TipoContatto getTipo() {
-        return tipo;
-    }
-
-    private void setNome(String nome) {
+    /**
+     * Imposta il nome o la denominazione.
+     *
+     * @param nome il nome
+     */
+    public void setNome(String nome) {
         this.nome = nome;
     }
 
-    private void setCognome(String cognome) {
+    /**
+     * Restituisce il cognome.
+     *
+     * @return il cognome, può essere {@code null}
+     */
+    public String getCognome() {
+        return cognome;
+    }
+
+    /**
+     * Imposta il cognome.
+     *
+     * @param cognome il cognome
+     */
+    public void setCognome(String cognome) {
         this.cognome = cognome;
     }
 
-    private void setIndirizzo(String indirizzo) {
+    /**
+     * Restituisce l'indirizzo.
+     *
+     * @return l'indirizzo, può essere {@code null}
+     */
+    public String getIndirizzo() {
+        return indirizzo;
+    }
+
+    /**
+     * Imposta l'indirizzo.
+     *
+     * @param indirizzo l'indirizzo
+     */
+    public void setIndirizzo(String indirizzo) {
         this.indirizzo = indirizzo;
     }
 
-    private void setTelefoni(List<String> telefoni) {
-        this.telefoni = telefoni;
+    /**
+     * Restituisce i numeri di telefono.
+     *
+     * @return lista immutabile, mai {@code null}, vuota se non ci sono numeri
+     */
+    public List<String> getTelefoni() {
+        return telefoni;
     }
 
-    private void setCodiceFiscale(String codiceFiscale) {
+    /**
+     * Imposta i numeri di telefono, copiandoli in una lista immutabile.
+     *
+     * @param telefoni i numeri; {@code null} equivale a nessun numero
+     * @throws NullPointerException se la lista contiene un elemento {@code null}
+     */
+    public void setTelefoni(List<String> telefoni) {
+        this.telefoni = telefoni == null ? List.of() : List.copyOf(telefoni);
+    }
+
+    /**
+     * Restituisce il codice fiscale.
+     *
+     * @return il codice fiscale, può essere {@code null}
+     */
+    public String getCodiceFiscale() {
+        return codiceFiscale;
+    }
+
+    /**
+     * Imposta il codice fiscale.
+     *
+     * @param codiceFiscale il codice fiscale
+     */
+    public void setCodiceFiscale(String codiceFiscale) {
         this.codiceFiscale = codiceFiscale;
     }
 
-    private void setPartitaIva(String partitaIva) {
+    /**
+     * Restituisce la partita IVA.
+     *
+     * @return la partita IVA, può essere {@code null}
+     */
+    public String getPartitaIva() {
+        return partitaIva;
+    }
+
+    /**
+     * Imposta la partita IVA.
+     *
+     * @param partitaIva la partita IVA
+     */
+    public void setPartitaIva(String partitaIva) {
         this.partitaIva = partitaIva;
     }
 
-    private void setTipo(TipoContatto tipo) {
-        this.tipo = tipo;
+    /**
+     * Restituisce il tipo del contatto.
+     *
+     * @return il tipo, può essere {@code null}
+     */
+    public TipoContatto getTipo() {
+        return tipo;
     }
 
-// ----------- << class.extras@AAAAAAABaruOlIF1Ibg= >>
-// ----------- >>
+    /**
+     * Imposta il tipo del contatto.
+     *
+     * @param tipo il tipo
+     */
+    public void setTipo(TipoContatto tipo) {
+        this.tipo = tipo;
+    }
 }

@@ -5,71 +5,226 @@
 */
 package it.mpelettrica.mplan.ui.componenti;
 
-import java.util.*;
-import java.time.*;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Consumer;
 
-
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Focusable;
+import com.vaadin.flow.component.HasAriaRole;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.Shortcuts;
+import com.vaadin.flow.component.badge.Badge;
+import com.vaadin.flow.component.card.Card;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-// ----------- << imports@AAAAAAfy82jwUSTd2SKIR >>
-// ----------- >>
+import com.vaadin.flow.component.virtuallist.VirtualList;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 
-// ----------- << class.annotations@AAAAAAfy82jwUSTd2SKIR >>
-// ----------- >>
+import it.mpelettrica.mplan.api.Attivita;
+import it.mpelettrica.mplan.api.StatoAttivita;
+import it.mpelettrica.mplan.api.VoceAgenda;
+
+/**
+ * Elenco di attivita' usato sia per lo storico di un contatto sia per l'agenda di un giorno.
+ * <p>
+ * Le righe sono disegnate solo quando sono visibili, quindi anche migliaia di attivita'
+ * si aprono subito (NFR.3). Ogni riga mostra lo stato con un badge; le attivita' annullate
+ * hanno il titolo barrato (GUI.8). Un clic sulla riga, o il tasto Invio quando la riga ha
+ * il focus, apre l'attivita'. Le colonne hanno larghezze fisse, cosi' le righe restano
+ * allineate anche con titoli molto lunghi.
+ */
 public class ElencoAttivita extends VerticalLayout {
-    // ----------- << attribute.annotations@AAAAAAjkQtkJnUTFKrldp >>
-    // ----------- >>
-    private Consumer<UUID> alClick;
 
-    private Consumer<UUID> getAlClick() {
-        return alClick;
-    }
+    private static final long serialVersionUID = 1L;
 
-    private void setAlClick(Consumer<UUID> alClick) {
-        this.alClick = alClick;
-    }
+    private static final String SENZA_ORA_STORICO = "—";
+
+    private static final String SENZA_ORA_AGENDA = "In giornata";
+
+    private final Consumer<UUID> alClick;
+
+    private final VirtualList<VoceElenco> lista;
+
+    private final Span testoVuoto;
+
+    private final Card messaggioVuoto;
 
     /**
-    * @param alClick
-    */
-
-    // ----------- << method.annotations@AAAAAA0iS0KkcDT9+HiS4 >>
-    // ----------- >>
+     * Crea un elenco vuoto.
+     *
+     * @param alClick azione da eseguire con l'identificativo dell'attivita' scelta; non {@code null}
+     */
     public ElencoAttivita(Consumer<UUID> alClick) {
-    // ----------- << method.body@AAAAAA0iS0KkcDT9+HiS4 >>
-    // ----------- >>
+        this.alClick = alClick;
+        this.lista = creaLista();
+        this.testoVuoto = new Span();
+        this.messaggioVuoto = creaMessaggioVuoto(testoVuoto);
+        addClassName("mplan-elenco-attivita");
+        setPadding(false);
+        setSpacing(false);
+        add(messaggioVuoto, lista);
+        expand(lista);
     }
-    /**
-    * @param attivita
-    */
 
-    // ----------- << method.annotations@AAAAAAG2YsScjmQWKsPOS >>
-    // ----------- >>
+    /**
+     * Mostra lo storico di un contatto come una chat: le attivita' sono gia' ordinate dalla
+     * piu' vecchia alla piu' recente e l'elenco si apre in fondo, sulle piu' recenti (FUN.9.1).
+     * Ogni riga mostra data, ora, titolo e stato (GUI.4.3).
+     *
+     * @param attivita le attivita' del contatto, nell'ordine dello storico; non {@code null}
+     */
     public void mostraStorico(List<Attivita> attivita) {
-    // ----------- << method.body@AAAAAAG2YsScjmQWKsPOS >>
-    // ----------- >>
+        List<VoceElenco> voci = attivita.stream()
+                .map(a -> new VoceElenco(a.id(), a.stato(), LocalizzazioneDate.formattaData(a.data()),
+                        formattaOra(a, SENZA_ORA_STORICO), null, a.titolo()))
+                .toList();
+        impostaTipo("mplan-elenco-storico");
+        mostra(voci, "Nessuna attività registrata per questo contatto.");
+        if (!voci.isEmpty()) {
+            lista.scrollToEnd();
+        }
     }
-    /**
-    * @param voci
-    */
 
-    // ----------- << method.annotations@AAAAAAT5Sq9ToZRaabNz2 >>
-    // ----------- >>
+    /**
+     * Mostra le attivita' di un giorno: prima quelle senza orario, poi in ordine di orario.
+     * Ogni riga mostra ora, contatto, titolo e stato (GUI.7.1).
+     *
+     * @param voci le voci dell'agenda, nell'ordine dell'agenda; non {@code null}
+     */
     public void mostraAgenda(List<VoceAgenda> voci) {
-    // ----------- << method.body@AAAAAAT5Sq9ToZRaabNz2 >>
-    // ----------- >>
+        List<VoceElenco> righe = voci.stream()
+                .map(v -> new VoceElenco(v.attivita().id(), v.attivita().stato(), null,
+                        formattaOra(v.attivita(), SENZA_ORA_AGENDA), v.nomeContatto(), v.attivita().titolo()))
+                .toList();
+        impostaTipo("mplan-elenco-agenda");
+        mostra(righe, "Nessuna attività in questo giorno.");
     }
-    /**
-    * @param idAttivita 
-    * @param testo 
-    * @param stato
-    */
 
-    // ----------- << method.annotations@AAAAAA00/iosEUS/qc25P >>
-    // ----------- >>
-    private void creaRiga(UUID idAttivita, String testo, StatoAttivita stato) {
-    // ----------- << method.body@AAAAAA00/iosEUS/qc25P >>
-    // ----------- >>
+    /**
+     * Crea il badge che mostra lo stato di un'attivita', colorato solo tramite le classi del tema.
+     *
+     * @param stato lo stato da mostrare; non {@code null}
+     * @return il badge con il nome dello stato in italiano
+     */
+    static Badge creaBadgeStato(StatoAttivita stato) {
+        Badge badge = new Badge(nomeStato(stato));
+        badge.addClassNames("mplan-stato-badge", classeStato(stato));
+        return badge;
     }
-// ----------- << class.extras@AAAAAAfy82jwUSTd2SKIR >>
-// ----------- >>
+
+    private void impostaTipo(String classe) {
+        removeClassNames("mplan-elenco-storico", "mplan-elenco-agenda");
+        addClassName(classe);
+    }
+
+    private void mostra(List<VoceElenco> voci, String testoSeVuoto) {
+        testoVuoto.setText(testoSeVuoto);
+        messaggioVuoto.setVisible(voci.isEmpty());
+        lista.setVisible(!voci.isEmpty());
+        lista.setItems(voci);
+    }
+
+    private Component creaRiga(VoceElenco voce) {
+        Riga riga = new Riga();
+        riga.addClassNames("mplan-riga", classeStato(voce.stato()));
+        if (voce.stato() == StatoAttivita.ANNULLATA) {
+            riga.addClassName("mplan-attivita-annullata");
+        }
+        aggiungiParte(riga, voce.data(), "mplan-riga-data");
+        aggiungiParte(riga, voce.ora(), "mplan-riga-ora");
+        aggiungiParte(riga, voce.contatto(), "mplan-riga-contatto");
+        aggiungiParte(riga, voce.titolo(), "mplan-riga-titolo");
+        riga.add(creaBadgeStato(voce.stato()));
+        rendiAttivabile(riga, voce.idAttivita());
+        return riga;
+    }
+
+    private void rendiAttivabile(Riga riga, UUID idAttivita) {
+        riga.setTabIndex(0);
+        riga.setAriaRole("button");
+        riga.addClickListener(evento -> alClick.accept(idAttivita));
+        Shortcuts.addShortcutListener(riga, () -> alClick.accept(idAttivita), Key.ENTER).listenOn(riga);
+    }
+
+    private static void aggiungiParte(Div riga, String testo, String classe) {
+        if (testo == null) {
+            return;
+        }
+        Span parte = new Span(testo);
+        parte.addClassName(classe);
+        riga.add(parte);
+    }
+
+    private VirtualList<VoceElenco> creaLista() {
+        VirtualList<VoceElenco> elenco = new VirtualList<>();
+        elenco.addClassName("mplan-elenco-lista");
+        elenco.setRenderer(new ComponentRenderer<>(this::creaRiga));
+        elenco.setItemAccessibleNameGenerator(ElencoAttivita::descrizioneAccessibile);
+        return elenco;
+    }
+
+    private static Card creaMessaggioVuoto(Span testo) {
+        Icon icona = VaadinIcon.CALENDAR_O.create();
+        icona.addClassName("mplan-vuoto-icona");
+        testo.addClassName("mplan-vuoto-testo");
+        Card messaggio = new Card();
+        messaggio.addClassName("mplan-elenco-vuoto");
+        messaggio.add(icona, testo);
+        messaggio.setVisible(false);
+        return messaggio;
+    }
+
+    private static String descrizioneAccessibile(VoceElenco voce) {
+        StringBuilder testo = new StringBuilder();
+        if (voce.data() != null) {
+            testo.append(voce.data()).append(", ");
+        }
+        testo.append(voce.ora()).append(", ");
+        if (voce.contatto() != null) {
+            testo.append(voce.contatto()).append(", ");
+        }
+        return testo.append(voce.titolo()).append(", ").append(nomeStato(voce.stato())).toString();
+    }
+
+    private static String formattaOra(Attivita attivita, String seAssente) {
+        return attivita.ora() == null ? seAssente : LocalizzazioneDate.formattaOra(attivita.ora());
+    }
+
+    private static String nomeStato(StatoAttivita stato) {
+        return switch (stato) {
+            case DA_FARE -> "Da fare";
+            case PARZIALE -> "Parziale";
+            case COMPLETATA -> "Completata";
+            case ANNULLATA -> "Annullata";
+        };
+    }
+
+    private static String classeStato(StatoAttivita stato) {
+        return switch (stato) {
+            case DA_FARE -> "mplan-stato-da-fare";
+            case PARZIALE -> "mplan-stato-parziale";
+            case COMPLETATA -> "mplan-stato-completata";
+            case ANNULLATA -> "mplan-stato-annullata";
+        };
+    }
+
+    /**
+     * Dati gia' formattati di una riga dell'elenco; i campi {@code null} non vengono mostrati.
+     */
+    private record VoceElenco(UUID idAttivita, StatoAttivita stato, String data, String ora,
+            String contatto, String titolo) {
+    }
+
+    /**
+     * Riga dell'elenco: un contenitore che puo' ricevere il focus da tastiera e si presenta
+     * alle tecnologie assistive come un pulsante.
+     */
+    private static final class Riga extends Div implements Focusable<Riga>, HasAriaRole {
+
+        private static final long serialVersionUID = 1L;
+    }
 }

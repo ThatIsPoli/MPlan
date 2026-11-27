@@ -5,130 +5,194 @@
 */
 package it.mpelettrica.mplan.app;
 
-import java.util.*;
-import java.time.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Clock;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
+import it.mpelettrica.mplan.api.AgendaService;
+import it.mpelettrica.mplan.api.AttivitaService;
+import it.mpelettrica.mplan.api.ChiusuraApplicazione;
+import it.mpelettrica.mplan.api.ContattoService;
+import it.mpelettrica.mplan.api.PersistenzaException;
+import it.mpelettrica.mplan.core.dominio.ValidatoreAttivita;
+import it.mpelettrica.mplan.core.dominio.ValidatoreContatto;
+import it.mpelettrica.mplan.core.repository.AttivitaRepository;
+import it.mpelettrica.mplan.core.repository.ContattoRepository;
+import it.mpelettrica.mplan.core.repository.GestoreTransazioni;
+import it.mpelettrica.mplan.core.repository.RegistroRepository;
+import it.mpelettrica.mplan.core.servizi.AgendaServiceImpl;
+import it.mpelettrica.mplan.core.servizi.AttivitaServiceImpl;
+import it.mpelettrica.mplan.core.servizi.ContattoServiceImpl;
+import it.mpelettrica.mplan.core.servizi.RegistroModifiche;
+import it.mpelettrica.mplan.persistence.PersistenzaFactory;
 
-// ----------- << imports@AAAAAAGh83vS06ACveY= >>
-// ----------- >>
-
-// ----------- << class.annotations@AAAAAAGh83vS06ACveY= >>
-// ----------- >>
+/**
+ * Configurazione di Spring: crea tutti gli oggetti di MPlan e li collega (D2, D7).
+ * <p>
+ * Ogni metodo {@code @Bean} crea un oggetto; Spring li chiama una sola volta,
+ * nell'ordine imposto dai parametri.
+ */
+@Configuration(proxyBeanMethods = false)
 public class ConfigurazioneMPlan {
-    // ----------- << method.annotations@AAAAAAGh83vbRKAH2X0= >>
-    // ----------- >>
+
+    private static final Logger LOGGER = LogManager.getLogger(ConfigurazioneMPlan.class);
+
+    private static final String PREFISSO_JDBC = "jdbc:sqlite:";
+
+    private static final String INDIRIZZO_LOCALE = "127.0.0.1";
+
+    /**
+     * Crea l'orologio del PC (D9).
+     *
+     * @return orologio con il fuso orario del sistema
+     */
+    @Bean
     public Clock clock() {
-    // ----------- << method.body@AAAAAAGh83vbRKAH2X0= >>
-    // ----------- >>
+        return Clock.systemDefaultZone();
     }
-    /**
-    * @param percorsoDatabase
-    */
 
-    // ----------- << method.annotations@AAAAAAGh83vd8qAJK+0= >>
-    // ----------- >>
-    public PersistenzaFactory persistenzaFactory(String percorsoDatabase) {
-    // ----------- << method.body@AAAAAAGh83vd8qAJK+0= >>
-    // ----------- >>
+    /**
+     * Crea la factory della persistenza: crea la cartella del database se manca
+     * e lo schema se non esiste (Q6). I dati già presenti non vengono toccati.
+     *
+     * @param percorsoDatabase percorso del file SQLite, da {@code mplan.database}
+     * @return la factory con lo schema pronto
+     * @throws PersistenzaException se la cartella del database non si può creare
+     */
+    @Bean
+    public PersistenzaFactory persistenzaFactory(@Value("${mplan.database}") String percorsoDatabase) {
+        Path file = Path.of(percorsoDatabase).toAbsolutePath();
+        creaCartella(file);
+        PersistenzaFactory factory = new PersistenzaFactory(PREFISSO_JDBC + file);
+        factory.inizializzaSchema();
+        LOGGER.info("Database: {}", file);
+        return factory;
     }
-    /**
-    * @param factory
-    */
 
-    // ----------- << method.annotations@AAAAAAGh83ve8qAME/I= >>
-    // ----------- >>
+    /**
+     * Ottiene il gestore delle transazioni dalla factory.
+     *
+     * @param factory factory della persistenza
+     * @return il gestore delle transazioni
+     */
+    @Bean
     public GestoreTransazioni gestoreTransazioni(PersistenzaFactory factory) {
-    // ----------- << method.body@AAAAAAGh83ve8qAME/I= >>
-    // ----------- >>
+        return factory.creaGestoreTransazioni();
     }
-    /**
-    * @param factory
-    */
 
-    // ----------- << method.annotations@AAAAAAGh83vkhqAP1dw= >>
-    // ----------- >>
+    /**
+     * Ottiene il repository dei contatti dalla factory.
+     *
+     * @param factory factory della persistenza
+     * @return il repository dei contatti
+     */
+    @Bean
     public ContattoRepository contattoRepository(PersistenzaFactory factory) {
-    // ----------- << method.body@AAAAAAGh83vkhqAP1dw= >>
-    // ----------- >>
+        return factory.creaContattoRepository();
     }
-    /**
-    * @param factory
-    */
 
-    // ----------- << method.annotations@AAAAAAGh83vnx6ASiJE= >>
-    // ----------- >>
+    /**
+     * Ottiene il repository delle attività dalla factory.
+     *
+     * @param factory factory della persistenza
+     * @return il repository delle attività
+     */
+    @Bean
     public AttivitaRepository attivitaRepository(PersistenzaFactory factory) {
-    // ----------- << method.body@AAAAAAGh83vnx6ASiJE= >>
-    // ----------- >>
+        return factory.creaAttivitaRepository();
     }
-    /**
-    * @param factory
-    */
 
-    // ----------- << method.annotations@AAAAAAGh83vrBqAV9yg= >>
-    // ----------- >>
+    /**
+     * Ottiene il repository del registro delle modifiche dalla factory.
+     *
+     * @param factory factory della persistenza
+     * @return il repository del registro
+     */
+    @Bean
     public RegistroRepository registroRepository(PersistenzaFactory factory) {
-    // ----------- << method.body@AAAAAAGh83vrBqAV9yg= >>
-    // ----------- >>
+        return factory.creaRegistroRepository();
     }
-    /**
-    * @param contatti 
-    * @param transazioni
-    */
 
-    // ----------- << method.annotations@AAAAAAGh83vxA6AYhwk= >>
-    // ----------- >>
+    /**
+     * Crea il servizio dei contatti con il suo validatore.
+     *
+     * @param contatti repository dei contatti
+     * @param transazioni gestore delle transazioni
+     * @return il servizio dei contatti
+     */
+    @Bean
     public ContattoService contattoService(ContattoRepository contatti, GestoreTransazioni transazioni) {
-    // ----------- << method.body@AAAAAAGh83vxA6AYhwk= >>
-    // ----------- >>
+        return new ContattoServiceImpl(contatti, transazioni, new ValidatoreContatto());
     }
-    /**
-    * @param attivita 
-    * @param contatti 
-    * @param transazioni 
-    * @param registro 
-    * @param clock
-    */
 
-    // ----------- << method.annotations@AAAAAAGh83v47KAc7tQ= >>
-    // ----------- >>
-    public AttivitaService attivitaService(AttivitaRepository attivita, ContattoRepository contatti, GestoreTransazioni transazioni, RegistroRepository registro, Clock clock) {
-    // ----------- << method.body@AAAAAAGh83v47KAc7tQ= >>
-    // ----------- >>
+    /**
+     * Crea il servizio delle attività con il suo validatore e gli collega
+     * il registro delle modifiche come osservatore (FUN.13).
+     *
+     * @param attivita repository delle attività
+     * @param contatti repository dei contatti
+     * @param transazioni gestore delle transazioni
+     * @param registro repository del registro delle modifiche
+     * @param clock orologio
+     * @return il servizio delle attività
+     */
+    @Bean
+    public AttivitaService attivitaService(AttivitaRepository attivita, ContattoRepository contatti,
+            GestoreTransazioni transazioni, RegistroRepository registro, Clock clock) {
+        AttivitaServiceImpl servizio = new AttivitaServiceImpl(attivita, contatti, transazioni,
+                new ValidatoreAttivita(), clock);
+        servizio.aggiungiOsservatore(new RegistroModifiche(registro, clock));
+        return servizio;
     }
-    /**
-    * @param attivita 
-    * @param contatti 
-    * @param clock
-    */
 
-    // ----------- << method.annotations@AAAAAAGh83wGk6AjjAg= >>
-    // ----------- >>
+    /**
+     * Crea il servizio dell'agenda.
+     *
+     * @param attivita repository delle attività
+     * @param contatti repository dei contatti
+     * @param clock orologio
+     * @return il servizio dell'agenda
+     */
+    @Bean
     public AgendaService agendaService(AttivitaRepository attivita, ContattoRepository contatti, Clock clock) {
-    // ----------- << method.body@AAAAAAGh83wGk6AjjAg= >>
-    // ----------- >>
+        return new AgendaServiceImpl(attivita, contatti, clock);
     }
-    /**
-    * @param contesto
-    */
 
-    // ----------- << method.annotations@AAAAAAGh83wNeqAoHG4= >>
-    // ----------- >>
+    /**
+     * Crea l'oggetto che chiude l'applicazione (comando {@code chiudi} della Home).
+     *
+     * @param contesto contesto di Spring
+     * @return l'oggetto di chiusura
+     */
+    @Bean
     public ChiusuraApplicazione chiusuraApplicazione(ConfigurableApplicationContext contesto) {
-    // ----------- << method.body@AAAAAAGh83wNeqAoHG4= >>
-    // ----------- >>
+        return new ChiusuraApplicazioneImpl(contesto);
     }
-    /**
-    * @param porta
-    */
 
-    // ----------- << method.annotations@AAAAAAGh83wT7KAropA= >>
-    // ----------- >>
-    public AperturaBrowser aperturaBrowser(int porta) {
-    // ----------- << method.body@AAAAAAGh83wT7KAropA= >>
-    // ----------- >>
+    /**
+     * Crea l'apertura del browser sull'indirizzo locale e sulla porta del server.
+     *
+     * @param porta porta del server, da {@code server.port}
+     * @return l'apertura del browser
+     */
+    @Bean
+    public AperturaBrowser aperturaBrowser(@Value("${server.port}") int porta) {
+        return new AperturaBrowser(MPlanApplication.costruisciUri(INDIRIZZO_LOCALE, porta));
     }
-// ----------- << class.extras@AAAAAAGh83vS06ACveY= >>
-// ----------- >>
+
+    private void creaCartella(Path file) {
+        try {
+            Files.createDirectories(file.getParent());
+        } catch (IOException e) {
+            throw new PersistenzaException("Impossibile creare la cartella del database " + file.getParent(), e);
+        }
+    }
 }

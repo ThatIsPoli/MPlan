@@ -5,37 +5,28 @@
 */
 package it.mpelettrica.mplan.api;
 
-import java.util.*;
-import java.time.*;
-
-
-
-// ----------- << imports@AAAAAAAB6telIjbM2hs= >>
-// ----------- >>
+import java.util.Objects;
 
 /**
-* Riferimento: contratto di mplan-api, da completare nel class diagram di mplan-api. Firme provvisorie.
-*/
+ * Errore di validazione di un singolo campo (DAT.5).
+ *
+ * @param campo nome del campo non valido, mai {@code null}. Valori usati: per il contatto
+ *     {@code nome}, {@code cognome}, {@code indirizzo}, {@code telefoni} (può comparire più
+ *     volte, una per ogni numero non valido o ripetuto), {@code codiceFiscale} e
+ *     {@code partitaIva}; per l'attività {@code titolo}, {@code data}, {@code descrizione}
+ *     e {@code note}; per l'annullamento {@code motivo}. I campi {@code tipo} e {@code ora}
+ *     non generano errori
+ * @param motivo spiegazione del problema da mostrare all'utente, mai {@code null}
+ */
+public record ErroreValidazione(String campo, String motivo) {
 
-// ----------- << class.annotations@AAAAAAAB6telIjbM2hs= >>
-// ----------- >>
-public class ErroreValidazione {
-    // ----------- << attribute.annotations@AAAAAAABZ629HI5RW0s= >>
-    // ----------- >>
-    private String campo;
-
-    // ----------- << attribute.annotations@AAAAAAABTI4vXScQTKY= >>
-    // ----------- >>
-    private String motivo;
-
-    private String getCampo() {
-        return campo;
+    /**
+     * Crea un errore di validazione.
+     *
+     * @throws NullPointerException se {@code campo} o {@code motivo} sono {@code null}
+     */
+    public ErroreValidazione {
+        Objects.requireNonNull(campo, "campo obbligatorio");
+        Objects.requireNonNull(motivo, "motivo obbligatorio");
     }
-
-    private String getMotivo() {
-        return motivo;
-    }
-
-// ----------- << class.extras@AAAAAAAB6telIjbM2hs= >>
-// ----------- >>
 }

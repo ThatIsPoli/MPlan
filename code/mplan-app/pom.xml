@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                              http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -35,14 +35,38 @@
             <artifactId>mplan-ui-vaadin</artifactId>
         </dependency>
 
-        <!-- Log4j API e CORE per l'esecuzione a runtime (dispensa pag. 4) -->
+        <!--
+            Vaadin con Spring Boot: server web interno e GUI (Design D7).
+            Si esclude Logback (spring-boot-starter-logging) per usare log4j2 (VIN.4).
+        -->
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-spring-boot-starter</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- Log4j2 come sistema di log di Spring Boot (Design D7, 2.3) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-log4j2</artifactId>
+        </dependency>
+        <!-- Log4j API usata direttamente dalle classi di app (versione dal log4j-bom) -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
         </dependency>
+        <!--
+            Strumenti di sviluppo di Vaadin (server Vite, ricaricamento): opzionali,
+            quindi spring-boot-maven-plugin li esclude dal jar di produzione (NFR.6).
+        -->
         <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-dev</artifactId>
+            <optional>true</optional>
         </dependency>
 
         <!-- JUnit 5 -->
@@ -55,23 +79,50 @@
 
     <build>
         <plugins>
+            <!--
+                Accesso nativo del driver SQLite consentito senza avvisi della JVM
+                (il driver carica una libreria nativa).
+            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
                     <archive>
-                        <manifest>
-                            <mainClass>it.mpelettrica.mplan.app.MPlanApplication</mainClass>
-                        </manifest>
+                        <manifestEntries>
+                            <Enable-Native-Access>ALL-UNNAMED</Enable-Native-Access>
+                        </manifestEntries>
                     </archive>
                 </configuration>
             </plugin>
+            <!--
+                Interfaccia preparata in fase di build (Design D7, Q6): il bundle del frontend
+                finisce nel jar, quindi a runtime non servono Node.js né Internet (NFR.6).
+            -->
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>build-frontend</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Jar eseguibile con tutte le dipendenze (java -jar) -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <mainClass>it.mpelettrica.mplan.app.MPlanApplication</mainClass>
                 </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

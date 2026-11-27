@@ -5,41 +5,68 @@
 */
 package it.mpelettrica.mplan.persistence.infrastruttura;
 
-import java.util.*;
-import java.time.*;
-
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.jooq.DSLContext;
-// ----------- << imports@AAAAAAcakGfIYDdAFttC >>
-// ----------- >>
+import org.jooq.impl.DSL;
 
-// ----------- << class.annotations@AAAAAAcakGfIYDdAFttC >>
-// ----------- >>
+import it.mpelettrica.mplan.api.PersistenzaException;
+
+/**
+ * Crea tabelle e indici eseguendo {@code schema.sql}, incorporato nel classpath.
+ * Lo script usa {@code IF NOT EXISTS}, quindi non tocca i dati esistenti.
+ */
 public class InizializzatoreSchema {
-    // ----------- << attribute.annotations@AAAAAAcm2fL2qxQSY0bo >>
-    // ----------- >>
-    private DSLContext dsl;
 
-    private DSLContext getDsl() {
-        return dsl;
+    private static final String RISORSA_SCHEMA = "/schema.sql";
+
+    private final DSLContext dsl;
+
+    /**
+     * Crea l'inizializzatore.
+     *
+     * @param dsl canale con cui eseguire gli statement
+     */
+    public InizializzatoreSchema(DSLContext dsl) {
+        this.dsl = dsl;
     }
 
     /**
-    * @param dsl
-    */
-
-    // ----------- << method.annotations@AAAAAAe0lTnzMrl83jZR >>
-    // ----------- >>
-    public InizializzatoreSchema(DSLContext dsl) {
-    // ----------- << method.body@AAAAAAe0lTnzMrl83jZR >>
-    // ----------- >>
-    }
-    // ----------- << method.annotations@AAAAAAfSdh+FrZ6mixql >>
-    // ----------- >>
+     * Esegue gli statement dello schema, uno alla volta, in un'unica transazione.
+     *
+     * @throws PersistenzaException se lo schema non si legge o un'istruzione fallisce
+     */
     public void inizializza() {
-    // ----------- << method.body@AAAAAAfSdh+FrZ6mixql >>
-    // ----------- >>
+        List<String> statement = dividiInStatement(leggiSchema());
+        dsl.transaction(cfg -> {
+            DSLContext transazionale = DSL.using(cfg);
+            statement.forEach(transazionale::execute);
+        });
     }
-// ----------- << class.extras@AAAAAAcakGfIYDdAFttC >>
-// ----------- >>
+
+    private String leggiSchema() {
+        try (InputStream in = InizializzatoreSchema.class.getResourceAsStream(RISORSA_SCHEMA)) {
+            if (in == null) {
+                throw new PersistenzaException("Schema del database non trovato: " + RISORSA_SCHEMA);
+            }
+            return new String(in.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new PersistenzaException("Impossibile leggere lo schema del database", e);
+        }
+    }
+
+    private List<String> dividiInStatement(String script) {
+        String senzaCommenti = script.lines()
+                .filter(riga -> !riga.stripLeading().startsWith("--"))
+                .collect(Collectors.joining("\n"));
+        return Arrays.stream(senzaCommenti.split(";"))
+                .map(String::strip)
+                .filter(s -> !s.isEmpty())
+                .toList();
+    }
 }

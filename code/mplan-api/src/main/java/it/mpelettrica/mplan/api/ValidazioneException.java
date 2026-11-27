@@ -5,41 +5,48 @@
 */
 package it.mpelettrica.mplan.api;
 
-import java.util.*;
-import java.time.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
-
-
-// ----------- << imports@AAAAAAGh5GiPYrp4k4k= >>
-// ----------- >>
-
-// ----------- << class.annotations@AAAAAAGh5GiPYrp4k4k= >>
-// ----------- >>
+/**
+ * Dati non validi in un'operazione che li salva (D4, DAT.5). Porta gli stessi errori che
+ * restituirebbe {@code valida()}, così la GUI li mostra accanto ai campi.
+ *
+ * <p>È un'eccezione non controllata.
+ */
 public class ValidazioneException extends RuntimeException {
-    // ----------- << attribute.annotations@AAAAAAGh8456JU70zDM= >>
-    // ----------- >>
-    private List<ErroreValidazione> errori = new ArrayList<>();
 
-    private List<ErroreValidazione> getErrori() {
-        return errori;
+    private static final long serialVersionUID = 1L;
+
+    private final List<ErroreValidazione> errori;
+
+    /**
+     * Crea l'eccezione con gli errori riscontrati.
+     *
+     * @param errori gli errori, copiati in una lista immutabile; può essere vuota
+     * @throws NullPointerException se {@code errori} è {@code null} o contiene {@code null}
+     */
+    public ValidazioneException(List<ErroreValidazione> errori) {
+        super(creaMessaggio(Objects.requireNonNull(errori, "errori obbligatori")));
+        this.errori = List.copyOf(errori);
     }
 
     /**
-    * @param errori
-    */
-
-    // ----------- << method.annotations@AAAAAAGh5GiRMLp5zIw= >>
-    // ----------- >>
-    public ValidazioneException(List<ErroreValidazione> errori) {
-    // ----------- << method.body@AAAAAAGh5GiRMLp5zIw= >>
-    // ----------- >>
-    }
-    // ----------- << method.annotations@AAAAAAGh845zYk7wv54= >>
-    // ----------- >>
+     * Restituisce gli errori di validazione.
+     *
+     * @return lista immutabile, mai {@code null}
+     */
     public List<ErroreValidazione> getErrori() {
-    // ----------- << method.body@AAAAAAGh845zYk7wv54= >>
-    // ----------- >>
+        return errori;
     }
-// ----------- << class.extras@AAAAAAGh5GiPYrp4k4k= >>
-// ----------- >>
+
+    private static String creaMessaggio(List<ErroreValidazione> errori) {
+        if (errori.isEmpty()) {
+            return "Dati non validi";
+        }
+        return errori.stream()
+                .map(e -> e.campo() + ": " + e.motivo())
+                .collect(Collectors.joining("; ", "Dati non validi - ", ""));
+    }
 }

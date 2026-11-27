@@ -23,6 +23,27 @@
             <artifactId>mplan-api</artifactId>
         </dependency>
 
+        <!-- Vaadin Flow: componenti e tema Aura (Design D7); versione dal BOM del pom padre -->
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-core</artifactId>
+        </dependency>
+        <!-- Integrazione con Spring: @UIScope per il Navigatore e bean della GUI -->
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-spring</artifactId>
+        </dependency>
+
+        <!--
+            API servlet solo in compilazione: VaadinSession implementa interfacce servlet.
+            A runtime la fornisce il server web interno di Spring Boot (mplan-app).
+        -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- Log4j API -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>

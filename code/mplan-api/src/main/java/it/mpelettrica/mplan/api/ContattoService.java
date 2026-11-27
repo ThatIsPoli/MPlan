@@ -5,53 +5,70 @@
 */
 package it.mpelettrica.mplan.api;
 
-import java.util.*;
-import java.time.*;
-
-
-
-// ----------- << imports@AAAAAAABcMDTJvBCiCc= >>
-// ----------- >>
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
-* Riferimento: contratto di mplan-api, da completare nel class diagram di mplan-api. Firme provvisorie.
-*/
-
-// ----------- << class.annotations@AAAAAAABcMDTJvBCiCc= >>
-// ----------- >>
+ * Servizio sui contatti della rubrica (FUN.1, FUN.2, FUN.3).
+ *
+ * <p>Tutti i metodi possono lanciare {@link PersistenzaException} in caso di guasto del
+ * database. Le liste restituite sono immutabili.
+ *
+ * <p>Un argomento {@code null} è un errore di programmazione e fa lanciare
+ * {@link NullPointerException}.
+ */
 public interface ContattoService {
-    // ----------- << method.annotations@AAAAAAABSYVcZjxnpBY= >>
-    // ----------- >>
+
+    /**
+     * Elenca tutti i contatti, ordinati per nome e poi per cognome, senza distinzione di
+     * maiuscole; a parità di nome i contatti senza cognome vengono per ultimi.
+     *
+     * @return lista immutabile, mai {@code null}, vuota se la rubrica è vuota
+     * @throws PersistenzaException in caso di errore del database
+     */
     List<Contatto> elenca();
-    /**
-    * @param id
-    */
 
-    // ----------- << method.annotations@AAAAAAABk4Vc7x0q/Rw= >>
-    // ----------- >>
+    /**
+     * Cerca un contatto dal suo identificativo.
+     *
+     * @param id identificativo del contatto
+     * @return il contatto, o un {@code Optional} vuoto se non esiste
+     * @throws NullPointerException se un argomento è {@code null}
+     * @throws PersistenzaException in caso di errore del database
+     */
     Optional<Contatto> trova(UUID id);
-    /**
-    * @param dati
-    */
 
-    // ----------- << method.annotations@AAAAAAABjzk7LZcgO7M= >>
-    // ----------- >>
+    /**
+     * Crea un nuovo contatto.
+     *
+     * @param dati i dati scritti dall'utente
+     * @return il contatto creato
+     * @throws NullPointerException se un argomento è {@code null}
+     * @throws ValidazioneException se i dati non sono validi
+     * @throws PersistenzaException in caso di errore del database
+     */
     Contatto crea(DatiContatto dati);
-    /**
-    * @param id 
-    * @param dati
-    */
 
-    // ----------- << method.annotations@AAAAAAAB8hCTueHVPjs= >>
-    // ----------- >>
+    /**
+     * Modifica un contatto esistente.
+     *
+     * @param id identificativo del contatto
+     * @param dati i nuovi dati
+     * @return il contatto aggiornato
+     * @throws NullPointerException se un argomento è {@code null}
+     * @throws ValidazioneException se i dati non sono validi
+     * @throws IllegalArgumentException se il contatto non esiste
+     * @throws PersistenzaException in caso di errore del database
+     */
     Contatto modifica(UUID id, DatiContatto dati);
-    /**
-    * @param dati
-    */
 
-    // ----------- << method.annotations@AAAAAAAB0HqGcBdI6Ws= >>
-    // ----------- >>
+    /**
+     * Controlla i dati senza salvarli.
+     *
+     * @param dati i dati scritti dall'utente
+     * @return gli errori campo per campo: lista immutabile, vuota se i dati sono validi
+     * @throws NullPointerException se un argomento è {@code null}
+     */
     List<ErroreValidazione> valida(DatiContatto dati);
-// ----------- << interface.extras@AAAAAAABcMDTJvBCiCc= >>
-// ----------- >>
 }

@@ -5,31 +5,35 @@
 */
 package it.mpelettrica.mplan.api;
 
-import java.util.*;
-import java.time.*;
-
-
-
-// ----------- << imports@AAAAAAABd9v/n1vGS+8= >>
-// ----------- >>
+import java.time.LocalDate;
+import java.util.List;
 
 /**
-* Riferimento: contratto di mplan-api, da completare nel class diagram di mplan-api. Firme provvisorie.
-*/
-
-// ----------- << class.annotations@AAAAAAABd9v/n1vGS+8= >>
-// ----------- >>
+ * Servizio dell'agenda giornaliera (FUN.10, FUN.11).
+ *
+ * <p>Un argomento {@code null} è un errore di programmazione e fa lanciare
+ * {@link NullPointerException}.
+ */
 public interface AgendaService {
-    /**
-    * @param giorno
-    */
 
-    // ----------- << method.annotations@AAAAAAAB1s/ITl4qeww= >>
-    // ----------- >>
+    /**
+     * Restituisce le attività di tutti i contatti pianificate in un giorno, senza ora prima e
+     * poi per ora (FUN.10.3).
+     *
+     * @param giorno il giorno da mostrare
+     * @return lista immutabile, mai {@code null}, vuota se non ci sono attività
+     * @throws NullPointerException se un argomento è {@code null}
+     * @throws IllegalStateException se un'attività del giorno appartiene a un contatto
+     *     inesistente (dati incoerenti)
+     * @throws PersistenzaException in caso di errore del database
+     */
     List<VoceAgenda> attivitaDelGiorno(LocalDate giorno);
-    // ----------- << method.annotations@AAAAAAGh090te9z+2Vc= >>
-    // ----------- >>
+
+    /**
+     * Restituisce il giorno corrente, su cui si apre l'agenda (FUN.10.4). La GUI non legge
+     * l'orologio del computer.
+     *
+     * @return la data di oggi
+     */
     LocalDate oggi();
-// ----------- << interface.extras@AAAAAAABd9v/n1vGS+8= >>
-// ----------- >>
 }

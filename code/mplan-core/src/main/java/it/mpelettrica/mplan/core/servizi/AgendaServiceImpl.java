@@ -5,86 +5,81 @@
 */
 package it.mpelettrica.mplan.core.servizi;
 
-import java.util.*;
-import java.time.*;
-
-
 import it.mpelettrica.mplan.api.AgendaService;
+import it.mpelettrica.mplan.api.Attivita;
+import it.mpelettrica.mplan.api.Contatto;
+import it.mpelettrica.mplan.api.VoceAgenda;
+import it.mpelettrica.mplan.core.dominio.OrdinamentoAttivita;
 import it.mpelettrica.mplan.core.repository.AttivitaRepository;
 import it.mpelettrica.mplan.core.repository.ContattoRepository;
 import java.time.Clock;
-// ----------- << imports@AAAAAAABOCVAR2DnQMs= >>
-// ----------- >>
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
-// ----------- << class.annotations@AAAAAAABOCVAR2DnQMs= >>
-// ----------- >>
+/**
+ * Agenda giornaliera: le attività di tutti i contatti in un giorno, con il nome del contatto
+ * (FUN.10, FUN.10.4). Operazioni di sola lettura, senza transazione.
+ */
 public class AgendaServiceImpl implements AgendaService {
-    // ----------- << attribute.annotations@AAAAAAAB9FhsLGHxsao= >>
-    // ----------- >>
-    private AttivitaRepository attivita;
 
-    // ----------- << attribute.annotations@AAAAAAAB54FLwsi7xzg= >>
-    // ----------- >>
-    private Clock clock;
-
-    // ----------- << attribute.annotations@AAAAAAGh5GikzbqGf2g= >>
-    // ----------- >>
-    private ContattoRepository contatti;
-
-    private AttivitaRepository getAttivita() {
-        return attivita;
-    }
-
-    private Clock getClock() {
-        return clock;
-    }
-
-    private ContattoRepository getContatti() {
-        return contatti;
-    }
-
-    private void setAttivita(AttivitaRepository attivita) {
-        this.attivita = attivita;
-    }
-
-    private void setClock(Clock clock) {
-        this.clock = clock;
-    }
-
-    private void setContatti(ContattoRepository contatti) {
-        this.contatti = contatti;
-    }
+    private final AttivitaRepository attivita;
+    private final ContattoRepository contatti;
+    private final Clock clock;
 
     /**
-    * @param attivita 
-    * @param contatti 
-    * @param clock
-    */
-
-    // ----------- << method.annotations@AAAAAAGh0997O95ISaw= >>
-    // ----------- >>
+     * Crea il servizio.
+     *
+     * @param attivita repository delle attività
+     * @param contatti repository dei contatti
+     * @param clock orologio da cui prendere il giorno corrente
+     * @throws NullPointerException se un parametro è {@code null}
+     */
     public AgendaServiceImpl(AttivitaRepository attivita, ContattoRepository contatti, Clock clock) {
-    // ----------- << method.body@AAAAAAGh0997O95ISaw= >>
-    // ----------- >>
+        this.attivita = Objects.requireNonNull(attivita, "attivita");
+        this.contatti = Objects.requireNonNull(contatti, "contatti");
+        this.clock = Objects.requireNonNull(clock, "clock");
     }
-    /**
-    * @param giorno
-    */
 
+    /**
+     * Restituisce le attività di un giorno, senza orario per prime e poi per orario.
+     *
+     * @param giorno giorno richiesto
+     * @return una voce per ogni attività, non modificabile
+     * @throws IllegalStateException se un'attività appartiene a un contatto che non esiste
+     * @throws NullPointerException se {@code giorno} è {@code null}
+     */
     @Override
-    // ----------- << method.annotations@AAAAAAABXMATKNH5RR0= >>
-    // ----------- >>
     public List<VoceAgenda> attivitaDelGiorno(LocalDate giorno) {
-    // ----------- << method.body@AAAAAAABXMATKNH5RR0= >>
-    // ----------- >>
+        Objects.requireNonNull(giorno, "giorno");
+        Map<UUID, String> nomi = new HashMap<>();
+        return attivita.perGiorno(giorno).stream()
+                .sorted(OrdinamentoAttivita.PER_AGENDA)
+                .map(a -> new VoceAgenda(nomi.computeIfAbsent(a.idContatto(), this::nomeDelContatto), a))
+                .toList();
     }
+
+    /**
+     * Restituisce il giorno corrente secondo l'orologio.
+     *
+     * @return la data di oggi
+     */
     @Override
-    // ----------- << method.annotations@AAAAAAGh091b0d0dbn8= >>
-    // ----------- >>
     public LocalDate oggi() {
-    // ----------- << method.body@AAAAAAGh091b0d0dbn8= >>
-    // ----------- >>
+        return LocalDate.now(clock);
     }
-// ----------- << class.extras@AAAAAAABOCVAR2DnQMs= >>
-// ----------- >>
+
+    private String nomeDelContatto(UUID idContatto) {
+        Contatto contatto = contatti.trova(idContatto).orElseThrow(
+                () -> new IllegalStateException("Contatto inesistente per un'attività: " + idContatto));
+        return nomeCompleto(contatto);
+    }
+
+    private String nomeCompleto(Contatto contatto) {
+        String cognome = contatto.cognome();
+        return cognome == null || cognome.isBlank() ? contatto.nome() : contatto.nome() + " " + cognome;
+    }
 }

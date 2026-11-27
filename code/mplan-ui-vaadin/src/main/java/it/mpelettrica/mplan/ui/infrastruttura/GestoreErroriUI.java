@@ -5,44 +5,139 @@
 */
 package it.mpelettrica.mplan.ui.infrastruttura;
 
-import java.util.*;
-import java.time.*;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.UUID;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Component;
 
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.server.ErrorEvent;
 import com.vaadin.flow.server.ErrorHandler;
+import com.vaadin.flow.server.ServiceInitEvent;
 import com.vaadin.flow.server.VaadinServiceInitListener;
-// ----------- << imports@AAAAAA3+t3K5ZaRT+nVbF >>
-// ----------- >>
 
-// ----------- << class.annotations@AAAAAA3+t3K5ZaRT+nVbF >>
-// ----------- >>
+import it.mpelettrica.mplan.api.PersistenzaException;
+import it.mpelettrica.mplan.api.ValidazioneException;
+
+/**
+ * Unico gestore degli errori dell'interfaccia (Design D4).
+ * <p>
+ * Si registra da solo all'avvio di Vaadin come bean Spring e diventa il gestore degli errori
+ * di ogni sessione. Intercetta le eccezioni non gestite nei pulsanti e negli altri eventi,
+ * le scrive nel log con un codice e mostra all'utente un messaggio comprensibile, senza
+ * dettagli tecnici. Gli errori durante l'apertura di una schermata sono gestiti da
+ * {@link VistaErrore}, che usa gli stessi messaggi.
+ */
+@Component
 public class GestoreErroriUI implements VaadinServiceInitListener, ErrorHandler {
-    // ----------- << method.annotations@AAAAAA3qLJAipiSv+rSlM >>
-    // ----------- >>
+
+    private static final long serialVersionUID = 1L;
+
+    private static final Logger LOG = LogManager.getLogger(GestoreErroriUI.class);
+
+    private static final int DURATA_NOTIFICA_MS = 6000;
+
+    private static final int LUNGHEZZA_CODICE = 8;
+
+    /**
+     * Crea il gestore degli errori.
+     */
     public GestoreErroriUI() {
-    // ----------- << method.body@AAAAAA3qLJAipiSv+rSlM >>
-    // ----------- >>
+        // Nessuno stato: il gestore e' condiviso da tutte le sessioni.
     }
-    /**
-    * @param event
-    */
 
-    // ----------- << method.annotations@AAAAAAmj15soEdRhqYZzs >>
-    // ----------- >>
-    public void serviceInit(ServiceInitEvent event) {
-    // ----------- << method.body@AAAAAAmj15soEdRhqYZzs >>
-    // ----------- >>
-    }
     /**
-    * @param event
-    */
-
-    // ----------- << method.annotations@AAAAAAjKedKZXSS5OVtW7 >>
-    // ----------- >>
-    public void error(ErrorEvent event) {
-    // ----------- << method.body@AAAAAAjKedKZXSS5OVtW7 >>
-    // ----------- >>
+     * Installa questo gestore in ogni nuova sessione dell'interfaccia.
+     *
+     * @param evento l'evento di avvio del servizio Vaadin
+     */
+    @Override
+    public void serviceInit(ServiceInitEvent evento) {
+        evento.getSource().addSessionInitListener(
+                inizio -> inizio.getSession().setErrorHandler(this));
     }
-// ----------- << class.extras@AAAAAA3+t3K5ZaRT+nVbF >>
-// ----------- >>
+
+    /**
+     * Gestisce un'eccezione non intercettata: la scrive nel log e mostra all'utente un messaggio
+     * generico con un codice da riferire. Non rilancia mai eccezioni.
+     *
+     * @param evento l'evento che contiene l'eccezione
+     */
+    @Override
+    public void error(ErrorEvent evento) {
+        try {
+            Throwable errore = evento.getThrowable();
+            String codice = nuovoCodice();
+            LOG.error("Errore nell'interfaccia, codice {}", codice, errore);
+            mostraNotifica(messaggioPer(errore) + " (codice " + codice + ")");
+        } catch (RuntimeException e) {
+            LOG.error("Errore durante la gestione di un altro errore", e);
+        }
+    }
+
+    /**
+     * Crea un codice breve che identifica un errore nel log.
+     *
+     * @return il codice, in maiuscolo
+     */
+    static String nuovoCodice() {
+        return UUID.randomUUID().toString().substring(0, LUNGHEZZA_CODICE).toUpperCase(Locale.ROOT);
+    }
+
+    /**
+     * Sceglie il messaggio per l'utente in base al tipo di errore, cercando lungo tutta la
+     * catena delle cause.
+     *
+     * @param errore l'eccezione da descrivere; puo' essere {@code null}
+     * @return il messaggio in italiano, senza dettagli tecnici
+     */
+    static String messaggioPer(Throwable errore) {
+        if (trovaCausa(errore, PersistenzaException.class).isPresent()) {
+            return "Impossibile leggere o salvare i dati. Riprova; se il problema persiste, riavvia MPlan.";
+        }
+        Optional<ValidazioneException> validazione = trovaCausa(errore, ValidazioneException.class);
+        if (validazione.isPresent()) {
+            return "Dati non validi: " + String.join("; ", validazione.get().getErrori().stream()
+                    .map(e -> e.motivo()).toList()) + ".";
+        }
+        // Il core lancia IllegalStateException per una transizione di stato non ammessa, per la modifica
+        // di un'attivita' annullata o per un contatto sparito: la UI impedisce gia' queste operazioni,
+        // quindi se accadono i dati sono cambiati nel frattempo. Il messaggio vale per tutti i casi.
+        if (trovaCausa(errore, IllegalStateException.class).isPresent()) {
+            return "Operazione non consentita: i dati potrebbero essere cambiati nel frattempo. "
+                    + "Torna alla schermata precedente e riprova.";
+        }
+        if (trovaCausa(errore, IllegalArgumentException.class).isPresent()) {
+            return "L'elemento richiesto non esiste più.";
+        }
+        return "Si è verificato un errore imprevisto.";
+    }
+
+    private static <T extends Throwable> Optional<T> trovaCausa(Throwable errore, Class<T> tipo) {
+        Throwable corrente = errore;
+        while (corrente != null) {
+            if (tipo.isInstance(corrente)) {
+                return Optional.of(tipo.cast(corrente));
+            }
+            if (corrente.getCause() == corrente) {
+                break;
+            }
+            corrente = corrente.getCause();
+        }
+        return Optional.empty();
+    }
+
+    private static void mostraNotifica(String messaggio) {
+        UI ui = UI.getCurrent();
+        if (ui == null) {
+            return;
+        }
+        Notification notifica = Notification.show(messaggio, DURATA_NOTIFICA_MS, Notification.Position.TOP_CENTER);
+        notifica.addThemeVariants(NotificationVariant.ERROR);
+    }
 }

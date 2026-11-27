@@ -137,7 +137,7 @@ Associazioni: un `Contatto` ha molte `Attivita`; un'`Attivita` ha molte `VoceReg
 | Nome | Tipo | Compito | Requisiti |
 |---|---|---|---|
 | `Schermata` | interfaccia | contratto comune delle schermate: `titolo()`, `vista()` e `alMostrare()` (ricarica i dati quando la schermata torna visibile) | GUI.1 |
-| `SchermataHome` | classe | rubrica, "nuovo contatto" e menu a tendina per l'agenda | GUI.2 |
+| `SchermataHome` | classe | rubrica, "nuovo contatto" e pulsanti per l'agenda e per chiudere l'applicazione | GUI.2 |
 | `SchermataFormContatto` | classe | inserimento e modifica di un contatto, con i messaggi di errore | GUI.3; DAT.5 |
 | `SchermataScheda` | classe | dati del contatto e storico a elenco in stile chat (dalla più vecchia in alto alla più recente in basso), aperto in fondo sulle attività più recenti, senza selezione di mese o anno; pulsante "nuova attività" | GUI.4, FUN.9.1 |
 | `SchermataFormAttivita` | classe | inserimento e modifica di un'attività; cambio di stato | GUI.5 |

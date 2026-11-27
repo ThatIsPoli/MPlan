@@ -5,32 +5,48 @@
 */
 package it.mpelettrica.mplan.core.dominio;
 
-import java.util.*;
-import java.time.*;
-
-
-
-// ----------- << imports@AAAAAAABrglRZ4pBxNU= >>
-// ----------- >>
+import it.mpelettrica.mplan.api.DatiAttivita;
+import it.mpelettrica.mplan.api.ErroreValidazione;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
-* Applica le regole di DAT.5 e FUN.4.2 ai dati dell'attività.
-*/
+ * Applica le regole di DAT.2, DAT.5 e FUN.4.2 ai dati dell'attività. L'orario (DAT.2.3) è
+ * facoltativo e non genera errori. Il motivo di annullamento non è controllato qui.
+ */
+public class ValidatoreAttivita implements Validatore<DatiAttivita> {
 
-// ----------- << class.annotations@AAAAAAABrglRZ4pBxNU= >>
-// ----------- >>
-public class ValidatoreAttivita implements Validatore {
+    private static final String CAMPO_TITOLO = "titolo";
+    private static final String CAMPO_DATA = "data";
+    private static final String CAMPO_DESCRIZIONE = "descrizione";
+    private static final String CAMPO_NOTE = "note";
+
+    private static final int MAX_TITOLO = 100;
+    private static final int MAX_TESTO_LIBERO = 5000;
+
     /**
-    * @param dati
-    */
-
+     * Controlla titolo, data, descrizione e note dell'attività.
+     *
+     * @param dati dati scritti dall'utente
+     * @return la lista degli errori; vuota se i dati sono validi
+     * @throws NullPointerException se {@code dati} è {@code null}
+     */
     @Override
-    // ----------- << method.annotations@AAAAAAABGrbDl4JCjNk= >>
-    // ----------- >>
     public List<ErroreValidazione> valida(DatiAttivita dati) {
-    // ----------- << method.body@AAAAAAABGrbDl4JCjNk= >>
-    // ----------- >>
+        Objects.requireNonNull(dati, "dati");
+        List<ErroreValidazione> errori = new ArrayList<>();
+        ControlliTesto.obbligatorio(errori, CAMPO_TITOLO, "Titolo", dati.getTitolo(), MAX_TITOLO);
+        controllaData(errori, dati);
+        ControlliTesto.facoltativo(errori, CAMPO_DESCRIZIONE, "Descrizione", dati.getDescrizione(),
+                MAX_TESTO_LIBERO);
+        ControlliTesto.facoltativo(errori, CAMPO_NOTE, "Note", dati.getNote(), MAX_TESTO_LIBERO);
+        return errori;
     }
-// ----------- << class.extras@AAAAAAABrglRZ4pBxNU= >>
-// ----------- >>
+
+    private void controllaData(List<ErroreValidazione> errori, DatiAttivita dati) {
+        if (dati.getData() == null) {
+            errori.add(new ErroreValidazione(CAMPO_DATA, "Data: campo obbligatorio"));
+        }
+    }
 }

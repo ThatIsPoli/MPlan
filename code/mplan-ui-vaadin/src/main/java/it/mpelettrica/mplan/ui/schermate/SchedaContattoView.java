@@ -5,132 +5,193 @@
 */
 package it.mpelettrica.mplan.ui.schermate;
 
-import java.util.*;
-import java.time.*;
+import java.util.Optional;
+import java.util.UUID;
 
-
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.card.Card;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
+
 import it.mpelettrica.mplan.api.AttivitaService;
+import it.mpelettrica.mplan.api.Contatto;
 import it.mpelettrica.mplan.api.ContattoService;
 import it.mpelettrica.mplan.ui.componenti.ElencoAttivita;
 import it.mpelettrica.mplan.ui.navigazione.Navigatore;
-// ----------- << imports@AAAAAAEcxqr84FT/qf1DQ >>
-// ----------- >>
 
-// ----------- << class.annotations@AAAAAAEcxqr84FT/qf1DQ >>
-// ----------- >>
+/**
+ * Scheda di un contatto: in alto il nome e i soli dati compilati, subito sotto lo storico delle
+ * attivita' (GUI.4, FUN.9), con i pulsanti per modificare il contatto o aggiungere un'attivita'.
+ */
+@Route(Navigatore.ROTTA_SCHEDA_CONTATTO)
+@PageTitle("MPlan – Scheda contatto")
 public class SchedaContattoView extends VerticalLayout implements BeforeEnterObserver {
-    // ----------- << attribute.annotations@AAAAAARrlmmdKXS7OXCWM >>
-    // ----------- >>
+
+    private static final long serialVersionUID = 1L;
+
+    private static final int DURATA_NOTIFICA_MS = 4000;
+
     private UUID idContatto;
 
-    // ----------- << attribute.annotations@AAAAAADbHYNYtqQlGP9aZ >>
-    // ----------- >>
-    private Div riquadroDati;
+    private final Card riquadroDati;
 
-    // ----------- << attribute.annotations@AAAAAA5a1HmnFSRueJ22c >>
-    // ----------- >>
-    private ContattoService contattoService;
+    private final Div grigliaDati;
 
-    // ----------- << attribute.annotations@AAAAAAvvi/UUZMSI+5cyN >>
-    // ----------- >>
-    private AttivitaService attivitaService;
+    private final H1 titolo;
 
-    // ----------- << attribute.annotations@AAAAAAGwSJ5pAPQEqCfLX >>
-    // ----------- >>
-    private Navigatore navigatore;
+    private final ContattoService contattoService;
 
-    // ----------- << attribute.annotations@AAAAAAiFMjZf3rRHSgp/5 >>
-    // ----------- >>
-    private ElencoAttivita elencoAttivita;
+    private final AttivitaService attivitaService;
 
-    private UUID getIdContatto() {
-        return idContatto;
-    }
+    private final Navigatore navigatore;
 
-    private Div getRiquadroDati() {
-        return riquadroDati;
-    }
+    private final ElencoAttivita elencoAttivita;
 
-    private ContattoService getContattoService() {
-        return contattoService;
-    }
-
-    private AttivitaService getAttivitaService() {
-        return attivitaService;
-    }
-
-    private Navigatore getNavigatore() {
-        return navigatore;
-    }
-
-    private ElencoAttivita getElencoAttivita() {
-        return elencoAttivita;
-    }
-
-    private void setIdContatto(UUID idContatto) {
-        this.idContatto = idContatto;
-    }
-
-    private void setRiquadroDati(Div riquadroDati) {
-        this.riquadroDati = riquadroDati;
-    }
-
-    private void setContattoService(ContattoService contattoService) {
+    /**
+     * Crea la scheda del contatto; i dati vengono caricati all'ingresso nella schermata.
+     *
+     * @param contattoService servizio da cui leggere il contatto
+     * @param attivitaService servizio da cui leggere lo storico
+     * @param navigatore      navigatore tra le schermate
+     */
+    public SchedaContattoView(ContattoService contattoService, AttivitaService attivitaService,
+            Navigatore navigatore) {
         this.contattoService = contattoService;
-    }
-
-    private void setAttivitaService(AttivitaService attivitaService) {
         this.attivitaService = attivitaService;
-    }
-
-    private void setNavigatore(Navigatore navigatore) {
         this.navigatore = navigatore;
-    }
-
-    private void setElencoAttivita(ElencoAttivita elencoAttivita) {
-        this.elencoAttivita = elencoAttivita;
+        this.titolo = creaTitolo();
+        this.grigliaDati = creaGrigliaDati();
+        this.riquadroDati = creaRiquadroDati();
+        this.elencoAttivita = new ElencoAttivita(navigatore::vaiAApriAttivita);
+        configuraPagina();
+        add(creaIntestazione(), riquadroDati, creaTitoloStorico(), elencoAttivita);
+        expand(elencoAttivita);
     }
 
     /**
-    * @param contattoService 
-    * @param attivitaService 
-    * @param navigatore
-    */
-
-    // ----------- << method.annotations@AAAAAAthTyTEGuR72+rCE >>
-    // ----------- >>
-    public SchedaContattoView(ContattoService contattoService, AttivitaService attivitaService, Navigatore navigatore) {
-    // ----------- << method.body@AAAAAAthTyTEGuR72+rCE >>
-    // ----------- >>
+     * Legge l'identificativo del contatto dall'indirizzo e carica la scheda; se il contatto
+     * non esiste torna alla schermata principale.
+     *
+     * @param evento l'evento di navigazione
+     */
+    @Override
+    public void beforeEnter(BeforeEnterEvent evento) {
+        Optional<UUID> id = evento.getRouteParameters().get(Navigatore.PARAMETRO_CONTATTO).map(UUID::fromString);
+        if (id.isEmpty()) {
+            evento.forwardTo(HomeView.class);
+            return;
+        }
+        idContatto = id.get();
+        if (!caricaScheda()) {
+            Notification.show("Il contatto richiesto non esiste.", DURATA_NOTIFICA_MS,
+                    Notification.Position.TOP_CENTER);
+            evento.forwardTo(HomeView.class);
+        }
     }
+
+    private boolean caricaScheda() {
+        Optional<Contatto> contatto = contattoService.trova(idContatto);
+        if (contatto.isEmpty()) {
+            return false;
+        }
+        mostraDatiContatto(contatto.get());
+        elencoAttivita.mostraStorico(attivitaService.storico(idContatto));
+        return true;
+    }
+
     /**
-    * @param event
-    */
-
-    // ----------- << method.annotations@AAAAAAiws3uajFSkaWf0U >>
-    // ----------- >>
-    public void beforeEnter(BeforeEnterEvent event) {
-    // ----------- << method.body@AAAAAAiws3uajFSkaWf0U >>
-    // ----------- >>
-    }
-    // ----------- << method.annotations@AAAAAA+mio+8I4SzCj1/S >>
-    // ----------- >>
-    private void caricaScheda() {
-    // ----------- << method.body@AAAAAA+mio+8I4SzCj1/S >>
-    // ----------- >>
-    }
-    /**
-    * @param contatto
-    */
-
-    // ----------- << method.annotations@AAAAAAEQO+1XoRRpO+szO >>
-    // ----------- >>
+     * Mostra il nome nel titolo e, nel riquadro, solo i dati compilati (GUI.4); se non ce n'e'
+     * nessuno il riquadro viene nascosto.
+     */
     private void mostraDatiContatto(Contatto contatto) {
-    // ----------- << method.body@AAAAAAEQO+1XoRRpO+szO >>
-    // ----------- >>
+        titolo.setText(HomeView.nomeCompleto(contatto));
+        grigliaDati.removeAll();
+        aggiungiSeCompilato("Tipo", HomeView.nomeTipo(contatto.tipo()));
+        aggiungiSeCompilato("Indirizzo", contatto.indirizzo());
+        aggiungiSeCompilato(contatto.telefoni().size() > 1 ? "Telefoni" : "Telefono",
+                String.join(", ", contatto.telefoni()));
+        aggiungiSeCompilato("Codice fiscale", contatto.codiceFiscale());
+        aggiungiSeCompilato("Partita IVA", contatto.partitaIva());
+        riquadroDati.setVisible(grigliaDati.getComponentCount() > 0);
     }
-// ----------- << class.extras@AAAAAAEcxqr84FT/qf1DQ >>
-// ----------- >>
+
+    private void aggiungiSeCompilato(String etichetta, String valore) {
+        if (valore == null || valore.isBlank()) {
+            return;
+        }
+        Span testoEtichetta = new Span(etichetta);
+        testoEtichetta.addClassName("mplan-etichetta");
+        Span testoValore = new Span(valore);
+        testoValore.addClassName("mplan-valore");
+        Div coppia = new Div(testoEtichetta, testoValore);
+        coppia.addClassName("mplan-coppia");
+        grigliaDati.add(coppia);
+    }
+
+    private void configuraPagina() {
+        addClassName("mplan-pagina");
+        setSizeFull();
+        setPadding(false);
+        setSpacing(false);
+    }
+
+    private HorizontalLayout creaIntestazione() {
+        Button indietro = new Button("Indietro", VaadinIcon.ARROW_LEFT.create(), evento -> navigatore.indietro());
+        indietro.addThemeVariants(ButtonVariant.TERTIARY);
+
+        Button modifica = new Button("Modifica contatto", VaadinIcon.EDIT.create(),
+                evento -> navigatore.vaiAModificaContatto(idContatto));
+
+        Button nuovaAttivita = new Button("Nuova attività", VaadinIcon.PLUS.create(),
+                evento -> navigatore.vaiANuovaAttivita(idContatto));
+        nuovaAttivita.addThemeVariants(ButtonVariant.PRIMARY);
+
+        HorizontalLayout azioni = new HorizontalLayout(modifica, nuovaAttivita);
+        azioni.addClassName("mplan-toolbar-azioni");
+        azioni.setSpacing(false);
+        azioni.setAlignItems(FlexComponent.Alignment.CENTER);
+
+        HorizontalLayout intestazione = new HorizontalLayout(indietro, titolo, azioni);
+        intestazione.addClassName("mplan-toolbar");
+        intestazione.setSpacing(false);
+        intestazione.setAlignItems(FlexComponent.Alignment.CENTER);
+        return intestazione;
+    }
+
+    private static H1 creaTitolo() {
+        H1 intestazione = new H1();
+        intestazione.addClassName("mplan-titolo-pagina");
+        return intestazione;
+    }
+
+    private static Div creaGrigliaDati() {
+        Div griglia = new Div();
+        griglia.addClassName("mplan-dati-contatto");
+        return griglia;
+    }
+
+    private Card creaRiquadroDati() {
+        Card card = new Card();
+        card.addClassName("mplan-card-dati");
+        card.add(grigliaDati);
+        return card;
+    }
+
+    private static H2 creaTitoloStorico() {
+        H2 storico = new H2("Storico attività");
+        storico.addClassName("mplan-titolo-sezione");
+        return storico;
+    }
 }

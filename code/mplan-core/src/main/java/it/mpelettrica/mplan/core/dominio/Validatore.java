@@ -5,24 +5,22 @@
 */
 package it.mpelettrica.mplan.core.dominio;
 
-import java.util.*;
-import java.time.*;
+import it.mpelettrica.mplan.api.ErroreValidazione;
+import java.util.List;
 
-
-
-// ----------- << imports@AAAAAAGh091Kjd0RayA= >>
-// ----------- >>
-
-// ----------- << class.annotations@AAAAAAGh091Kjd0RayA= >>
-// ----------- >>
+/**
+ * Controllo dei dati scritti dall'utente (DAT.5). Ogni implementazione valida un tipo di dati.
+ *
+ * @param <T> tipo dei dati da validare
+ */
 public interface Validatore<T> {
-    /**
-    * @param dati
-    */
 
-    // ----------- << method.annotations@AAAAAAGh0+KNn+AHHyM= >>
-    // ----------- >>
+    /**
+     * Controlla i dati e restituisce gli errori trovati, senza salvare nulla.
+     *
+     * @param dati dati da controllare
+     * @return la lista degli errori per campo; vuota se i dati sono validi
+     * @throws NullPointerException se {@code dati} è {@code null}
+     */
     List<ErroreValidazione> valida(T dati);
-// ----------- << interface.extras@AAAAAAGh091Kjd0RayA= >>
-// ----------- >>
 }

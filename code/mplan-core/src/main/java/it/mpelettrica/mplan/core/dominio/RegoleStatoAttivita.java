@@ -5,38 +5,62 @@
 */
 package it.mpelettrica.mplan.core.dominio;
 
-import java.util.*;
-import java.time.*;
+import it.mpelettrica.mplan.api.StatoAttivita;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
+/**
+ * Macchina a stati delle attività (FUN.6.2, FUN.6.3, Figura e Tabella 8.1 della specifica).
+ * Sono ammesse solo queste transizioni: da fare verso parziale, da fare o parziale verso
+ * completata, da fare o parziale verso annullata.
+ */
+public final class RegoleStatoAttivita {
 
+    private static final Map<StatoAttivita, Set<StatoAttivita>> TRANSIZIONI = creaTransizioni();
 
-// ----------- << imports@AAAAAAGh0+AHr96X6CU= >>
-// ----------- >>
+    private RegoleStatoAttivita() {
+    }
 
-// ----------- << class.annotations@AAAAAAGh0+AHr96X6CU= >>
-// ----------- >>
-public class RegoleStatoAttivita {
+    private static Map<StatoAttivita, Set<StatoAttivita>> creaTransizioni() {
+        Map<StatoAttivita, Set<StatoAttivita>> transizioni = new EnumMap<>(StatoAttivita.class);
+        transizioni.put(StatoAttivita.DA_FARE,
+                EnumSet.of(StatoAttivita.PARZIALE, StatoAttivita.COMPLETATA, StatoAttivita.ANNULLATA));
+        transizioni.put(StatoAttivita.PARZIALE,
+                EnumSet.of(StatoAttivita.COMPLETATA, StatoAttivita.ANNULLATA));
+        transizioni.put(StatoAttivita.COMPLETATA, EnumSet.noneOf(StatoAttivita.class));
+        transizioni.put(StatoAttivita.ANNULLATA, EnumSet.noneOf(StatoAttivita.class));
+        return transizioni;
+    }
+
     /**
-    * @param da 
-    * @param a
-    */
-
-    // ----------- << method.annotations@AAAAAAGh0+GICt9vKo4= >>
-    // ----------- >>
+     * Dice se un'attività può passare da uno stato a un altro.
+     *
+     * @param da stato di partenza
+     * @param a stato di arrivo
+     * @return {@code true} se la transizione è ammessa, {@code false} altrimenti
+     *         (compreso il passaggio allo stesso stato)
+     * @throws NullPointerException se uno dei due stati è {@code null}
+     */
     public static boolean puoPassareA(StatoAttivita da, StatoAttivita a) {
-    // ----------- << method.body@AAAAAAGh0+GICt9vKo4= >>
-    // ----------- >>
+        Objects.requireNonNull(da, "da");
+        Objects.requireNonNull(a, "a");
+        return TRANSIZIONI.get(da).contains(a);
     }
-    /**
-    * @param stato
-    */
 
-    // ----------- << method.annotations@AAAAAAGh0+IoMN/JwKU= >>
-    // ----------- >>
+    /**
+     * Dice se i dati di un'attività in un certo stato si possono modificare.
+     * Solo l'attività annullata è bloccata; quella completata resta modificabile
+     * nei testi (Tabella 8.1, FUN.6.2).
+     *
+     * @param stato stato dell'attività
+     * @return {@code false} se lo stato è annullata, {@code true} altrimenti
+     * @throws NullPointerException se lo stato è {@code null}
+     */
     public static boolean modificabile(StatoAttivita stato) {
-    // ----------- << method.body@AAAAAAGh0+IoMN/JwKU= >>
-    // ----------- >>
+        Objects.requireNonNull(stato, "stato");
+        return stato != StatoAttivita.ANNULLATA;
     }
-// ----------- << class.extras@AAAAAAGh0+AHr96X6CU= >>
-// ----------- >>
 }

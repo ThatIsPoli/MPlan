@@ -5,31 +5,28 @@
 */
 package it.mpelettrica.mplan.core.repository;
 
-import java.util.*;
-import java.time.*;
+import it.mpelettrica.mplan.core.dominio.VoceRegistro;
+import java.util.List;
+import java.util.UUID;
 
-
-
-// ----------- << imports@AAAAAAGh0+JN99/j154= >>
-// ----------- >>
-
-// ----------- << class.annotations@AAAAAAGh0+JN99/j154= >>
-// ----------- >>
+/**
+ * Registro delle modifiche delle attività (FUN.13). Si scrive solo in coda.
+ * Implementata da mplan-persistence.
+ */
 public interface RegistroRepository {
-    /**
-    * @param voce
-    */
 
-    // ----------- << method.annotations@AAAAAAGh0+FUyt9OaVY= >>
-    // ----------- >>
+    /**
+     * Aggiunge una voce in coda al registro.
+     *
+     * @param voce voce da aggiungere
+     */
     void aggiungi(VoceRegistro voce);
-    /**
-    * @param idAttivita
-    */
 
-    // ----------- << method.annotations@AAAAAAGh0+Evh981tlg= >>
-    // ----------- >>
+    /**
+     * Rilegge le voci di un'attività.
+     *
+     * @param idAttivita identificativo dell'attività
+     * @return le voci dell'attività; vuota se non ce ne sono
+     */
     List<VoceRegistro> trovaPerAttivita(UUID idAttivita);
-// ----------- << interface.extras@AAAAAAGh0+JN99/j154= >>
-// ----------- >>
 }

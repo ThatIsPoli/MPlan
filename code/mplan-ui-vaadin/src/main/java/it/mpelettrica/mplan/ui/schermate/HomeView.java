@@ -5,155 +5,246 @@
 */
 package it.mpelettrica.mplan.ui.schermate;
 
-import java.util.*;
-import java.time.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
-
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.Shortcuts;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
-import it.mpelettrica.mplan.api.ChiusuraApplicazione;
-import it.mpelettrica.mplan.api.ContattoService;
-import it.mpelettrica.mplan.ui.navigazione.Navigatore;
-// ----------- << imports@AAAAAAR1TwAJSQQvOH6FE >>
-// ----------- >>
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
 
-// ----------- << class.annotations@AAAAAAR1TwAJSQQvOH6FE >>
-// ----------- >>
+import it.mpelettrica.mplan.api.ChiusuraApplicazione;
+import it.mpelettrica.mplan.api.Contatto;
+import it.mpelettrica.mplan.api.ContattoService;
+import it.mpelettrica.mplan.api.TipoContatto;
+import it.mpelettrica.mplan.ui.componenti.LocalizzazioneDate;
+import it.mpelettrica.mplan.ui.navigazione.Navigatore;
+
+/**
+ * Schermata principale: la rubrica con la ricerca (GUI.2) e tre pulsanti sempre visibili:
+ * "Nuovo contatto" (GUI.2.1), "Agenda giornaliera" (GUI.2.2) e "Chiudi applicazione", che
+ * realizza l'evento {@code chiudi} dalla Home (Tabella 8.2).
+ * <p>
+ * Un contatto si apre con un clic sulla riga oppure, da tastiera, portando il focus sulla riga
+ * con le frecce e premendo Invio o Spazio (GUI.2.3).
+ */
+@Route(Navigatore.ROTTA_HOME)
+@PageTitle("MPlan – Home")
 public class HomeView extends VerticalLayout implements BeforeEnterObserver {
-    // ----------- << attribute.annotations@AAAAAAnlfKGyzBSMiNyul >>
-    // ----------- >>
+
+    private static final long serialVersionUID = 1L;
+
+    private static final int DURATA_NOTIFICA_MS = 5000;
+
+    private static final Comparator<String> ORDINE_TESTO =
+            Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER);
+
     private List<Contatto> tuttiContatti;
 
-    // ----------- << attribute.annotations@AAAAAAo1ungbCeTteKRvb >>
-    // ----------- >>
-    private TextField campoRicerca;
+    private Contatto contattoConFocus;
 
-    // ----------- << attribute.annotations@AAAAAAZly1EIuuTUOhdPw >>
-    // ----------- >>
-    private Grid<Contatto> tabellaContatti;
+    private final TextField campoRicerca;
 
-    // ----------- << attribute.annotations@AAAAAANK/pAJUMQFWYIL0 >>
-    // ----------- >>
-    private Select<String> menu;
+    private final Grid<Contatto> tabellaContatti;
 
-    // ----------- << attribute.annotations@AAAAAAfklPscIwQu2wWkg >>
-    // ----------- >>
-    private ChiusuraApplicazione chiusuraApplicazione;
+    private final ChiusuraApplicazione chiusuraApplicazione;
 
-    // ----------- << attribute.annotations@AAAAAAwcfYcMLRQiiETM5 >>
-    // ----------- >>
-    private ContattoService contattoService;
+    private final ContattoService contattoService;
 
-    // ----------- << attribute.annotations@AAAAAAGAJoOqAtQEGiUtP >>
-    // ----------- >>
-    private Navigatore navigatore;
+    private final Navigatore navigatore;
 
-    private List<Contatto> getTuttiContatti() {
-        return tuttiContatti;
-    }
-
-    private TextField getCampoRicerca() {
-        return campoRicerca;
-    }
-
-    private Grid<Contatto> getTabellaContatti() {
-        return tabellaContatti;
-    }
-
-    private Select<String> getMenu() {
-        return menu;
-    }
-
-    private ChiusuraApplicazione getChiusuraApplicazione() {
-        return chiusuraApplicazione;
-    }
-
-    private ContattoService getContattoService() {
-        return contattoService;
-    }
-
-    private Navigatore getNavigatore() {
-        return navigatore;
-    }
-
-    private void setTuttiContatti(List<Contatto> tuttiContatti) {
-        this.tuttiContatti = tuttiContatti;
-    }
-
-    private void setCampoRicerca(TextField campoRicerca) {
-        this.campoRicerca = campoRicerca;
-    }
-
-    private void setTabellaContatti(Grid<Contatto> tabellaContatti) {
-        this.tabellaContatti = tabellaContatti;
-    }
-
-    private void setMenu(Select<String> menu) {
-        this.menu = menu;
-    }
-
-    private void setChiusuraApplicazione(ChiusuraApplicazione chiusuraApplicazione) {
-        this.chiusuraApplicazione = chiusuraApplicazione;
-    }
-
-    private void setContattoService(ContattoService contattoService) {
+    /**
+     * Crea la schermata principale.
+     *
+     * @param contattoService      servizio da cui leggere i contatti
+     * @param chiusuraApplicazione servizio che chiude l'applicazione
+     * @param navigatore           navigatore tra le schermate
+     */
+    public HomeView(ContattoService contattoService, ChiusuraApplicazione chiusuraApplicazione,
+            Navigatore navigatore) {
         this.contattoService = contattoService;
-    }
-
-    private void setNavigatore(Navigatore navigatore) {
+        this.chiusuraApplicazione = chiusuraApplicazione;
         this.navigatore = navigatore;
+        this.tuttiContatti = List.of();
+        this.campoRicerca = creaRicerca();
+        this.tabellaContatti = creaTabella();
+        configuraPagina();
+        add(creaIntestazione(), campoRicerca, tabellaContatti);
+        expand(tabellaContatti);
     }
 
     /**
-    * @param contattoService 
-    * @param chiusuraApplicazione 
-    * @param navigatore
-    */
-
-    // ----------- << method.annotations@AAAAAANXs3PcoKTJ+Npa3 >>
-    // ----------- >>
-    public HomeView(ContattoService contattoService, ChiusuraApplicazione chiusuraApplicazione, Navigatore navigatore) {
-    // ----------- << method.body@AAAAAANXs3PcoKTJ+Npa3 >>
-    // ----------- >>
+     * Rilegge i contatti ogni volta che si entra nella schermata, mantenendo il testo cercato.
+     *
+     * @param evento l'evento di navigazione
+     */
+    @Override
+    public void beforeEnter(BeforeEnterEvent evento) {
+        aggiornaElenco();
     }
+
     /**
-    * @param event
-    */
-
-    // ----------- << method.annotations@AAAAAAHI//poflTMefchG >>
-    // ----------- >>
-    public void beforeEnter(BeforeEnterEvent event) {
-    // ----------- << method.body@AAAAAAHI//poflTMefchG >>
-    // ----------- >>
+     * Restituisce il nome in italiano di un tipo di contatto; usato anche dalle altre schermate.
+     *
+     * @param tipo il tipo di contatto; puo' essere {@code null}
+     * @return "Privato", "Azienda" oppure una stringa vuota
+     */
+    static String nomeTipo(TipoContatto tipo) {
+        if (tipo == null) {
+            return "";
+        }
+        return switch (tipo) {
+            case PRIVATO -> "Privato";
+            case AZIENDA -> "Azienda";
+        };
     }
-    // ----------- << method.annotations@AAAAAAxgHQNXiETJijDaX >>
-    // ----------- >>
+
     private void aggiornaElenco() {
-    // ----------- << method.body@AAAAAAxgHQNXiETJijDaX >>
-    // ----------- >>
+        tuttiContatti = contattoService.elenca();
+        tabellaContatti.setItems(tuttiContatti);
+        filtraContatti(campoRicerca.getValue());
     }
-    /**
-    * @param testo
-    */
 
-    // ----------- << method.annotations@AAAAAAwHGSlVAjRj6BI7W >>
-    // ----------- >>
     private void filtraContatti(String testo) {
-    // ----------- << method.body@AAAAAAwHGSlVAjRj6BI7W >>
-    // ----------- >>
+        String cercato = testo == null ? "" : testo.strip().toLowerCase(LocalizzazioneDate.ITALIANO);
+        if (cercato.isEmpty()) {
+            tabellaContatti.getListDataView().removeFilters();
+            return;
+        }
+        tabellaContatti.getListDataView().setFilter(contatto -> corrisponde(contatto, cercato));
     }
-    // ----------- << method.annotations@AAAAAAlOGaTuThT36zXXY >>
-    // ----------- >>
+
+    private static boolean corrisponde(Contatto contatto, String cercato) {
+        return Stream.concat(
+                        Stream.of(contatto.nome(), contatto.cognome(), nomeCompleto(contatto),
+                                contatto.codiceFiscale(), contatto.partitaIva()),
+                        contatto.telefoni().stream())
+                .filter(Objects::nonNull)
+                .anyMatch(valore -> valore.toLowerCase(LocalizzazioneDate.ITALIANO).contains(cercato));
+    }
+
     private void apriAgenda() {
-    // ----------- << method.body@AAAAAAlOGaTuThT36zXXY >>
-    // ----------- >>
+        navigatore.vaiAAgenda();
     }
-    // ----------- << method.annotations@AAAAAAqlIO7TiGQIGfpxK >>
-    // ----------- >>
+
     private void chiudiApplicazione() {
-    // ----------- << method.body@AAAAAAqlIO7TiGQIGfpxK >>
-    // ----------- >>
+        Notification.show("MPlan si sta chiudendo: puoi chiudere questa scheda del browser.",
+                DURATA_NOTIFICA_MS, Notification.Position.TOP_CENTER);
+        chiusuraApplicazione.chiudi();
     }
-// ----------- << class.extras@AAAAAAR1TwAJSQQvOH6FE >>
-// ----------- >>
+
+    private void apriContattoConFocus() {
+        if (contattoConFocus != null) {
+            navigatore.vaiASchedaContatto(contattoConFocus.id());
+        }
+    }
+
+    private void configuraPagina() {
+        addClassName("mplan-pagina");
+        setSizeFull();
+        setPadding(false);
+        setSpacing(false);
+    }
+
+    private HorizontalLayout creaIntestazione() {
+        H1 titolo = new H1("Rubrica");
+        titolo.addClassName("mplan-titolo-pagina");
+
+        Button agenda = new Button("Agenda giornaliera", VaadinIcon.CALENDAR.create(), evento -> apriAgenda());
+
+        Button nuovoContatto = new Button("Nuovo contatto", VaadinIcon.PLUS.create(),
+                evento -> navigatore.vaiANuovoContatto());
+        nuovoContatto.addThemeVariants(ButtonVariant.PRIMARY);
+
+        Button chiudi = new Button("Chiudi applicazione", VaadinIcon.POWER_OFF.create(),
+                evento -> chiudiApplicazione());
+        chiudi.addThemeVariants(ButtonVariant.ERROR);
+        chiudi.addClassName("mplan-pulsante-chiudi");
+
+        HorizontalLayout azioni = new HorizontalLayout(agenda, nuovoContatto, chiudi);
+        azioni.addClassName("mplan-toolbar-azioni");
+        azioni.setSpacing(false);
+        azioni.setAlignItems(FlexComponent.Alignment.CENTER);
+
+        HorizontalLayout intestazione = new HorizontalLayout(titolo, azioni);
+        intestazione.addClassName("mplan-toolbar");
+        intestazione.setSpacing(false);
+        intestazione.setAlignItems(FlexComponent.Alignment.CENTER);
+        return intestazione;
+    }
+
+    private TextField creaRicerca() {
+        TextField ricerca = new TextField();
+        ricerca.addClassName("mplan-ricerca");
+        ricerca.setAriaLabel("Cerca contatti");
+        ricerca.setPlaceholder("Cerca contatti");
+        ricerca.setHelperText("Cerca per nome, telefono, codice fiscale o partita IVA.");
+        ricerca.setPrefixComponent(VaadinIcon.SEARCH.create());
+        ricerca.setClearButtonVisible(true);
+        ricerca.setValueChangeMode(ValueChangeMode.LAZY);
+        ricerca.addValueChangeListener(evento -> filtraContatti(evento.getValue()));
+        return ricerca;
+    }
+
+    private Grid<Contatto> creaTabella() {
+        Grid<Contatto> tabella = new Grid<>();
+        tabella.addClassName("mplan-tabella-contatti");
+        tabella.setSelectionMode(Grid.SelectionMode.NONE);
+        tabella.setEmptyStateComponent(creaStatoVuoto());
+        tabella.addColumn(Contatto::nome).setHeader("Nome")
+                .setComparator(Comparator.comparing(Contatto::nome, ORDINE_TESTO));
+        tabella.addColumn(Contatto::cognome).setHeader("Cognome")
+                .setComparator(Comparator.comparing(Contatto::cognome, ORDINE_TESTO));
+        tabella.addColumn(contatto -> nomeTipo(contatto.tipo())).setHeader("Tipo").setAutoWidth(true)
+                .setFlexGrow(0);
+        tabella.addColumn(HomeView::telefonoPrincipale).setHeader("Telefono");
+        tabella.addColumn(Contatto::indirizzo).setHeader("Indirizzo").setFlexGrow(2);
+        tabella.addItemClickListener(evento -> navigatore.vaiASchedaContatto(evento.getItem().id()));
+        tabella.addCellFocusListener(evento -> contattoConFocus = evento.getItem().orElse(null));
+        Shortcuts.addShortcutListener(tabella, this::apriContattoConFocus, Key.ENTER).listenOn(tabella);
+        return tabella;
+    }
+
+    private static Div creaStatoVuoto() {
+        Icon icona = VaadinIcon.USERS.create();
+        icona.addClassName("mplan-vuoto-icona");
+        Span testo = new Span("Nessun contatto trovato.");
+        testo.addClassName("mplan-vuoto-testo");
+        Div statoVuoto = new Div(icona, testo);
+        statoVuoto.addClassName("mplan-vuoto");
+        return statoVuoto;
+    }
+
+    private static String telefonoPrincipale(Contatto contatto) {
+        return contatto.telefoni().isEmpty() ? "" : contatto.telefoni().getFirst();
+    }
+
+    /**
+     * Restituisce il nome completo di un contatto, cioe' nome e cognome se il cognome c'e';
+     * usato anche dalla scheda del contatto e dal form dell'attivita'.
+     *
+     * @param contatto il contatto; non {@code null}
+     * @return il nome completo, ad esempio "Mario Rossi"
+     */
+    static String nomeCompleto(Contatto contatto) {
+        return contatto.cognome() == null ? contatto.nome() : contatto.nome() + " " + contatto.cognome();
+    }
 }

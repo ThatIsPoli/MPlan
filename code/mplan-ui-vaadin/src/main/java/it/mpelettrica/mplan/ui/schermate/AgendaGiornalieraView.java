@@ -5,142 +5,182 @@
 */
 package it.mpelettrica.mplan.ui.schermate;
 
-import java.util.*;
-import java.time.*;
+import java.time.LocalDate;
 
-
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.card.Card;
+import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
+
 import it.mpelettrica.mplan.api.AgendaService;
 import it.mpelettrica.mplan.ui.componenti.ElencoAttivita;
+import it.mpelettrica.mplan.ui.componenti.LocalizzazioneDate;
 import it.mpelettrica.mplan.ui.navigazione.Navigatore;
-// ----------- << imports@AAAAAA7ifw2mqURBqsIyO >>
-// ----------- >>
 
-// ----------- << class.annotations@AAAAAA7ifw2mqURBqsIyO >>
-// ----------- >>
+/**
+ * Agenda giornaliera: le attivita' di tutti i contatti in un giorno (GUI.7, FUN.10, FUN.11).
+ * <p>
+ * Si apre sul giorno corrente (FUN.10.4); si passa al giorno precedente o successivo con le frecce
+ * (FUN.10.1) o si salta a una data con "Vai a…", accanto alle frecce (GUI.7.3). Una data vuota o
+ * scritta male mostra l'errore sul campo e lascia il giorno visualizzato (DAT.5). Tornando
+ * all'agenda da un'attivita' si ritrova lo stesso giorno.
+ */
+@Route(Navigatore.ROTTA_AGENDA)
+@PageTitle("MPlan – Agenda giornaliera")
 public class AgendaGiornalieraView extends VerticalLayout implements BeforeEnterObserver {
-    // ----------- << attribute.annotations@AAAAAAGdSzMu4VTiqztTs >>
-    // ----------- >>
+
+    private static final long serialVersionUID = 1L;
+
+    private static final String DATA_NON_VALIDA = "Data non valida: usa il formato gg/mm/aaaa.";
+
     private LocalDate giornoCorrente;
 
-    // ----------- << attribute.annotations@AAAAAAbY7wYpcCRRO2Y7e >>
-    // ----------- >>
-    private Span etichettaGiorno;
+    private final Span etichettaGiorno;
 
-    // ----------- << attribute.annotations@AAAAAAHj+3v1ALS6uGwDE >>
-    // ----------- >>
-    private DatePicker selettoreData;
+    private final DatePicker selettoreData;
 
-    // ----------- << attribute.annotations@AAAAAAQHJED6p5Rku8OOI >>
-    // ----------- >>
-    private AgendaService agendaService;
+    private final AgendaService agendaService;
 
-    // ----------- << attribute.annotations@AAAAAA9uI4kqE1QuW/bpc >>
-    // ----------- >>
-    private Navigatore navigatore;
+    private final Navigatore navigatore;
 
-    // ----------- << attribute.annotations@AAAAAAobH67mF1RhS1nHc >>
-    // ----------- >>
-    private ElencoAttivita elencoAttivita;
-
-    private LocalDate getGiornoCorrente() {
-        return giornoCorrente;
-    }
-
-    private Span getEtichettaGiorno() {
-        return etichettaGiorno;
-    }
-
-    private DatePicker getSelettoreData() {
-        return selettoreData;
-    }
-
-    private AgendaService getAgendaService() {
-        return agendaService;
-    }
-
-    private Navigatore getNavigatore() {
-        return navigatore;
-    }
-
-    private ElencoAttivita getElencoAttivita() {
-        return elencoAttivita;
-    }
-
-    private void setGiornoCorrente(LocalDate giornoCorrente) {
-        this.giornoCorrente = giornoCorrente;
-    }
-
-    private void setEtichettaGiorno(Span etichettaGiorno) {
-        this.etichettaGiorno = etichettaGiorno;
-    }
-
-    private void setSelettoreData(DatePicker selettoreData) {
-        this.selettoreData = selettoreData;
-    }
-
-    private void setAgendaService(AgendaService agendaService) {
-        this.agendaService = agendaService;
-    }
-
-    private void setNavigatore(Navigatore navigatore) {
-        this.navigatore = navigatore;
-    }
-
-    private void setElencoAttivita(ElencoAttivita elencoAttivita) {
-        this.elencoAttivita = elencoAttivita;
-    }
+    private final ElencoAttivita elencoAttivita;
 
     /**
-    * @param agendaService 
-    * @param navigatore
-    */
-
-    // ----------- << method.annotations@AAAAAA9+P52avmTVy9Mx4 >>
-    // ----------- >>
+     * Crea l'agenda; il giorno da mostrare viene scelto all'ingresso nella schermata.
+     *
+     * @param agendaService servizio che fornisce le attivita' del giorno e la data di oggi
+     * @param navigatore    navigatore tra le schermate, che ricorda il giorno visualizzato
+     */
     public AgendaGiornalieraView(AgendaService agendaService, Navigatore navigatore) {
-    // ----------- << method.body@AAAAAA9+P52avmTVy9Mx4 >>
-    // ----------- >>
+        this.agendaService = agendaService;
+        this.navigatore = navigatore;
+        this.etichettaGiorno = creaEtichettaGiorno();
+        this.selettoreData = creaSelettoreData();
+        this.elencoAttivita = new ElencoAttivita(navigatore::vaiAApriAttivita);
+        configuraPagina();
+        add(creaIntestazione(), creaBarraGiorno(), elencoAttivita);
+        expand(elencoAttivita);
     }
-    /**
-    * @param event
-    */
 
-    // ----------- << method.annotations@AAAAAAXbpQdsuISier3O0 >>
-    // ----------- >>
-    public void beforeEnter(BeforeEnterEvent event) {
-    // ----------- << method.body@AAAAAAXbpQdsuISier3O0 >>
-    // ----------- >>
+    /**
+     * Mostra il giorno ricordato dal navigatore oppure, se non ce n'e' uno, il giorno corrente (FUN.10.4).
+     *
+     * @param evento l'evento di navigazione
+     */
+    @Override
+    public void beforeEnter(BeforeEnterEvent evento) {
+        LocalDate ricordato = navigatore.dataAgenda();
+        caricaGiorno(ricordato != null ? ricordato : agendaService.oggi());
     }
-    /**
-    * @param giorno
-    */
 
-    // ----------- << method.annotations@AAAAAAPrRbr7dDSzCNM5P >>
-    // ----------- >>
     private void caricaGiorno(LocalDate giorno) {
-    // ----------- << method.body@AAAAAAPrRbr7dDSzCNM5P >>
-    // ----------- >>
+        giornoCorrente = giorno;
+        etichettaGiorno.setText(LocalizzazioneDate.formattaDataEstesa(giorno));
+        selettoreData.setValue(giorno);
+        selettoreData.setInvalid(false);
+        elencoAttivita.mostraAgenda(agendaService.attivitaDelGiorno(giorno));
+        navigatore.aggiornaDataAgenda(giorno);
     }
-    // ----------- << method.annotations@AAAAAAF8w5xR8ESSq5DTs >>
-    // ----------- >>
+
     private void giornoPrecedente() {
-    // ----------- << method.body@AAAAAAF8w5xR8ESSq5DTs >>
-    // ----------- >>
+        caricaGiorno(giornoCorrente.minusDays(1));
     }
-    // ----------- << method.annotations@AAAAAAFZSiH+GcS2eI3QH >>
-    // ----------- >>
+
     private void giornoSuccessivo() {
-    // ----------- << method.body@AAAAAAFZSiH+GcS2eI3QH >>
-    // ----------- >>
+        caricaGiorno(giornoCorrente.plusDays(1));
     }
-    // ----------- << method.annotations@AAAAAAXmmzAUhfS1m3KQa >>
-    // ----------- >>
+
+    /**
+     * Salta alla data scelta in "Vai a…" (FUN.11); se la data e' vuota o scritta male mostra
+     * l'errore sul campo e resta sul giorno visualizzato (DAT.5).
+     */
     private void vaiAData() {
-    // ----------- << method.body@AAAAAAXmmzAUhfS1m3KQa >>
-    // ----------- >>
+        LocalDate scelta = selettoreData.getValue();
+        if (scelta == null) {
+            selettoreData.setErrorMessage(DATA_NON_VALIDA);
+            selettoreData.setInvalid(true);
+            return;
+        }
+        caricaGiorno(scelta);
     }
-// ----------- << class.extras@AAAAAA7ifw2mqURBqsIyO >>
-// ----------- >>
+
+    private void configuraPagina() {
+        addClassName("mplan-pagina");
+        setSizeFull();
+        setPadding(false);
+        setSpacing(false);
+    }
+
+    private HorizontalLayout creaIntestazione() {
+        Button indietro = new Button("Indietro", VaadinIcon.ARROW_LEFT.create(), evento -> navigatore.indietro());
+        indietro.addThemeVariants(ButtonVariant.TERTIARY);
+
+        H1 titolo = new H1("Agenda giornaliera");
+        titolo.addClassName("mplan-titolo-pagina");
+
+        HorizontalLayout intestazione = new HorizontalLayout(indietro, titolo);
+        intestazione.addClassName("mplan-toolbar");
+        intestazione.setSpacing(false);
+        intestazione.setAlignItems(FlexComponent.Alignment.CENTER);
+        return intestazione;
+    }
+
+    private Card creaBarraGiorno() {
+        Button precedente = new Button(VaadinIcon.ANGLE_LEFT.create(), evento -> giornoPrecedente());
+        precedente.setAriaLabel("Giorno precedente");
+        precedente.setTooltipText("Giorno precedente");
+
+        Button successivo = new Button(VaadinIcon.ANGLE_RIGHT.create(), evento -> giornoSuccessivo());
+        successivo.setAriaLabel("Giorno successivo");
+        successivo.setTooltipText("Giorno successivo");
+
+        Button oggi = new Button("Oggi", evento -> caricaGiorno(agendaService.oggi()));
+        oggi.addThemeVariants(ButtonVariant.TERTIARY);
+
+        HorizontalLayout barra = new HorizontalLayout(precedente, etichettaGiorno, successivo, selettoreData, oggi);
+        barra.addClassName("mplan-giorno");
+        barra.setSpacing(false);
+        Card riquadro = new Card();
+        riquadro.addClassName("mplan-card-giorno");
+        riquadro.add(barra);
+        return riquadro;
+    }
+
+    private static Span creaPrefissoVaiA() {
+        Span prefisso = new Span("Vai a…");
+        prefisso.addClassName("mplan-vai-a-prefisso");
+        return prefisso;
+    }
+
+    private static Span creaEtichettaGiorno() {
+        Span etichetta = new Span();
+        etichetta.addClassName("mplan-etichetta-giorno");
+        return etichetta;
+    }
+
+    private DatePicker creaSelettoreData() {
+        DatePicker selettore = new DatePicker();
+        selettore.addClassName("mplan-vai-a");
+        selettore.setAriaLabel("Vai a una data");
+        selettore.setPrefixComponent(creaPrefissoVaiA());
+        LocalizzazioneDate.applica(selettore);
+        // La validazione la fa vaiAData: quella automatica toglierebbe l'errore di una data svuotata
+        selettore.setManualValidation(true);
+        selettore.addValueChangeListener(evento -> {
+            if (evento.isFromClient()) {
+                vaiAData();
+            }
+        });
+        return selettore;
+    }
 }

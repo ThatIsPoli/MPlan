@@ -5,120 +5,171 @@
 */
 package it.mpelettrica.mplan.core.servizi;
 
-import java.util.*;
-import java.time.*;
-
-
+import it.mpelettrica.mplan.api.Contatto;
 import it.mpelettrica.mplan.api.ContattoService;
+import it.mpelettrica.mplan.api.DatiContatto;
+import it.mpelettrica.mplan.api.ErroreValidazione;
+import it.mpelettrica.mplan.api.ValidazioneException;
 import it.mpelettrica.mplan.core.dominio.Validatore;
 import it.mpelettrica.mplan.core.repository.ContattoRepository;
 import it.mpelettrica.mplan.core.repository.GestoreTransazioni;
-// ----------- << imports@AAAAAAAB//yHrdJ3MYo= >>
-// ----------- >>
+import java.text.Collator;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-// ----------- << class.annotations@AAAAAAAB//yHrdJ3MYo= >>
-// ----------- >>
+/**
+ * Casi d'uso sulla rubrica: elenco, ricerca per id, creazione e modifica dei contatti
+ * (FUN.1, FUN.2, FUN.3). Le scritture avvengono dentro una transazione.
+ */
 public class ContattoServiceImpl implements ContattoService {
-    // ----------- << attribute.annotations@AAAAAAABaQ0i85rvu0o= >>
-    // ----------- >>
-    private ContattoRepository contatti;
 
-    // ----------- << attribute.annotations@AAAAAAABJC4r1YnBhB0= >>
-    // ----------- >>
-    private GestoreTransazioni transazioni;
+    private static final Logger LOG = LogManager.getLogger(ContattoServiceImpl.class);
 
-    // ----------- << attribute.annotations@AAAAAAAB706QMeOyQOw= >>
-    // ----------- >>
-    private Validatore validatore;
+    private final ContattoRepository contatti;
+    private final GestoreTransazioni transazioni;
+    private final Validatore<DatiContatto> validatore;
 
-    private ContattoRepository getContatti() {
-        return contatti;
-    }
-
-    private GestoreTransazioni getTransazioni() {
-        return transazioni;
-    }
-
-    private Validatore getValidatore() {
-        return validatore;
-    }
-
-    private void setContatti(ContattoRepository contatti) {
-        this.contatti = contatti;
-    }
-
-    private void setTransazioni(GestoreTransazioni transazioni) {
-        this.transazioni = transazioni;
-    }
-
-    private void setValidatore(Validatore validatore) {
-        this.validatore = validatore;
+    /**
+     * Crea il servizio.
+     *
+     * @param contatti repository dei contatti
+     * @param transazioni gestore delle transazioni
+     * @param validatore validatore dei dati del contatto
+     * @throws NullPointerException se un parametro è {@code null}
+     */
+    public ContattoServiceImpl(ContattoRepository contatti, GestoreTransazioni transazioni,
+            Validatore<DatiContatto> validatore) {
+        this.contatti = Objects.requireNonNull(contatti, "contatti");
+        this.transazioni = Objects.requireNonNull(transazioni, "transazioni");
+        this.validatore = Objects.requireNonNull(validatore, "validatore");
     }
 
     /**
-    * @param contatti 
-    * @param transazioni 
-    * @param validatore
-    */
-
-    // ----------- << method.annotations@AAAAAAGh0+ISBt+8VnI= >>
-    // ----------- >>
-    public ContattoServiceImpl(ContattoRepository contatti, GestoreTransazioni transazioni, Validatore<DatiContatto> validatore) {
-    // ----------- << method.body@AAAAAAGh0+ISBt+8VnI= >>
-    // ----------- >>
-    }
+     * Elenca tutti i contatti, ordinati per nome e poi per cognome, senza distinzione di
+     * maiuscole; i contatti senza cognome vengono dopo quelli con lo stesso nome.
+     *
+     * @return la lista dei contatti, non modificabile
+     */
     @Override
-    // ----------- << method.annotations@AAAAAAABpYpBQJIOwlI= >>
-    // ----------- >>
     public List<Contatto> elenca() {
-    // ----------- << method.body@AAAAAAABpYpBQJIOwlI= >>
-    // ----------- >>
+        return contatti.tutti().stream().sorted(perNomeECognome()).toList();
     }
-    /**
-    * @param id
-    */
 
+    /**
+     * Crea un comparatore di testi per l'italiano, senza distinzione di maiuscole e con le
+     * lettere accentate vicine a quelle senza accento. Il {@code Collator} non è sicuro tra
+     * thread, quindi se ne crea uno nuovo a ogni uso.
+     */
+    private Comparator<Contatto> perNomeECognome() {
+        Collator collator = Collator.getInstance(Locale.ITALIAN);
+        collator.setStrength(Collator.SECONDARY);
+        return Comparator.comparing(Contatto::nome, collator)
+                .thenComparing(Contatto::cognome, Comparator.nullsLast(collator));
+    }
+
+    /**
+     * Cerca un contatto per identificativo.
+     *
+     * @param id identificativo del contatto
+     * @return il contatto, o un {@code Optional} vuoto se non esiste
+     * @throws NullPointerException se {@code id} è {@code null}
+     */
     @Override
-    // ----------- << method.annotations@AAAAAAABMck27TiDcBA= >>
-    // ----------- >>
     public Optional<Contatto> trova(UUID id) {
-    // ----------- << method.body@AAAAAAABMck27TiDcBA= >>
-    // ----------- >>
+        return contatti.trova(Objects.requireNonNull(id, "id"));
     }
-    /**
-    * @param dati
-    */
 
+    /**
+     * Crea un contatto nuovo con un identificativo generato.
+     *
+     * @param dati dati scritti dall'utente
+     * @return il contatto salvato
+     * @throws ValidazioneException se i dati non sono validi
+     * @throws NullPointerException se {@code dati} è {@code null}
+     */
     @Override
-    // ----------- << method.annotations@AAAAAAABaAiuCxPH9Cw= >>
-    // ----------- >>
     public Contatto crea(DatiContatto dati) {
-    // ----------- << method.body@AAAAAAABaAiuCxPH9Cw= >>
-    // ----------- >>
+        esigiValidi(dati);
+        Contatto creato = transazioni.inTransazione(() -> {
+            Contatto nuovo = costruisci(UUID.randomUUID(), dati);
+            contatti.aggiungi(nuovo);
+            return nuovo;
+        });
+        LOG.info("Contatto creato: {}", creato.id());
+        return creato;
     }
-    /**
-    * @param id 
-    * @param dati
-    */
 
+    /**
+     * Modifica i dati di un contatto esistente.
+     *
+     * @param id identificativo del contatto
+     * @param dati nuovi dati scritti dall'utente
+     * @return il contatto aggiornato
+     * @throws ValidazioneException se i dati non sono validi
+     * @throws IllegalArgumentException se il contatto non esiste
+     * @throws NullPointerException se un parametro è {@code null}
+     */
     @Override
-    // ----------- << method.annotations@AAAAAAAB2R8dMaGsQks= >>
-    // ----------- >>
     public Contatto modifica(UUID id, DatiContatto dati) {
-    // ----------- << method.body@AAAAAAAB2R8dMaGsQks= >>
-    // ----------- >>
+        Objects.requireNonNull(id, "id");
+        esigiValidi(dati);
+        Contatto aggiornato = transazioni.inTransazione(() -> {
+            contatti.trova(id).orElseThrow(
+                    () -> new IllegalArgumentException("Contatto inesistente: " + id));
+            Contatto nuovo = costruisci(id, dati);
+            contatti.aggiorna(nuovo);
+            return nuovo;
+        });
+        LOG.info("Contatto modificato: {}", id);
+        return aggiornato;
     }
-    /**
-    * @param dati
-    */
 
+    /**
+     * Controlla i dati senza salvare.
+     *
+     * @param dati dati scritti dall'utente
+     * @return gli errori per campo; lista vuota se i dati sono validi
+     * @throws NullPointerException se {@code dati} è {@code null}
+     */
     @Override
-    // ----------- << method.annotations@AAAAAAABAA+sOJmn1K4= >>
-    // ----------- >>
     public List<ErroreValidazione> valida(DatiContatto dati) {
-    // ----------- << method.body@AAAAAAABAA+sOJmn1K4= >>
-    // ----------- >>
+        return validatore.valida(Objects.requireNonNull(dati, "dati"));
     }
-// ----------- << class.extras@AAAAAAAB//yHrdJ3MYo= >>
-// ----------- >>
+
+    private void esigiValidi(DatiContatto dati) {
+        List<ErroreValidazione> errori = valida(dati);
+        if (!errori.isEmpty()) {
+            throw new ValidazioneException(errori);
+        }
+    }
+
+    private Contatto costruisci(UUID id, DatiContatto dati) {
+        return new Contatto(id,
+                Testi.pulisci(dati.getNome()),
+                Testi.nullSeVuoto(dati.getCognome()),
+                Testi.nullSeVuoto(dati.getIndirizzo()),
+                telefoniPuliti(dati),
+                codiceFiscaleMaiuscolo(dati.getCodiceFiscale()),
+                Testi.nullSeVuoto(dati.getPartitaIva()),
+                dati.getTipo());
+    }
+
+    private List<String> telefoniPuliti(DatiContatto dati) {
+        List<String> telefoni = dati.getTelefoni();
+        if (telefoni == null) {
+            return List.of();
+        }
+        return telefoni.stream().map(Testi::pulisci).toList();
+    }
+
+    private String codiceFiscaleMaiuscolo(String codiceFiscale) {
+        String pulito = Testi.nullSeVuoto(codiceFiscale);
+        return pulito == null ? null : pulito.toUpperCase(Locale.ROOT);
+    }
 }

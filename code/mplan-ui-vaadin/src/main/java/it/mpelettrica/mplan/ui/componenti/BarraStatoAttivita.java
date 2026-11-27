@@ -5,148 +5,129 @@
 */
 package it.mpelettrica.mplan.ui.componenti;
 
-import java.util.*;
-import java.time.*;
+import java.util.UUID;
 
-
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import it.mpelettrica.mplan.api.AttivitaService;
-// ----------- << imports@AAAAAAZafRk9epTNKLPcx >>
-// ----------- >>
 
-// ----------- << class.annotations@AAAAAAZafRk9epTNKLPcx >>
-// ----------- >>
+import it.mpelettrica.mplan.api.AttivitaService;
+import it.mpelettrica.mplan.api.StatoAttivita;
+
+/**
+ * Barra che mostra lo stato di un'attivita' e i pulsanti per cambiarlo.
+ * <p>
+ * Sono visibili solo i pulsanti dei cambi di stato ammessi (Tabella 8.1, FUN.6.3):
+ * da "da fare" si passa a parziale, completata o annullata; da "parziale" a completata
+ * o annullata; da completata o annullata non si cambia piu' stato.
+ */
 public class BarraStatoAttivita extends VerticalLayout {
-    // ----------- << attribute.annotations@AAAAAAK8XbFu2bTNaXRdf >>
-    // ----------- >>
+
+    private static final long serialVersionUID = 1L;
+
+    private static final int DURATA_NOTIFICA_MS = 3000;
+
     private UUID idAttivita;
 
-    // ----------- << attribute.annotations@AAAAAAkCjL7zb+TaSyC5N >>
-    // ----------- >>
     private StatoAttivita statoCorrente;
 
-    // ----------- << attribute.annotations@AAAAAAqcffCc9RSBOhGiG >>
-    // ----------- >>
-    private Runnable alCambioStato;
+    private final Runnable alCambioStato;
 
-    // ----------- << attribute.annotations@AAAAAAw+U2PBlSS2uH67A >>
-    // ----------- >>
-    private Button btnParziale;
+    private final Button btnParziale;
 
-    // ----------- << attribute.annotations@AAAAAAPmd9M9rUSjCn1/S >>
-    // ----------- >>
-    private Button btnCompletata;
+    private final Button btnCompletata;
 
-    // ----------- << attribute.annotations@AAAAAA/otVmrVST3OFGQY >>
-    // ----------- >>
-    private Button btnAnnulla;
+    private final Button btnAnnulla;
 
-    // ----------- << attribute.annotations@AAAAAAg0dfLxzfS7WpKsk >>
-    // ----------- >>
-    private AttivitaService attivitaService;
+    private final AttivitaService attivitaService;
 
-    private UUID getIdAttivita() {
-        return idAttivita;
-    }
+    private final Div contenitoreBadge;
 
-    private StatoAttivita getStatoCorrente() {
-        return statoCorrente;
-    }
-
-    private Runnable getAlCambioStato() {
-        return alCambioStato;
-    }
-
-    private Button getBtnParziale() {
-        return btnParziale;
-    }
-
-    private Button getBtnCompletata() {
-        return btnCompletata;
-    }
-
-    private Button getBtnAnnulla() {
-        return btnAnnulla;
-    }
-
-    private AttivitaService getAttivitaService() {
-        return attivitaService;
-    }
-
-    private void setIdAttivita(UUID idAttivita) {
-        this.idAttivita = idAttivita;
-    }
-
-    private void setStatoCorrente(StatoAttivita statoCorrente) {
-        this.statoCorrente = statoCorrente;
-    }
-
-    private void setAlCambioStato(Runnable alCambioStato) {
-        this.alCambioStato = alCambioStato;
-    }
-
-    private void setBtnParziale(Button btnParziale) {
-        this.btnParziale = btnParziale;
-    }
-
-    private void setBtnCompletata(Button btnCompletata) {
-        this.btnCompletata = btnCompletata;
-    }
-
-    private void setBtnAnnulla(Button btnAnnulla) {
-        this.btnAnnulla = btnAnnulla;
-    }
-
-    private void setAttivitaService(AttivitaService attivitaService) {
-        this.attivitaService = attivitaService;
-    }
+    private final HorizontalLayout pulsanti;
 
     /**
-    * @param attivitaService 
-    * @param alCambioStato
-    */
-
-    // ----------- << method.annotations@AAAAAA9JsbG4/3SBydYYw >>
-    // ----------- >>
+     * Crea la barra senza alcuna attivita'; i pulsanti compaiono dopo
+     * {@link #impostaAttivita(UUID, StatoAttivita)}.
+     *
+     * @param attivitaService servizio che esegue i cambi di stato; non {@code null}
+     * @param alCambioStato   azione eseguita dopo ogni cambio di stato riuscito; non {@code null}
+     */
     public BarraStatoAttivita(AttivitaService attivitaService, Runnable alCambioStato) {
-    // ----------- << method.body@AAAAAA9JsbG4/3SBydYYw >>
-    // ----------- >>
+        this.attivitaService = attivitaService;
+        this.alCambioStato = alCambioStato;
+        this.contenitoreBadge = new Div();
+        this.btnParziale = creaPulsante("Segna parziale", null);
+        this.btnCompletata = creaPulsante("Segna completata", null);
+        this.btnAnnulla = creaPulsante("Annulla attività", ButtonVariant.ERROR);
+        this.pulsanti = creaPulsanti();
+        addClassName("mplan-barra-stato");
+        setPadding(false);
+        setSpacing(false);
+        add(contenitoreBadge, pulsanti);
+        aggiornaPulsanti();
     }
-    /**
-    * @param idAttivita 
-    * @param stato
-    */
 
-    // ----------- << method.annotations@AAAAAAQ7h/l2JsRQ2XZIP >>
-    // ----------- >>
+    /**
+     * Indica l'attivita' gestita dalla barra e il suo stato attuale, aggiornando badge e pulsanti.
+     *
+     * @param idAttivita identificativo dell'attivita'; non {@code null}
+     * @param stato      stato attuale dell'attivita'; non {@code null}
+     */
     public void impostaAttivita(UUID idAttivita, StatoAttivita stato) {
-    // ----------- << method.body@AAAAAAQ7h/l2JsRQ2XZIP >>
-    // ----------- >>
+        this.idAttivita = idAttivita;
+        this.statoCorrente = stato;
+        aggiornaPulsanti();
     }
-    // ----------- << method.annotations@AAAAAAZp6UlWHpSaO363x >>
-    // ----------- >>
+
     private void aggiornaPulsanti() {
-    // ----------- << method.body@AAAAAAZp6UlWHpSaO363x >>
-    // ----------- >>
+        contenitoreBadge.removeAll();
+        if (statoCorrente != null) {
+            contenitoreBadge.add(ElencoAttivita.creaBadgeStato(statoCorrente));
+        }
+        // Stesse transizioni di RegoleStatoAttivita nel core, che la UI non puo' importare.
+        boolean daFare = statoCorrente == StatoAttivita.DA_FARE;
+        boolean parziale = statoCorrente == StatoAttivita.PARZIALE;
+        btnParziale.setVisible(daFare);
+        btnCompletata.setVisible(daFare || parziale);
+        btnAnnulla.setVisible(daFare || parziale);
+        pulsanti.setVisible(daFare || parziale);
     }
-    // ----------- << method.annotations@AAAAAAtztZ4W2gQB2QDeN >>
-    // ----------- >>
+
     private void segnaParziale() {
-    // ----------- << method.body@AAAAAAtztZ4W2gQB2QDeN >>
-    // ----------- >>
+        attivitaService.segnaParziale(idAttivita);
+        Notification.show("Attività segnata come parziale.", DURATA_NOTIFICA_MS, Notification.Position.TOP_CENTER);
+        alCambioStato.run();
     }
-    // ----------- << method.annotations@AAAAAAbcKtjytkQ4KSbgl >>
-    // ----------- >>
+
     private void segnaCompletata() {
-    // ----------- << method.body@AAAAAAbcKtjytkQ4KSbgl >>
-    // ----------- >>
+        attivitaService.segnaCompletata(idAttivita);
+        Notification.show("Attività segnata come completata.", DURATA_NOTIFICA_MS, Notification.Position.TOP_CENTER);
+        alCambioStato.run();
     }
-    // ----------- << method.annotations@AAAAAApG/z7W0+RNOyGG8 >>
-    // ----------- >>
+
     private void apriDialogoAnnullamento() {
-    // ----------- << method.body@AAAAAApG/z7W0+RNOyGG8 >>
-    // ----------- >>
+        new DialogoAnnullamento(idAttivita, attivitaService, alCambioStato).open();
     }
-// ----------- << class.extras@AAAAAAZafRk9epTNKLPcx >>
-// ----------- >>
+
+    private HorizontalLayout creaPulsanti() {
+        btnParziale.addClickListener(evento -> segnaParziale());
+        btnCompletata.addClickListener(evento -> segnaCompletata());
+        btnAnnulla.addClickListener(evento -> apriDialogoAnnullamento());
+        HorizontalLayout riga = new HorizontalLayout(btnParziale, btnCompletata, btnAnnulla);
+        riga.addClassName("mplan-barra-stato-pulsanti");
+        riga.setPadding(false);
+        riga.setSpacing(false);
+        return riga;
+    }
+
+    private static Button creaPulsante(String testo, ButtonVariant variante) {
+        Button pulsante = new Button(testo);
+        if (variante != null) {
+            pulsante.addThemeVariants(variante);
+        }
+        return pulsante;
+    }
 }

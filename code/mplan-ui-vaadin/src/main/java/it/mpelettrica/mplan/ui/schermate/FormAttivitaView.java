@@ -5,251 +5,370 @@
 */
 package it.mpelettrica.mplan.ui.schermate;
 
-import java.util.*;
-import java.time.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
-
+import com.vaadin.flow.component.HasValidation;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.card.Card;
+import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
-import it.mpelettrica.mplan.api.AgendaService;
-import it.mpelettrica.mplan.api.AttivitaService;
-import it.mpelettrica.mplan.ui.componenti.BarraStatoAttivita;
-import it.mpelettrica.mplan.ui.navigazione.Navigatore;
-// ----------- << imports@AAAAAAzQz4RxogQSigO+X >>
-// ----------- >>
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouteAlias;
+import com.vaadin.flow.router.RouteParameters;
 
-// ----------- << class.annotations@AAAAAAzQz4RxogQSigO+X >>
-// ----------- >>
+import it.mpelettrica.mplan.api.AgendaService;
+import it.mpelettrica.mplan.api.Attivita;
+import it.mpelettrica.mplan.api.AttivitaService;
+import it.mpelettrica.mplan.api.Contatto;
+import it.mpelettrica.mplan.api.ContattoService;
+import it.mpelettrica.mplan.api.DatiAttivita;
+import it.mpelettrica.mplan.api.ErroreValidazione;
+import it.mpelettrica.mplan.api.StatoAttivita;
+import it.mpelettrica.mplan.api.ValidazioneException;
+import it.mpelettrica.mplan.ui.componenti.BarraStatoAttivita;
+import it.mpelettrica.mplan.ui.componenti.LocalizzazioneDate;
+import it.mpelettrica.mplan.ui.navigazione.Navigatore;
+
+/**
+ * Form per inserire una nuova attivita' di un contatto o aprirne una esistente (GUI.5, FUN.4, FUN.5),
+ * con i campi di DAT.2 divisi in tre sezioni: quando, cosa e note.
+ * <p>
+ * Per un'attivita' esistente mostra anche la barra dello stato (GUI.5.2) con l'annullamento (GUI.6).
+ * Un'attivita' annullata e' in sola lettura (FUN.6.2); una completata resta modificabile nei testi
+ * (Tabella 8.1). Il titolo riporta il nome del contatto, cosi' si capisce di chi e' l'attivita'
+ * anche aprendola dall'agenda.
+ * La data proposta e' oggi (DAT.2.2); una data o un'ora scritte male bloccano il salvataggio con un
+ * messaggio sul campo (DAT.2.3, DAT.5). Dopo il salvataggio, o con "Indietro", si torna alla
+ * schermata di provenienza (Tabella 8.2).
+ */
+@Route(Navigatore.ROTTA_NUOVA_ATTIVITA)
+@RouteAlias(Navigatore.ROTTA_ATTIVITA)
+@PageTitle("MPlan – Form attività")
 public class FormAttivitaView extends VerticalLayout implements BeforeEnterObserver {
-    // ----------- << attribute.annotations@AAAAAAl2QZUkh7S52S6UN >>
-    // ----------- >>
+
+    private static final long serialVersionUID = 1L;
+
+    private static final int LUNGHEZZA_TESTO = 5000;
+
+    private static final int DURATA_NOTIFICA_MS = 3000;
+
     private UUID idContatto;
 
-    // ----------- << attribute.annotations@AAAAAAjY5L98CvR8SE1o9 >>
-    // ----------- >>
     private UUID idAttivita;
 
-    // ----------- << attribute.annotations@AAAAAAh2/tYo4FT1qiW6D >>
-    // ----------- >>
     private StatoAttivita statoCorrente;
 
-    // ----------- << attribute.annotations@AAAAAAMMZ9R+UPRrWUAhH >>
-    // ----------- >>
-    private TextField campoTitolo;
+    private final H1 titoloPagina = new H1();
 
-    // ----------- << attribute.annotations@AAAAAAlMtbTK3DS82wJn/ >>
-    // ----------- >>
-    private DatePicker campoData;
+    private final TextField campoTitolo = new TextField("Titolo");
 
-    // ----------- << attribute.annotations@AAAAAAzx8RUfujS8yW5bM >>
-    // ----------- >>
-    private TimePicker campoOra;
+    private final DatePicker campoData = new DatePicker("Data");
 
-    // ----------- << attribute.annotations@AAAAAAF0egvdh2Q122euY >>
-    // ----------- >>
-    private TextArea campoDescrizione;
+    private final TextField campoOra = new TextField("Ora");
 
-    // ----------- << attribute.annotations@AAAAAAVL2RpWkqSmKjAJP >>
-    // ----------- >>
-    private TextArea campoNote;
+    private final TextArea campoDescrizione = new TextArea("Descrizione");
 
-    // ----------- << attribute.annotations@AAAAAA+gDXfKVZSp6e1+O >>
-    // ----------- >>
-    private Button btnSalva;
+    private final TextArea campoNote = new TextArea("Note");
 
-    // ----------- << attribute.annotations@AAAAAAkjp8wy/5Txyy/mf >>
-    // ----------- >>
-    private AttivitaService attivitaService;
+    private final Div riquadroMotivo = new Div();
 
-    // ----------- << attribute.annotations@AAAAAALVKAvG3pTWCEvIC >>
-    // ----------- >>
-    private AgendaService agendaService;
+    private final Button btnSalva;
 
-    // ----------- << attribute.annotations@AAAAAALmLkd7geSvquy52 >>
-    // ----------- >>
-    private Navigatore navigatore;
+    private final AttivitaService attivitaService;
 
-    // ----------- << attribute.annotations@AAAAAAnqM02+JsRWye0oG >>
-    // ----------- >>
-    private BarraStatoAttivita barraStato;
+    private final ContattoService contattoService;
 
-    // ----------- << attribute.annotations@AAAAAAslVNJhYwQN2XKUf >>
-    // ----------- >>
-    private Binder binder;
+    private final AgendaService agendaService;
 
-    private UUID getIdContatto() {
-        return idContatto;
-    }
+    private final Navigatore navigatore;
 
-    private UUID getIdAttivita() {
-        return idAttivita;
-    }
+    private final BarraStatoAttivita barraStato;
 
-    private StatoAttivita getStatoCorrente() {
-        return statoCorrente;
-    }
+    private final Binder<DatiAttivita> binder;
 
-    private TextField getCampoTitolo() {
-        return campoTitolo;
-    }
+    private final Map<String, HasValidation> campiPerNome;
 
-    private DatePicker getCampoData() {
-        return campoData;
-    }
-
-    private TimePicker getCampoOra() {
-        return campoOra;
-    }
-
-    private TextArea getCampoDescrizione() {
-        return campoDescrizione;
-    }
-
-    private TextArea getCampoNote() {
-        return campoNote;
-    }
-
-    private Button getBtnSalva() {
-        return btnSalva;
-    }
-
-    private AttivitaService getAttivitaService() {
-        return attivitaService;
-    }
-
-    private AgendaService getAgendaService() {
-        return agendaService;
-    }
-
-    private Navigatore getNavigatore() {
-        return navigatore;
-    }
-
-    private BarraStatoAttivita getBarraStato() {
-        return barraStato;
-    }
-
-    private Binder getBinder() {
-        return binder;
-    }
-
-    private void setIdContatto(UUID idContatto) {
-        this.idContatto = idContatto;
-    }
-
-    private void setIdAttivita(UUID idAttivita) {
-        this.idAttivita = idAttivita;
-    }
-
-    private void setStatoCorrente(StatoAttivita statoCorrente) {
-        this.statoCorrente = statoCorrente;
-    }
-
-    private void setCampoTitolo(TextField campoTitolo) {
-        this.campoTitolo = campoTitolo;
-    }
-
-    private void setCampoData(DatePicker campoData) {
-        this.campoData = campoData;
-    }
-
-    private void setCampoOra(TimePicker campoOra) {
-        this.campoOra = campoOra;
-    }
-
-    private void setCampoDescrizione(TextArea campoDescrizione) {
-        this.campoDescrizione = campoDescrizione;
-    }
-
-    private void setCampoNote(TextArea campoNote) {
-        this.campoNote = campoNote;
-    }
-
-    private void setBtnSalva(Button btnSalva) {
-        this.btnSalva = btnSalva;
-    }
-
-    private void setAttivitaService(AttivitaService attivitaService) {
+    /**
+     * Crea il form dell'attivita'; i dati vengono caricati all'ingresso nella schermata.
+     *
+     * @param attivitaService servizio che valida e salva l'attivita' e ne cambia lo stato
+     * @param contattoService servizio che fornisce il contatto dell'attivita'
+     * @param agendaService   servizio che fornisce la data di oggi
+     * @param navigatore      navigatore tra le schermate
+     */
+    public FormAttivitaView(AttivitaService attivitaService, ContattoService contattoService,
+            AgendaService agendaService, Navigatore navigatore) {
         this.attivitaService = attivitaService;
-    }
-
-    private void setAgendaService(AgendaService agendaService) {
+        this.contattoService = contattoService;
         this.agendaService = agendaService;
-    }
-
-    private void setNavigatore(Navigatore navigatore) {
         this.navigatore = navigatore;
-    }
-
-    private void setBarraStato(BarraStatoAttivita barraStato) {
-        this.barraStato = barraStato;
-    }
-
-    private void setBinder(Binder binder) {
-        this.binder = binder;
+        this.barraStato = new BarraStatoAttivita(attivitaService, this::aggiornaDopoCambioStato);
+        this.btnSalva = new Button("Salva", evento -> salva());
+        this.binder = new Binder<>();
+        this.campiPerNome = mappaCampi();
+        configuraPagina();
+        configuraCampi();
+        configuraBinder();
+        add(creaIntestazione(), creaForm());
     }
 
     /**
-    * @param attivitaService 
-    * @param agendaService 
-    * @param navigatore
-    */
-
-    // ----------- << method.annotations@AAAAAAI5/NtJ/CTDiBiyw >>
-    // ----------- >>
-    public FormAttivitaView(AttivitaService attivitaService, AgendaService agendaService, Navigatore navigatore) {
-    // ----------- << method.body@AAAAAAI5/NtJ/CTDiBiyw >>
-    // ----------- >>
+     * Prepara il form: per una nuova attivita' con la data di oggi, per un'attivita' esistente
+     * con i suoi dati e il suo stato. Se l'attivita' o il contatto non esistono torna alla
+     * schermata principale con un avviso.
+     *
+     * @param evento l'evento di navigazione
+     */
+    @Override
+    public void beforeEnter(BeforeEnterEvent evento) {
+        pulisciErrori();
+        RouteParameters parametri = evento.getRouteParameters();
+        Optional<UUID> attivita = parametri.get(Navigatore.PARAMETRO_ATTIVITA).map(UUID::fromString);
+        if (attivita.isPresent()) {
+            if (!caricaAttivita(attivita.get())) {
+                Notification.show("L'attività richiesta non esiste.", DURATA_NOTIFICA_MS,
+                        Notification.Position.TOP_CENTER);
+                evento.forwardTo(HomeView.class);
+            }
+            return;
+        }
+        Optional<UUID> contatto = parametri.get(Navigatore.PARAMETRO_CONTATTO).map(UUID::fromString);
+        Optional<Contatto> trovato = contatto.flatMap(contattoService::trova);
+        if (trovato.isEmpty()) {
+            Notification.show("Il contatto richiesto non esiste.", DURATA_NOTIFICA_MS,
+                    Notification.Position.TOP_CENTER);
+            evento.forwardTo(HomeView.class);
+            return;
+        }
+        preparaNuovaAttivita(trovato.get());
     }
+
+    private boolean caricaAttivita(UUID id) {
+        Optional<Attivita> trovata = attivitaService.trova(id);
+        if (trovata.isEmpty()) {
+            return false;
+        }
+        Attivita attivita = trovata.get();
+        idAttivita = attivita.id();
+        idContatto = attivita.idContatto();
+        titoloPagina.setText(conContatto("Attività", idContatto));
+        binder.readBean(copiaInDati(attivita));
+        mostraStato(attivita);
+        return true;
+    }
+
+    private void preparaNuovaAttivita(Contatto contatto) {
+        idContatto = contatto.id();
+        idAttivita = null;
+        statoCorrente = StatoAttivita.DA_FARE;
+        titoloPagina.setText("Nuova attività – " + HomeView.nomeCompleto(contatto));
+        DatiAttivita dati = new DatiAttivita();
+        dati.setData(agendaService.oggi());
+        binder.readBean(dati);
+        barraStato.setVisible(false);
+        riquadroMotivo.setVisible(false);
+        aggiornaModificabilitaCampi();
+        campoTitolo.focus();
+    }
+
     /**
-    * @param event
-    */
-
-    // ----------- << method.annotations@AAAAAAaeTrwN7FSUCwMdg >>
-    // ----------- >>
-    public void beforeEnter(BeforeEnterEvent event) {
-    // ----------- << method.body@AAAAAAaeTrwN7FSUCwMdg >>
-    // ----------- >>
+     * Aggiunge al titolo il nome del contatto, se il contatto esiste ancora.
+     */
+    private String conContatto(String titolo, UUID contatto) {
+        return contattoService.trova(contatto)
+                .map(trovato -> titolo + " – " + HomeView.nomeCompleto(trovato))
+                .orElse(titolo);
     }
+
     /**
-    * @param id
-    */
-
-    // ----------- << method.annotations@AAAAAAEis3eqUTTk+qPhb >>
-    // ----------- >>
-    private void caricaAttivita(UUID id) {
-    // ----------- << method.body@AAAAAAEis3eqUTTk+qPhb >>
-    // ----------- >>
+     * Dopo un cambio di stato rilegge l'attivita' e aggiorna stato, barra e modificabilita',
+     * senza perdere le modifiche non salvate ai testi; se e' stata annullata rilegge anche i testi.
+     */
+    private void aggiornaDopoCambioStato() {
+        attivitaService.trova(idAttivita).ifPresent(attivita -> {
+            if (attivita.stato() == StatoAttivita.ANNULLATA) {
+                binder.readBean(copiaInDati(attivita));
+                pulisciErrori();
+            }
+            mostraStato(attivita);
+        });
     }
-    // ----------- << method.annotations@AAAAAA3yTfa0T+R5ySg/h >>
-    // ----------- >>
+
+    private void mostraStato(Attivita attivita) {
+        statoCorrente = attivita.stato();
+        barraStato.setVisible(true);
+        barraStato.impostaAttivita(attivita.id(), attivita.stato());
+        boolean annullata = attivita.stato() == StatoAttivita.ANNULLATA;
+        riquadroMotivo.setVisible(annullata);
+        riquadroMotivo.setText(annullata ? "Motivo dell'annullamento: " + testoOVuoto(attivita.motivoAnnullamento()) : "");
+        aggiornaModificabilitaCampi();
+    }
+
     private void aggiornaModificabilitaCampi() {
-    // ----------- << method.body@AAAAAA3yTfa0T+R5ySg/h >>
-    // ----------- >>
+        // Stessa regola di RegoleStatoAttivita.modificabile nel core, che la UI non puo' importare:
+        // tutti gli stati sono modificabili nei testi tranne ANNULLATA.
+        boolean modificabile = statoCorrente != StatoAttivita.ANNULLATA;
+        binder.setReadOnly(!modificabile);
+        btnSalva.setVisible(modificabile);
     }
-    // ----------- << method.annotations@AAAAAAczksdEHvT52tczz >>
-    // ----------- >>
-    private List<ErroreValidazione> validaCampi() {
-    // ----------- << method.body@AAAAAAczksdEHvT52tczz >>
-    // ----------- >>
-    }
-    // ----------- << method.annotations@AAAAAAXEh+oLTaSvWvDPz >>
-    // ----------- >>
-    private void salva() {
-    // ----------- << method.body@AAAAAAXEh+oLTaSvWvDPz >>
-    // ----------- >>
-    }
-    /**
-    * @param errori
-    */
 
-    // ----------- << method.annotations@AAAAAAdEStIyhTRQuu74z >>
-    // ----------- >>
-    private void mostraErrori(List<ErroreValidazione> errori) {
-    // ----------- << method.body@AAAAAAdEStIyhTRQuu74z >>
-    // ----------- >>
+    private List<ErroreValidazione> validaCampi(DatiAttivita dati) {
+        return attivitaService.valida(dati);
     }
-// ----------- << class.extras@AAAAAAzQz4RxogQSigO+X >>
-// ----------- >>
+
+    private void salva() {
+        pulisciErrori();
+        if (!binder.validate().isOk()) {
+            evidenziaInputNonValido();
+            return;
+        }
+        DatiAttivita dati = new DatiAttivita();
+        binder.writeBeanIfValid(dati);
+        List<ErroreValidazione> errori = validaCampi(dati);
+        if (!errori.isEmpty()) {
+            FormContattoView.mostraErroriSuiCampi(campiPerNome, errori);
+            return;
+        }
+        try {
+            if (idAttivita == null) {
+                attivitaService.crea(idContatto, dati);
+            } else {
+                attivitaService.modifica(idAttivita, dati);
+            }
+        } catch (ValidazioneException e) {
+            FormContattoView.mostraErroriSuiCampi(campiPerNome, e.getErrori());
+            return;
+        }
+        Notification.show("Attività salvata.", DURATA_NOTIFICA_MS, Notification.Position.TOP_CENTER);
+        tornaIndietro();
+    }
+
+    /**
+     * Torna alla schermata di provenienza; se il form e' stato aperto scrivendone l'indirizzo,
+     * torna alla scheda del contatto dell'attivita'.
+     */
+    private void tornaIndietro() {
+        navigatore.indietroOppureScheda(idContatto);
+    }
+
+    private void evidenziaInputNonValido() {
+        if (campoData.isInvalid()) {
+            campoData.focus();
+        } else if (campoOra.isInvalid()) {
+            campoOra.focus();
+        }
+    }
+
+    private void pulisciErrori() {
+        FormContattoView.pulisciErroriSuiCampi(campiPerNome);
+    }
+
+    private static DatiAttivita copiaInDati(Attivita attivita) {
+        DatiAttivita dati = new DatiAttivita();
+        dati.setTitolo(attivita.titolo());
+        dati.setData(attivita.data());
+        dati.setOra(attivita.ora());
+        dati.setDescrizione(attivita.descrizione());
+        dati.setNote(attivita.note());
+        return dati;
+    }
+
+    private static String testoOVuoto(String testo) {
+        return testo == null ? "" : testo;
+    }
+
+    private Map<String, HasValidation> mappaCampi() {
+        Map<String, HasValidation> campi = new LinkedHashMap<>();
+        campi.put("titolo", campoTitolo);
+        campi.put("data", campoData);
+        campi.put("ora", campoOra);
+        campi.put("descrizione", campoDescrizione);
+        campi.put("note", campoNote);
+        return campi;
+    }
+
+    private void configuraPagina() {
+        addClassName("mplan-pagina");
+        setPadding(false);
+        setSpacing(false);
+        riquadroMotivo.addClassName("mplan-motivo-annullamento");
+        riquadroMotivo.setVisible(false);
+    }
+
+    private void configuraCampi() {
+        campoTitolo.setRequiredIndicatorVisible(true);
+        LocalizzazioneDate.applica(campoData);
+        campoData.setHelperText("Se la lasci vuota, vale la data di oggi.");
+        LocalizzazioneDate.applicaOra(campoOra);
+        campoOra.setHelperText("Facoltativa, nel formato hh:mm.");
+        campoDescrizione.setHelperText("Al massimo " + LUNGHEZZA_TESTO + " caratteri.");
+        campoNote.setHelperText("Anche i materiali necessari. Al massimo " + LUNGHEZZA_TESTO + " caratteri.");
+    }
+
+    private void configuraBinder() {
+        binder.forField(campoTitolo).withNullRepresentation("")
+                .bind(DatiAttivita::getTitolo, DatiAttivita::setTitolo);
+        binder.forField(campoData).bind(DatiAttivita::getData, DatiAttivita::setData);
+        binder.forField(campoOra).withConverter(LocalizzazioneDate.convertitoreOra())
+                .bind(DatiAttivita::getOra, DatiAttivita::setOra);
+        binder.forField(campoDescrizione).withNullRepresentation("")
+                .bind(DatiAttivita::getDescrizione, DatiAttivita::setDescrizione);
+        binder.forField(campoNote).withNullRepresentation("")
+                .bind(DatiAttivita::getNote, DatiAttivita::setNote);
+    }
+
+    private HorizontalLayout creaIntestazione() {
+        titoloPagina.addClassName("mplan-titolo-pagina");
+        HorizontalLayout intestazione = new HorizontalLayout(titoloPagina);
+        intestazione.addClassName("mplan-toolbar");
+        intestazione.setSpacing(false);
+        intestazione.setAlignItems(FlexComponent.Alignment.CENTER);
+        return intestazione;
+    }
+
+    private Card creaForm() {
+        FormLayout quando = FormContattoView.creaSezione();
+        quando.addFormRow(campoData, campoOra);
+
+        FormLayout cosa = FormContattoView.creaSezione();
+        cosa.add(campoTitolo, 2);
+        cosa.add(campoDescrizione, 2);
+
+        FormLayout note = FormContattoView.creaSezione();
+        note.add(campoNote, 2);
+
+        return FormContattoView.creaRiquadroForm(
+                barraStato, riquadroMotivo,
+                FormContattoView.creaTitoloSezione("Quando"), quando,
+                FormContattoView.creaTitoloSezione("Cosa"), cosa,
+                FormContattoView.creaTitoloSezione("Note e materiali"), note,
+                creaPulsanti());
+    }
+
+    private HorizontalLayout creaPulsanti() {
+        Button indietro = new Button("Indietro", evento -> tornaIndietro());
+        indietro.addThemeVariants(ButtonVariant.TERTIARY);
+        btnSalva.addThemeVariants(ButtonVariant.PRIMARY);
+        HorizontalLayout pulsanti = new HorizontalLayout(indietro, btnSalva);
+        pulsanti.addClassName("mplan-pulsanti");
+        pulsanti.setSpacing(false);
+        return pulsanti;
+    }
 }

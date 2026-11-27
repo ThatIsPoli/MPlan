@@ -5,20 +5,14 @@
 */
 package it.mpelettrica.mplan.api;
 
-import java.util.*;
-import java.time.*;
-
-
-
-// ----------- << imports@AAAAAAGh5Ghwhbpm9zc= >>
-// ----------- >>
-
-// ----------- << class.annotations@AAAAAAGh5Ghwhbpm9zc= >>
-// ----------- >>
+/**
+ * Tipo di un contatto (DAT.1.7). Nel contatto è facoltativo e non ha un valore predefinito.
+ */
 public enum TipoContatto {
-    PRIVATO,
-    AZIENDA;
 
-// ----------- << enum.extras@AAAAAAGh5Ghwhbpm9zc= >>
-// ----------- >>
+    /** Persona fisica. */
+    PRIVATO,
+
+    /** Azienda o ente. */
+    AZIENDA
 }

@@ -5,45 +5,42 @@
 */
 package it.mpelettrica.mplan.core.repository;
 
-import java.util.*;
-import java.time.*;
-
-
-
-// ----------- << imports@AAAAAAABeXBJDBh67Cg= >>
-// ----------- >>
+import it.mpelettrica.mplan.api.Contatto;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
-* Implementata da mplan-persistence.
-*/
-
-// ----------- << class.annotations@AAAAAAABeXBJDBh67Cg= >>
-// ----------- >>
+ * Salvataggio e lettura dei contatti. Implementata da mplan-persistence.
+ */
 public interface ContattoRepository {
-    /**
-    * @param id
-    */
 
-    // ----------- << method.annotations@AAAAAAABCR6ZbK85yHA= >>
-    // ----------- >>
+    /**
+     * Cerca un contatto per identificativo.
+     *
+     * @param id identificativo del contatto
+     * @return il contatto, o un {@code Optional} vuoto se non esiste
+     */
     Optional<Contatto> trova(UUID id);
-    // ----------- << method.annotations@AAAAAAABS60H3gVdqMw= >>
-    // ----------- >>
+
+    /**
+     * Restituisce tutti i contatti, senza un ordine garantito.
+     *
+     * @return la lista dei contatti; vuota se non ce ne sono
+     */
     List<Contatto> tutti();
-    /**
-    * @param contatto
-    */
 
-    // ----------- << method.annotations@AAAAAAABP1ebqxw382w= >>
-    // ----------- >>
+    /**
+     * Salva un contatto nuovo.
+     *
+     * @param contatto contatto da salvare
+     */
     void aggiungi(Contatto contatto);
-    /**
-    * @param contatto
-    */
 
-    // ----------- << method.annotations@AAAAAAABnttFPzR3srA= >>
-    // ----------- >>
+    /**
+     * Aggiorna un contatto già salvato, sostituendo anche l'insieme dei suoi telefoni.
+     *
+     * @param contatto contatto con i dati aggiornati
+     */
     void aggiorna(Contatto contatto);
-// ----------- << interface.extras@AAAAAAABeXBJDBh67Cg= >>
-// ----------- >>
 }

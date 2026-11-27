@@ -5,91 +5,97 @@
 */
 package it.mpelettrica.mplan.persistence.repository;
 
-import java.util.*;
-import java.time.*;
+import static it.mpelettrica.mplan.persistence.jooq.Tables.ATTIVITA;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
+import it.mpelettrica.mplan.api.Attivita;
 import it.mpelettrica.mplan.core.repository.AttivitaRepository;
 import it.mpelettrica.mplan.persistence.infrastruttura.ContestoTransazione;
-// ----------- << imports@AAAAAAfQYv5BfWETeKdI >>
-// ----------- >>
+import it.mpelettrica.mplan.persistence.mapping.AttivitaMapper;
 
-// ----------- << class.annotations@AAAAAAfQYv5BfWETeKdI >>
-// ----------- >>
+/**
+ * Implementazione jOOQ di {@link AttivitaRepository}. Non ordina i risultati
+ * (lo fa il core) e non offre alcuna cancellazione.
+ */
 public class JooqAttivitaRepository implements AttivitaRepository {
-    // ----------- << attribute.annotations@AAAAAAdZVm89NavWUfYz >>
-    // ----------- >>
-    private ContestoTransazione contesto;
 
-    private ContestoTransazione getContesto() {
-        return contesto;
-    }
+    private final ContestoTransazione contesto;
 
     /**
-    * @param contesto
-    */
-
-    // ----------- << method.annotations@AAAAAAfjthcBT5jKRIDA >>
-    // ----------- >>
+     * Crea il repository.
+     *
+     * @param contesto contesto che fornisce il canale jOOQ corrente
+     */
     public JooqAttivitaRepository(ContestoTransazione contesto) {
-    // ----------- << method.body@AAAAAAfjthcBT5jKRIDA >>
-    // ----------- >>
+        this.contesto = contesto;
     }
-    /**
-    * @param id
-    */
 
+    /**
+     * Cerca un'attività per identificativo.
+     *
+     * @param id identificativo dell'attività
+     * @return l'attività, se esiste
+     */
     @Override
-    // ----------- << method.annotations@AAAAAAc4HpwT2AsbDTmO >>
-    // ----------- >>
     public Optional<Attivita> trova(UUID id) {
-    // ----------- << method.body@AAAAAAc4HpwT2AsbDTmO >>
-    // ----------- >>
+        return contesto.dslCorrente().selectFrom(ATTIVITA)
+                .where(ATTIVITA.ID.eq(id.toString()))
+                .fetchOptional()
+                .map(AttivitaMapper::daRecord);
     }
-    /**
-    * @param idContatto
-    */
 
+    /**
+     * Restituisce le attività di un contatto, senza ordine.
+     *
+     * @param idContatto identificativo del contatto
+     * @return le attività del contatto
+     */
     @Override
-    // ----------- << method.annotations@AAAAAAeSLvWzcUd4LVe1 >>
-    // ----------- >>
     public List<Attivita> perContatto(UUID idContatto) {
-    // ----------- << method.body@AAAAAAeSLvWzcUd4LVe1 >>
-    // ----------- >>
+        return contesto.dslCorrente().selectFrom(ATTIVITA)
+                .where(ATTIVITA.ID_CONTATTO.eq(idContatto.toString()))
+                .fetch(AttivitaMapper::daRecord);
     }
-    /**
-    * @param giorno
-    */
 
+    /**
+     * Restituisce le attività di un giorno, senza ordine.
+     *
+     * @param giorno giorno richiesto
+     * @return le attività del giorno
+     */
     @Override
-    // ----------- << method.annotations@AAAAAAfSglxNloECczWD >>
-    // ----------- >>
     public List<Attivita> perGiorno(LocalDate giorno) {
-    // ----------- << method.body@AAAAAAfSglxNloECczWD >>
-    // ----------- >>
+        return contesto.dslCorrente().selectFrom(ATTIVITA)
+                .where(ATTIVITA.DATA.eq(DateTimeFormatter.ISO_LOCAL_DATE.format(giorno)))
+                .fetch(AttivitaMapper::daRecord);
     }
-    /**
-    * @param attivita
-    */
 
+    /**
+     * Inserisce una nuova attività.
+     *
+     * @param attivita attività da inserire
+     */
     @Override
-    // ----------- << method.annotations@AAAAAAfG+8xpVm/s5Re4 >>
-    // ----------- >>
     public void aggiungi(Attivita attivita) {
-    // ----------- << method.body@AAAAAAfG+8xpVm/s5Re4 >>
-    // ----------- >>
+        contesto.dslCorrente().executeInsert(AttivitaMapper.aRecord(attivita));
     }
-    /**
-    * @param attivita
-    */
 
+    /**
+     * Aggiorna un'attività esistente.
+     *
+     * @param attivita attività con i dati aggiornati
+     * @throws IllegalArgumentException se l'attività non esiste
+     */
     @Override
-    // ----------- << method.annotations@AAAAAAcwz6HIgwWvoQnW >>
-    // ----------- >>
     public void aggiorna(Attivita attivita) {
-    // ----------- << method.body@AAAAAAcwz6HIgwWvoQnW >>
-    // ----------- >>
+        int modificate = contesto.dslCorrente().executeUpdate(AttivitaMapper.aRecord(attivita));
+        if (modificate == 0) {
+            throw new IllegalArgumentException("Attività inesistente: " + attivita.id());
+        }
     }
-// ----------- << class.extras@AAAAAAfQYv5BfWETeKdI >>
-// ----------- >>
 }
