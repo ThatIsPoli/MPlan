@@ -45,6 +45,10 @@ public class ElencoAttivita extends VerticalLayout {
 
     private static final String SENZA_ORA_AGENDA = "In giornata";
 
+    private static final int SOGLIA_LISTA_LUNGA = 12;
+
+    private static final int LUNGHEZZA_SNIPPET_MOTIVO = 90;
+
     private final Consumer<UUID> alClick;
 
     private final VirtualList<VoceElenco> lista;
@@ -67,20 +71,20 @@ public class ElencoAttivita extends VerticalLayout {
         setPadding(false);
         setSpacing(false);
         add(messaggioVuoto, lista);
-        expand(lista);
     }
 
     /**
      * Mostra lo storico di un contatto come una chat: le attivita' sono gia' ordinate dalla
      * piu' vecchia alla piu' recente e l'elenco si apre in fondo, sulle piu' recenti (FUN.9.1).
-     * Ogni riga mostra data, ora, titolo e stato (GUI.4.3).
+     * Ogni riga mostra data, ora, titolo (con eventuale motivo di annullamento) e stato (GUI.4.3).
      *
      * @param attivita le attivita' del contatto, nell'ordine dello storico; non {@code null}
      */
     public void mostraStorico(List<Attivita> attivita) {
         List<VoceElenco> voci = attivita.stream()
                 .map(a -> new VoceElenco(a.id(), a.stato(), LocalizzazioneDate.formattaData(a.data()),
-                        formattaOra(a, SENZA_ORA_STORICO), null, a.titolo()))
+                        formattaOra(a, SENZA_ORA_STORICO), a.ora() == null, null, a.titolo(),
+                        motivoSeAnnullata(a)))
                 .toList();
         impostaTipo("mplan-elenco-storico");
         mostra(voci, "Nessuna attività registrata per questo contatto.");
@@ -91,14 +95,15 @@ public class ElencoAttivita extends VerticalLayout {
 
     /**
      * Mostra le attivita' di un giorno: prima quelle senza orario, poi in ordine di orario.
-     * Ogni riga mostra ora, contatto, titolo e stato (GUI.7.1).
+     * Ogni riga mostra ora, contatto, titolo (con eventuale motivo di annullamento) e stato (GUI.7.1).
      *
      * @param voci le voci dell'agenda, nell'ordine dell'agenda; non {@code null}
      */
     public void mostraAgenda(List<VoceAgenda> voci) {
         List<VoceElenco> righe = voci.stream()
                 .map(v -> new VoceElenco(v.attivita().id(), v.attivita().stato(), null,
-                        formattaOra(v.attivita(), SENZA_ORA_AGENDA), v.nomeContatto(), v.attivita().titolo()))
+                        formattaOra(v.attivita(), SENZA_ORA_AGENDA), v.attivita().ora() == null,
+                        v.nomeContatto(), v.attivita().titolo(), motivoSeAnnullata(v.attivita())))
                 .toList();
         impostaTipo("mplan-elenco-agenda");
         mostra(righe, "Nessuna attività in questo giorno.");
@@ -125,6 +130,7 @@ public class ElencoAttivita extends VerticalLayout {
         testoVuoto.setText(testoSeVuoto);
         messaggioVuoto.setVisible(voci.isEmpty());
         lista.setVisible(!voci.isEmpty());
+        lista.setClassName("mplan-elenco-lungo", voci.size() > SOGLIA_LISTA_LUNGA);
         lista.setItems(voci);
     }
 
@@ -135,12 +141,36 @@ public class ElencoAttivita extends VerticalLayout {
             riga.addClassName("mplan-attivita-annullata");
         }
         aggiungiParte(riga, voce.data(), "mplan-riga-data");
-        aggiungiParte(riga, voce.ora(), "mplan-riga-ora");
+        aggiungiOra(riga, voce);
         aggiungiParte(riga, voce.contatto(), "mplan-riga-contatto");
-        aggiungiParte(riga, voce.titolo(), "mplan-riga-titolo");
+        aggiungiTitolo(riga, voce);
         riga.add(creaBadgeStato(voce.stato()));
         rendiAttivabile(riga, voce.idAttivita());
         return riga;
+    }
+
+    private static void aggiungiOra(Div riga, VoceElenco voce) {
+        Span ora = new Span(voce.ora());
+        ora.addClassName("mplan-riga-ora");
+        if (voce.senzaOra()) {
+            ora.addClassName("mplan-riga-ora-flessibile");
+        }
+        riga.add(ora);
+    }
+
+    private static void aggiungiTitolo(Div riga, VoceElenco voce) {
+        Div gruppo = new Div();
+        gruppo.addClassName("mplan-riga-titolo-gruppo");
+        Span titolo = new Span(voce.titolo());
+        titolo.addClassName("mplan-riga-titolo");
+        gruppo.add(titolo);
+        if (voce.motivoAnnullamento() != null && !voce.motivoAnnullamento().isBlank()) {
+            Span motivo = new Span("Motivo: " + troncaMotivo(voce.motivoAnnullamento()));
+            motivo.addClassName("mplan-riga-motivo");
+            motivo.getElement().setAttribute("title", voce.motivoAnnullamento());
+            gruppo.add(motivo);
+        }
+        riga.add(gruppo);
     }
 
     private void rendiAttivabile(Riga riga, UUID idAttivita) {
@@ -187,7 +217,26 @@ public class ElencoAttivita extends VerticalLayout {
         if (voce.contatto() != null) {
             testo.append(voce.contatto()).append(", ");
         }
-        return testo.append(voce.titolo()).append(", ").append(nomeStato(voce.stato())).toString();
+        testo.append(voce.titolo()).append(", ").append(nomeStato(voce.stato()));
+        if (voce.motivoAnnullamento() != null && !voce.motivoAnnullamento().isBlank()) {
+            testo.append(", motivo: ").append(voce.motivoAnnullamento());
+        }
+        return testo.toString();
+    }
+
+    private static String motivoSeAnnullata(Attivita attivita) {
+        if (attivita.stato() != StatoAttivita.ANNULLATA || attivita.motivoAnnullamento() == null) {
+            return null;
+        }
+        return attivita.motivoAnnullamento().strip();
+    }
+
+    private static String troncaMotivo(String motivo) {
+        String unaRiga = motivo.replaceAll("\\s+", " ").strip();
+        if (unaRiga.length() <= LUNGHEZZA_SNIPPET_MOTIVO) {
+            return unaRiga;
+        }
+        return unaRiga.substring(0, LUNGHEZZA_SNIPPET_MOTIVO).stripTrailing() + "…";
     }
 
     private static String formattaOra(Attivita attivita, String seAssente) {
@@ -216,7 +265,7 @@ public class ElencoAttivita extends VerticalLayout {
      * Dati gia' formattati di una riga dell'elenco; i campi {@code null} non vengono mostrati.
      */
     private record VoceElenco(UUID idAttivita, StatoAttivita stato, String data, String ora,
-            String contatto, String titolo) {
+            boolean senzaOra, String contatto, String titolo, String motivoAnnullamento) {
     }
 
     /**
