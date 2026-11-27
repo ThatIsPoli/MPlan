@@ -15,10 +15,10 @@ import com.vaadin.flow.component.HasValidation;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.card.Card;
-import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -44,6 +44,8 @@ import it.mpelettrica.mplan.api.StatoAttivita;
 import it.mpelettrica.mplan.api.ValidazioneException;
 import it.mpelettrica.mplan.ui.componenti.BarraStatoAttivita;
 import it.mpelettrica.mplan.ui.componenti.LocalizzazioneDate;
+import it.mpelettrica.mplan.ui.componenti.SelettoreData;
+import it.mpelettrica.mplan.ui.infrastruttura.LayoutPrincipale;
 import it.mpelettrica.mplan.ui.navigazione.Navigatore;
 
 /**
@@ -55,11 +57,11 @@ import it.mpelettrica.mplan.ui.navigazione.Navigatore;
  * (Tabella 8.1). Il titolo riporta il nome del contatto, cosi' si capisce di chi e' l'attivita'
  * anche aprendola dall'agenda.
  * La data proposta e' oggi (DAT.2.2); una data o un'ora scritte male bloccano il salvataggio con un
- * messaggio sul campo (DAT.2.3, DAT.5). Dopo il salvataggio, o con "Indietro", si torna alla
- * schermata di provenienza (Tabella 8.2).
+ * messaggio sul campo (DAT.2.3, DAT.5). Dopo il salvataggio, o con "Indietro" (presente sia
+ * nell'intestazione sia in fondo al form), si torna alla schermata di provenienza (Tabella 8.2).
  */
-@Route(Navigatore.ROTTA_NUOVA_ATTIVITA)
-@RouteAlias(Navigatore.ROTTA_ATTIVITA)
+@Route(value = Navigatore.ROTTA_NUOVA_ATTIVITA, layout = LayoutPrincipale.class)
+@RouteAlias(value = Navigatore.ROTTA_ATTIVITA, layout = LayoutPrincipale.class)
 @PageTitle("MPlan – Form attività")
 public class FormAttivitaView extends VerticalLayout implements BeforeEnterObserver {
 
@@ -79,7 +81,7 @@ public class FormAttivitaView extends VerticalLayout implements BeforeEnterObser
 
     private final TextField campoTitolo = new TextField("Titolo");
 
-    private final DatePicker campoData = new DatePicker("Data");
+    private final SelettoreData campoData;
 
     private final TextField campoOra = new TextField("Ora");
 
@@ -119,6 +121,7 @@ public class FormAttivitaView extends VerticalLayout implements BeforeEnterObser
         this.contattoService = contattoService;
         this.agendaService = agendaService;
         this.navigatore = navigatore;
+        this.campoData = new SelettoreData(agendaService::oggi);
         this.barraStato = new BarraStatoAttivita(attivitaService, this::aggiornaDopoCambioStato);
         this.btnSalva = new Button("Salva", evento -> salva());
         this.binder = new Binder<>();
@@ -314,8 +317,8 @@ public class FormAttivitaView extends VerticalLayout implements BeforeEnterObser
 
     private void configuraCampi() {
         campoTitolo.setRequiredIndicatorVisible(true);
-        LocalizzazioneDate.applica(campoData);
-        campoData.setHelperText("Se la lasci vuota, vale la data di oggi.");
+        campoData.setLabel("Data");
+        campoData.setHelperText("Formato gg/mm/aaaa. Se la lasci vuota, vale la data di oggi.");
         LocalizzazioneDate.applicaOra(campoOra);
         campoOra.setHelperText("Facoltativa, nel formato hh:mm.");
         campoDescrizione.setHelperText("Al massimo " + LUNGHEZZA_TESTO + " caratteri.");
@@ -325,7 +328,9 @@ public class FormAttivitaView extends VerticalLayout implements BeforeEnterObser
     private void configuraBinder() {
         binder.forField(campoTitolo).withNullRepresentation("")
                 .bind(DatiAttivita::getTitolo, DatiAttivita::setTitolo);
-        binder.forField(campoData).bind(DatiAttivita::getData, DatiAttivita::setData);
+        binder.forField(campoData)
+                .withValidator(data -> !campoData.haTestoNonValido(), LocalizzazioneDate.DATA_NON_VALIDA)
+                .bind(DatiAttivita::getData, DatiAttivita::setData);
         binder.forField(campoOra).withConverter(LocalizzazioneDate.convertitoreOra())
                 .bind(DatiAttivita::getOra, DatiAttivita::setOra);
         binder.forField(campoDescrizione).withNullRepresentation("")
@@ -335,8 +340,10 @@ public class FormAttivitaView extends VerticalLayout implements BeforeEnterObser
     }
 
     private HorizontalLayout creaIntestazione() {
+        Button indietro = new Button("Indietro", VaadinIcon.ARROW_LEFT.create(), evento -> tornaIndietro());
+        indietro.addThemeVariants(ButtonVariant.TERTIARY);
         titoloPagina.addClassName("mplan-titolo-pagina");
-        HorizontalLayout intestazione = new HorizontalLayout(titoloPagina);
+        HorizontalLayout intestazione = new HorizontalLayout(indietro, titoloPagina);
         intestazione.addClassName("mplan-toolbar");
         intestazione.setSpacing(false);
         intestazione.setAlignItems(FlexComponent.Alignment.CENTER);
